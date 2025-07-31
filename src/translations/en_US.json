@@ -1,0 +1,16 @@
+{
+  "Company": "WOG",
+  "Workspaces":"WORKSPACES",
+  "Spanish": "Spanish",
+  "English": "English",
+  "Email or Username": "Email or Username",
+	"Password": "Password",
+  "Enter your username or email address": "Enter your username or email address",
+  "Enter your password": "Enter your password",
+  "Logging In": "Logging In",
+  "Login": "Login",
+  "Remember Me": "Remember Me",
+  "Forgot Password": "Forgot Password",
+
+  "{{ component.name }}": ""
+}

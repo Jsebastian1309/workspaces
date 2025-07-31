@@ -1,0 +1,15 @@
+{
+	"Company": "WOG",
+	"Workspaces":"PROYECTOS",
+	"Spanish": "Español",
+	"English": "Inglés",
+	"Email or Username": "Correo electrónico o nombre de usuario",
+	"Password": "Contraseña",
+	"Enter your username or email address": "Ingrese su correo electrónico o nombre de usuario",
+	"Enter your password": "Ingrese su contraseña",
+	"Logging In": "Iniciando sesión",
+	"Login": "Iniciar sesión",
+	"Remember Me": "Recuérdame",
+	"Forgot Password": "¿Olvidaste tu contraseña?",
+	"{{ component.name }}": ""
+}
