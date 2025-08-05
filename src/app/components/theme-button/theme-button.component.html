@@ -1,0 +1,10 @@
+<button type="button" class="btn btn-icon"
+    id="dropdownLanguage" ngbDropdownToggle>
+    <i class="bi bi-translate"></i>
+</button>
+<div ngbDropdownMenu aria-labelledby="dropdownLanguage" class="dropdown-menu-xl-start">
+    <button ngbDropdownItem
+        (click)="changeLanguage('en-US')">English</button>
+    <button ngbDropdownItem
+        (click)="changeLanguage('es-CO')">Spanish</button>
+</div>

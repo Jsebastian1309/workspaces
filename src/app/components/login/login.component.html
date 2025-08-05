@@ -1,6 +1,14 @@
 <div class="container">
     <div class="card login-card">
         <div class="logo-section">
+            <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                <button (click)="toggleTheme()" class="btn btn-icon">
+                    <i [ngClass]="isDarkTheme ? 'bi bi-moon-fill' : 'bi bi-brightness-high-fill'"></i>
+                </button>
+                <div ngbDropdown class="d-inline-block">
+                    <app-theme-button></app-theme-button>
+                </div>
+            </div>
             <div class="logo" translate>Company</div>
             <div class="logo" translate>Workspaces</div>
         </div>
@@ -74,23 +82,5 @@
                 <span *ngIf="!isLoading">{{ 'Login' | translate }}</span>
             </button>
         </form>
-        <div ngbDropdown
-            class="d-inline-block w-100 text-center language-dropdown">
-            <button type="button" class="btn btn-fix" id="dropdownBasic1"
-                ngbDropdownToggle>
-                <i class="fas fa-language me-1"></i> {{ currentLanguage }}
-            </button>
-            <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                <button ngbDropdownItem translate
-                    (click)="changeLanguage('en-US')">
-                    English
-                </button>
-                <button ngbDropdownItem translate
-                    (click)="changeLanguage('es-CO')">
-                    Spanish
-                </button>
-
-            </div>
-        </div>
     </div>
 </div>

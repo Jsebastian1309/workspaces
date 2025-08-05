@@ -1,0 +1,56 @@
+.color-nav {
+  background: var(--nav-bg);
+  color: var(--nav-color);
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+
+  input {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    background-color: var(--nav-bg);
+    color: var(--nav-color);
+
+    &::placeholder {
+      color: #aaa;
+    }
+  }
+
+  button {
+    border: none;
+
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+  }
+}
+
+.btn-icon {
+  background: var(--nav-bg);
+  color: var(--nav-color);
+  border: none;
+  padding: 0.5rem;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+}

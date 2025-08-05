@@ -1,0 +1,74 @@
+<div class="sidebar">
+  <div class="sidebar-header">
+   <div ngbDropdown class="workspace-dropdown">
+      <button type="button" class="btn workspace-btn" id="dropdownWorkspace" ngbDropdownToggle>
+        <div class="avatar" [style.background-color]="selectedspace?.color">
+          {{ selectedspace?.icono || obtenerAvatar(selectedspace?.nombre) }}
+        </div>
+        <span class="workspace-name">{{ selectedspace?.nombre}}</span>
+      </button>
+      <div ngbDropdownMenu aria-labelledby="dropdownWorkspace">
+        <div class="dropdown-header" *ngIf="selectedspace">
+          <span class="workspace-name">{{ selectedspace.nombre }}</span>
+        </div>
+        <div class="dropdown-divider" *ngIf="selectedspace"></div>
+        
+        <div *ngFor="let espacio of spacesWork">
+          <button ngbDropdownItem (click)="seleccionarEspacio(espacio)" 
+                  [class.active]="selectedspace?.identificador === espacio.identificador">
+            <div class="d-flex align-items-center">
+              <div class="avatar-small me-2" [style.background-color]="espacio.color">
+                {{ espacio.icono || obtenerAvatar(espacio.nombre) }}
+              </div>
+              <div>
+                <div class="workspace-name-small">{{ espacio.nombre }}</div>
+                <div class="workspace-category">{{ espacio.categoria }}</div>
+              </div>
+            </div>
+          </button>
+        </div>
+        
+        <div class="dropdown-divider"></div>
+        <button ngbDropdownItem translate>
+          <i class="bi bi-gear-fill me-2"></i> Settings
+        </button>
+        <button ngbDropdownItem translate>
+          <i class="bi bi-people-fill me-2"></i> Manage Users
+        </button>
+        <div class="dropdown-divider"></div>
+        <button ngbDropdownItem class="create-workspace-btn" (click)="openCreateWorkspaceModal()">
+          <i class="bi bi-plus-circle me-2"></i> Create Workspace
+        </button>
+      </div>
+    </div>
+  </div>
+  <ul class="sidebar-menu">
+    <li translate><i class="bi bi-house-door"></i> Home</li>
+    <li translate><i class="bi bi-inbox"></i> Inbox</li>
+    <li translate><i class="bi bi-kanban"></i> Dashboards</li>
+    <li translate><i class="bi bi-three-dots"></i> More</li>
+  </ul>
+  <div class="sidebar-section">
+    <span class="section-title" translate>Favorites</span>
+  </div>    
+<div class="sidebar-section d-flex align-items-center justify-content-between">
+  <span class="section-title" translate>Spaces</span>
+  <i class="bi bi-plus create-space-btn" (click)="openCreateSpaceModal()" title="Create Space"></i>
+</div>
+<tree 
+      [tree]="tree"
+      [settings]="settings"
+      (nodeRemoved)="handleRemoved($event)"
+      (nodeRenamed)="handleRenamed($event)"
+      (nodeSelected)="handleSelected($event)"
+      (nodeMoved)="handleMoved($event)"
+      (nodeCreated)="handleCreated($event)"
+      (nodeExpanded)="handleExpanded($event)"
+      (nodeCollapsed)="handleCollapsed($event)"
+      (loadNextLevel)="handleNextLevel($event)">
+</tree>
+  <div class="sidebar-footer">
+    <button class="invite-btn">Invite</button>
+    <button class="help-btn">Help</button>
+  </div>
+</div>

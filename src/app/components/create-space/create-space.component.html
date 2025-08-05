@@ -1,0 +1,9 @@
+<div class="modal-content">
+  <h2>{{ title }}</h2>
+  <form (ngSubmit)="createSpace()">
+    <label for="spaceName">Space Name:</label>
+    <input id="spaceName" type="text" [(ngModel)]="spaceName" name="spaceName" required />
+    <button type="submit" class="btn btn-success">Create</button>
+    <button type="button" class="btn btn-danger" (click)="closeModal()">Cancel</button>
+  </form>
+</div>

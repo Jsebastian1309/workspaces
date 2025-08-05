@@ -12,6 +12,7 @@ import { AuthService } from 'src/app/service/AuthService.service';
 export class LoginComponent implements OnInit {
 
   public currentLanguage: string = '';
+  public isDarkTheme: boolean = false;
   username: string = '';
   password: string = '';
   errorMessage: string = '';
@@ -60,4 +61,10 @@ export class LoginComponent implements OnInit {
       }
     });
   }
+
+  toggleTheme() {
+    this.isDarkTheme = !this.isDarkTheme;
+    document.body.classList.toggle('dark-theme', this.isDarkTheme);
+  }
+
 }
