@@ -15,7 +15,7 @@ export class WorkspaceService {
     constructor(private http: HttpClient, private authService: AuthService) { }
 
     /**
-     * Crear headers con token de autorización
+     * Crear headers con token de autorización y información del usuario
      */
     private createHeaders(): HttpHeaders {
         const token = this.authService.getKeycloakToken();
@@ -49,6 +49,18 @@ export class WorkspaceService {
      */
     CreateWorkSpace(workspace: any): Observable<any> {
         const headers = this.createHeaders();
-        return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, workspace, { headers });
+        
+        // Obtener información del usuario logueado
+        const currentUser = this.authService.getCurrentUser();
+        
+        // Preparar el objeto con la información del usuario y organizacion
+        const workspaceData = {
+            ...workspace,
+            usuario_creacion: currentUser?.username || 'unknown',
+            organizacion_id: currentUser?.organizacion_id || workspace.organizacion_id,
+            cliente_id: currentUser?.cliente_id || workspace.cliente_id
+        };
+        
+        return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, workspaceData, { headers });
     }
 }

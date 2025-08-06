@@ -1,13 +1,14 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../../service/AuthService.service';
 
 @Component({
   selector: 'app-create-workspace',
   templateUrl: './create-workspace.component.html',
   styleUrls: ['./create-workspace.component.scss']
 })
-export class CreateWorkspaceComponent {
+export class CreateWorkspaceComponent implements OnInit {
   @Input() title: string = 'Create New Workspace';
   
   workspaceForm: FormGroup;
@@ -18,18 +19,22 @@ export class CreateWorkspaceComponent {
   
   constructor(
     public activeModal: NgbActiveModal,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private authService: AuthService
   ) {
+    // Obtener información del usuario logueado
+    const currentUser = this.authService.getCurrentUser();
+    
     this.workspaceForm = this.formBuilder.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       categoria: ['', Validators.required],
-      organizacion_id: ['WOG', Validators.required],
-      cliente_id: ['', Validators.required],
+      organizacion_id: [currentUser?.organizacion_id || 'WOG', Validators.required],
+      cliente_id: [currentUser?.cliente_id || '', Validators.required],
       color: ['Blue', Validators.required],
       icono: ['', Validators.required],
       publico: [true],
       estado: ['Activo'],
-      usuario_creacion: ['user01'] // Este debería venir del usuario logueado
+      usuario_creacion: [currentUser?.username || 'unknown'] // Automaticamente del usuario logueado
     });
   }
 
