@@ -1,6 +1,8 @@
 .modal-header {
   border-bottom: 1px solid #e9ecef;
   padding: 1rem 1.5rem;
+  background-color: var(--background-color);
+  color: var(--text-color);
   
   .modal-title {
     font-weight: 600;
@@ -8,13 +10,7 @@
   }
   
   .btn-close {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    opacity: 0.5;
-    
-
+    color:var(--nav-color);
   }
 }
 
@@ -22,6 +18,8 @@
   padding: 1.5rem;
   max-height: 70vh;
   overflow-y: auto;
+  background-color: var(--background-color);
+  color: var(--text-color);
   
   .form-label {
     font-weight: 500;
@@ -99,6 +97,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+  background-color: var(--background-color);
   
   .btn {
     border-radius: 6px;
@@ -145,4 +144,5 @@
       margin-bottom: 0.5rem;
     }
   }
+
 }
