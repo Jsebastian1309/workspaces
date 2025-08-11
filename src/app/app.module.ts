@@ -16,6 +16,14 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { CreateSpaceComponent } from './components/create-space/create-space.component';
 import { CreateWorkspaceComponent } from './components/create-workspace/create-workspace.component';
 import { ThemeButtonComponent } from './components/theme-button/theme-button.component';
+import { SpacesTreeComponent } from './components/spaces-tree/spaces-tree.component';
+
+// Angular Material imports
+import { MatTreeModule } from '@angular/material/tree';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -26,7 +34,8 @@ import { ThemeButtonComponent } from './components/theme-button/theme-button.com
     SidebarComponent,
     CreateSpaceComponent,
     CreateWorkspaceComponent,
-    ThemeButtonComponent
+    ThemeButtonComponent,
+    SpacesTreeComponent
   ],
   imports: [
     BrowserModule,
@@ -37,7 +46,12 @@ import { ThemeButtonComponent } from './components/theme-button/theme-button.com
     HttpClientModule,
     TranslateModule.forRoot(),
     NgbModule,
-    
+    // Angular Material modules
+    MatTreeModule,
+    MatIconModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatTooltipModule
   ],
   providers: [I18nService],
   bootstrap: [AppComponent]

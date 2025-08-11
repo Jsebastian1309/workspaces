@@ -1,9 +1,157 @@
-<div class="modal-content">
-  <h2>{{ title }}</h2>
-  <form (ngSubmit)="createSpace()">
-    <label for="spaceName">Space Name:</label>
-    <input id="spaceName" type="text" [(ngModel)]="spaceName" name="spaceName" required />
-    <button type="submit" class="btn btn-success">Create</button>
-    <button type="button" class="btn btn-danger" (click)="closeModal()">Cancel</button>
+<div class="modal-header">
+  <h4 class="modal-title">{{ title }}</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="onCancel()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="workspace-info" *ngIf="espacioTrabajoSeleccionado">
+    <div class="d-flex align-items-center mb-3 p-2 bg-light rounded">
+      <div class="workspace-avatar me-2" [style.background-color]="espacioTrabajoSeleccionado.color">
+        {{ espacioTrabajoSeleccionado.icono }}
+      </div>
+      <div>
+        <small class="text-muted">Creating space in:</small>
+        <br>
+        <strong>{{ espacioTrabajoSeleccionado.nombre }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <form [formGroup]="spaceForm" (ngSubmit)="onSubmit()">
+    <!-- Nombre del Space -->
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Space Name *</label>
+      <input
+        type="text"
+        id="nombre"
+        class="form-control"
+        formControlName="nombre"
+        placeholder="Ej: Marketing Team"
+        [class.is-invalid]="hasError('nombre')"
+      />
+      <div class="invalid-feedback" *ngIf="hasError('nombre', 'required')">
+        El nombre es obligatorio
+      </div>
+      <div class="invalid-feedback" *ngIf="hasError('nombre', 'minlength')">
+        El nombre debe tener al menos 3 caracteres
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="mb-3">
+      <label for="descripcion" class="form-label">Description</label>
+      <textarea
+        id="descripcion"
+        class="form-control"
+        formControlName="descripcion"
+        placeholder="Brief description of this space..."
+        rows="3"
+      ></textarea>
+    </div>
+
+    <!-- Row para Categoría y Color -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="categoria" class="form-label">Category *</label>
+          <select
+            id="categoria"
+            class="form-select"
+            formControlName="categoria"
+            [class.is-invalid]="hasError('categoria')"
+          >
+            <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="icono" class="form-label">Icon *</label>
+          <input
+            type="text"
+            id="icono"
+            class="form-control"
+            formControlName="icono"
+            placeholder="Ej: M"
+            maxlength="2"
+            [class.is-invalid]="hasError('icono')"
+          />
+          <div class="form-text">Se auto-genera desde el nombre</div>
+          <div class="invalid-feedback" *ngIf="hasError('icono', 'required')">
+            El icono es obligatorio
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selector de Color -->
+    <div class="mb-3">
+      <label class="form-label">Color *</label>
+      <div class="color-picker">
+        <div class="color-options">
+          <div 
+            *ngFor="let color of colores" 
+            class="color-option"
+            [style.background-color]="color"
+            [class.selected]="spaceForm.get('color')?.value === color"
+            (click)="spaceForm.patchValue({color: color})"
+            title="{{ getColorName(color) }}"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista previa del space -->
+    <div class="mb-3">
+      <label class="form-label">Preview</label>
+      <div class="d-flex align-items-center">
+        <div 
+          class="space-preview me-3" 
+          [style.background-color]="spaceForm.get('color')?.value"
+        >
+          {{ spaceForm.get('icono')?.value || 'S' }}
+        </div>
+        <div>
+          <strong>{{ spaceForm.get('nombre')?.value || 'Space Name' }}</strong>
+          <br>
+          <small class="text-muted">{{ spaceForm.get('categoria')?.value }}</small>
+          <br>
+          <small class="text-muted" *ngIf="spaceForm.get('descripcion')?.value">
+            {{ spaceForm.get('descripcion')?.value }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Público -->
+    <div class="mb-3">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="publico"
+          formControlName="publico"
+        />
+        <label class="form-check-label" for="publico">
+          Public space
+        </label>
+        <div class="form-text">Public spaces can be viewed by other team members</div>
+      </div>
+    </div>
   </form>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="onCancel()">
+    Cancel
+  </button>
+  <button 
+    type="button" 
+    class="btn btn-primary" 
+    (click)="onSubmit()"
+    [disabled]="spaceForm.invalid || !espacioTrabajoSeleccionado"
+  >
+    <i class="bi bi-plus-circle me-2"></i>
+    Create Space
+  </button>
 </div>
