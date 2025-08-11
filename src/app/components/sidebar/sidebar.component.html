@@ -51,6 +51,11 @@
   <div class="sidebar-section">
     <span class="section-title" translate>Favorites</span>
   </div>    
+
+<!-- Nuevo Tree con Angular Material -->
+<app-spaces-tree [espacioTrabajoSeleccionado]="selectedspace"></app-spaces-tree>
+
+<!-- Tree viejo comentado
 <div class="sidebar-section d-flex align-items-center justify-content-between">
   <span class="section-title" translate>Spaces</span>
   <i class="bi bi-plus create-space-btn" (click)="openCreateSpaceModal()" title="Create Space"></i>
@@ -66,7 +71,7 @@
       (nodeExpanded)="handleExpanded($event)"
       (nodeCollapsed)="handleCollapsed($event)"
       (loadNextLevel)="handleNextLevel($event)">
-</tree>
+</tree> -->
   <div class="sidebar-footer">
     <button class="invite-btn">Invite</button>
     <button class="help-btn">Help</button>

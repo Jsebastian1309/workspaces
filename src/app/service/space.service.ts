@@ -32,15 +32,24 @@ export class WorkspaceService {
     /**
      * Listar todos los espacios de trabajo
      */
-    listWorkSpaces(): Observable<any[]> {
+    listSpaces(): Observable<any[]> {
         const headers = this.createHeaders();
         return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar`,{ headers });
     }
 
     /**
+     * Listar espacios por workspace específico
+     */
+    listSpacesByWorkspace(espacioTrabajoIdentificador: string): Observable<any[]> {
+        const headers = this.createHeaders();
+        // Usar el endpoint con parámetros de consulta para filtrar por workspace
+        return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar?espacioTrabajoIdentificador=${espacioTrabajoIdentificador}`, { headers });
+    }
+
+    /**
      * Buscar un espacio de trabajo por identificador
      */
-    SearchWorkSpace(identificador: string): Observable<any> {
+    Searchspace(identificador: string): Observable<any> {
         const headers = this.createHeaders();
         return this.http.get<any>(`${this.apiUrl}${this.baseUrl}/buscar/${identificador}`, { headers });
     }
@@ -48,7 +57,7 @@ export class WorkspaceService {
     /**
      * Crear un nuevo espacio de trabajo
      */
-    CreateWorkSpace(workspace: any): Observable<any> {
+    CreateSpace(workspace: any): Observable<any> {
         const headers = this.createHeaders();
         
         // Obtener información del usuario logueado

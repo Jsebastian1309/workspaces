@@ -1,46 +1,85 @@
-.modal-content {
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-  h2 {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    color: var(--text-color);
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+  
+  .modal-title {
+    font-weight: 600;
+    margin: 0;
   }
+  
+  .btn-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    opacity: 0.5;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
 
-  form {
-    display: flex;
-    flex-direction: column;
+.modal-body {
+  padding: 1.5rem;
 
-    label {
-      margin-bottom: 0.5rem;
+  .workspace-info {
+    .workspace-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-weight: bold;
+      color: white;
+      font-size: 14px;
     }
-
-    input {
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    button {
-      margin-right: 0.5rem;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-
-      &:first-child {
-        background: #4caf50;
-        color: #fff;
-      }
-
-      &:last-child {
-        background: #f44336;
-        color: #fff;
+  }
+  
+  .color-picker {
+    .color-options {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      
+      .color-option {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          transform: scale(1.1);
+        }
+        
+        &.selected {
+          border-color: #333;
+          transform: scale(1.15);
+        }
       }
     }
   }
+  
+  .space-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 18px;
+  }
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
