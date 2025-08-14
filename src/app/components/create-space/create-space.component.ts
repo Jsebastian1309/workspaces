@@ -10,13 +10,13 @@ import { WorkspaceService } from '../../service/space.service';
 })
 export class CreateSpaceComponent {
   @Input() title: string = 'Create New Space';
-  @Input() espacioTrabajoSeleccionado: any; // Workspace seleccionado
+  @Input() SelectedWorkspace: any; // Workspace seleccionado
   
   spaceForm: FormGroup;
   
-  // Opciones predefinidas
+
   categorias = ['Proyecto', 'Equipo', 'Personal', 'Cliente', 'Marketing', 'Desarrollo'];
-  colores = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#ff6348'];
+
   
   constructor(
     public activeModal: NgbActiveModal,
@@ -28,33 +28,25 @@ export class CreateSpaceComponent {
       descripcion: [''],
       categoria: ['Proyecto', Validators.required],
       color: ['#ff6b6b', Validators.required],
-      icono: ['', Validators.required],
+      icono: ['bi-house', Validators.required],
       publico: [true],
       estado: ['Activo']
     });
   }
 
   ngOnInit() {
-    // Auto-generar icono basado en el nombre
-    this.spaceForm.get('nombre')?.valueChanges.subscribe(nombre => {
-      if (nombre && nombre.length > 0) {
-        this.spaceForm.patchValue({
-          icono: nombre.charAt(0).toUpperCase()
-        });
-      }
-    });
-
-    console.log('Workspace seleccionado para el space:', this.espacioTrabajoSeleccionado);
+    console.log('Workspace seleccionado para el space:', this.SelectedWorkspace);
   }
 
   onSubmit() {
-    if (this.spaceForm.valid && this.espacioTrabajoSeleccionado) {
+    if (this.spaceForm.valid && this.SelectedWorkspace) {
       const spaceData = {
         ...this.spaceForm.value,
-        espacioTrabajoId: this.espacioTrabajoSeleccionado.id,
-        espacioTrabajoIdentificador: this.espacioTrabajoSeleccionado.identificador,
-        organizacionId: this.espacioTrabajoSeleccionado.organizacionId,
-        clienteId: this.espacioTrabajoSeleccionado.clienteId
+        // IDs del workspace seleccionado en camelCase
+        espacioTrabajoId: this.SelectedWorkspace.id || this.SelectedWorkspace.espacio_trabajo_id || null,
+        espacioTrabajoIdentificador: this.SelectedWorkspace.identificador || this.SelectedWorkspace.espacio_trabajo_identificador,
+        organizacionId: this.SelectedWorkspace.organizacionId || this.SelectedWorkspace.organizacion_id,
+        clienteId: this.SelectedWorkspace.clienteId || this.SelectedWorkspace.cliente_id
       };
       
       console.log('Creando space con datos:', spaceData);
@@ -77,7 +69,7 @@ export class CreateSpaceComponent {
         this.spaceForm.get(key)?.markAsTouched();
       });
 
-      if (!this.espacioTrabajoSeleccionado) {
+      if (!this.SelectedWorkspace) {
         console.error('No hay workspace seleccionado');
       }
     }
@@ -96,18 +88,9 @@ export class CreateSpaceComponent {
     return field ? field.invalid && field.touched : false;
   }
 
-  // Helper para obtener el valor del color en hexadecimal
-  getColorName(colorHex: string): string {
-    const colorMap: { [key: string]: string } = {
-      '#ff6b6b': 'Red',
-      '#4ecdc4': 'Teal', 
-      '#45b7d1': 'Blue',
-      '#96ceb4': 'Green',
-      '#feca57': 'Yellow',
-      '#ff9ff3': 'Pink',
-      '#54a0ff': 'Light Blue',
-      '#ff6348': 'Orange'
-    };
-    return colorMap[colorHex] || 'Custom';
+  // Color names helper is no longer needed; the picker shows selection.
+
+  obtenerInicial(nombre?: string): string {
+    return nombre ? nombre.charAt(0).toUpperCase() : 'W';
   }
 }

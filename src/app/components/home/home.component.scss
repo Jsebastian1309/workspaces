@@ -1,28 +1,17 @@
-.layout {
+.content {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
+  flex: 1;
+  overflow: hidden;
+  padding-top: var(--header-height);
 
-  app-header {
-    height: 64px; // Altura del header
+  app-sidebar {
+    width: 260px;
     flex-shrink: 0;
+    background-color: var(--sidebar-bg);
   }
-
-  .content {
-    display: flex;
-    flex: 1; // El contenido ocupa el resto del espacio
-    overflow: hidden;
-
-    app-sidebar {
-      width: 260px; // Ancho del sidebar
-      flex-shrink: 0;
-      background-color: var(--sidebar-bg);
-    }
-
-    .main-content {
-      flex: 1; // El contenido principal ocupa el resto del espacio
-      overflow-y: auto;
-      background-color: var(--background-color);
-    }
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--background-color);
   }
 }

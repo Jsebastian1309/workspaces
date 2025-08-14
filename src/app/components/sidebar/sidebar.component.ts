@@ -1,8 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CreateSpaceComponent } from '../create-space/create-space.component';
 import { CreateWorkspaceComponent } from '../create-workspace/create-workspace.component';
-import { TreeModel } from 'ng2-tree';
 import { WorkspaceService } from '../../service/workspace.service';
 
 @Component({
@@ -11,208 +9,39 @@ import { WorkspaceService } from '../../service/workspace.service';
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit {
+  @Input() workspaces: any[] = [];
+  @Input() selectedWorkspace: any = null;
+  @Output() viewChange = new EventEmitter<string>();
+  activeView = 'start';
+
   spacesWork: any[] = [];
   selectedspace: any = null;
-  tree: TreeModel = {
-    value: 'Everything',
-    settings: {
-      'static': false,
-      'leftMenu': true,
-      'rightMenu': true
-    },
-    children: [
-      {
-        value: 'Team Space',
-        settings: {
-          'static': false,
-          'leftMenu': true,
-          'rightMenu': true
-        },
-        children: [
-          { 
-            value: 'Project 1',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },
-                    { 
-            value: 'Project 1',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },
-                    { 
-            value: 'Project 1',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },
-                    { 
-            value: 'Project 1',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },
-                    { 
-            value: 'Project 1',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },
-                    { 
-            value: 'Project 1',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },
-                    { 
-            value: 'Project 1',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },          { 
-            value: 'Project 1',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },
 
-                    { 
-            value: 'Project 1',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },
-          { 
-            value: 'Project 2',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          },
-          { 
-            value: 'Project Notes',
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            }
-          }
-        ]
-      }
-    ]
-  };
-
-  settings = {
-    rootIsVisible: true
-  };
-
-  constructor(private modalService: NgbModal, private workspaceService: WorkspaceService) {}
+  constructor(
+    private modalService: NgbModal, 
+    private workspaceService: WorkspaceService
+  ) {}
 
   ngOnInit() {
-    this.cargarEspaciosTrabajo();
+    this.spacesWork = this.workspaces;
+    this.selectedspace = this.selectedWorkspace;
+  }
+  navigateTo(view: string) {
+    this.activeView = view;
+    this.viewChange.emit(view);
   }
 
-  cargarEspaciosTrabajo() {
-    this.workspaceService.listWorkSpaces().subscribe({
-      next: (espacios: any[]) => {
-        this.spacesWork = espacios;
-        console.log('Espacios de trabajo cargados:', this.spacesWork);
-        if (espacios.length > 0) {
-          this.selectedspace = espacios[0];
-        }
-      },
-      error: (error: any) => {
-        console.error('Error al cargar espacios de trabajo:', error);
-      }
-    });
+  ngOnChanges() {
+    this.spacesWork = this.workspaces;
+    this.selectedspace = this.selectedWorkspace;
   }
 
-  seleccionarEspacio(espacio: any) {
-    this.selectedspace = espacio;
+  selectSpace(space: any) {
+    this.selectedspace = space;
   }
 
-  obtenerAvatar(nombre: string): string {
-    return nombre ? nombre.charAt(0).toUpperCase() : 'W';
-  }
-
-  handleRemoved(e: any) {
-    console.log('Node removed:', e);
-  }
-
-  handleRenamed(e: any) {
-    console.log('Node renamed:', e);
-  }
-
-  handleSelected(e: any) {
-    console.log('Node selected:', e);
-  }
-
-  handleMoved(e: any) {
-    console.log('Node moved:', e);
-  }
-
-  handleCreated(e: any) {
-    console.log('Node created:', e);
-  }
-
-  handleExpanded(e: any) {
-    console.log('Node expanded:', e);
-  }
-
-  handleCollapsed(e: any) {
-    console.log('Node collapsed:', e);
-  }
-
-  handleNextLevel(e: any) {
-    console.log('Load next level:', e);
-  }
-
-  openCreateSpaceModal() {
-    const modalRef = this.modalService.open(CreateSpaceComponent, {
-      centered: true,
-      backdrop: 'static'
-    });
-
-    modalRef.componentInstance.title = 'Create New Space';
-
-    modalRef.result
-      .then((spaceName: string) => {
-        if (spaceName) {
-          const newSpace = {
-            value: spaceName,
-            settings: {
-              'static': false,
-              'leftMenu': true,
-              'rightMenu': true
-            },
-            children: []
-          };
-          this.tree.children?.push(newSpace);
-        }
-      })
-      .catch(() => {
-        console.log('Modal dismissed');
-      });
+  getAvatar(name: string): string {
+    return name.charAt(0).toUpperCase();
   }
 
   openCreateWorkspaceModal() {
@@ -221,9 +50,8 @@ export class SidebarComponent implements OnInit {
       backdrop: 'static',
       size: 'lg'
     });
-
     modalRef.componentInstance.title = 'Create New Workspace';
-
+    modalRef.componentInstance.isEditMode = false;
     modalRef.result
       .then((workspaceData: any) => {
         if (workspaceData) {
@@ -231,20 +59,73 @@ export class SidebarComponent implements OnInit {
         }
       })
       .catch(() => {
-        console.log('Create workspace modal dismissed');
+      });
+  }
+
+  openEditWorkspaceModal() {
+    if (!this.selectedspace) return;
+    
+    const modalRef = this.modalService.open(CreateWorkspaceComponent, {
+      centered: true,
+      backdrop: 'static',
+      size: 'lg'
+    });
+    modalRef.componentInstance.title = 'Edit Workspace';
+    modalRef.componentInstance.isEditMode = true;
+    modalRef.componentInstance.workspaceData = this.selectedspace;
+    
+    modalRef.result
+      .then((workspaceData: any) => {
+        if (workspaceData) {
+          this.editarWorkspace(workspaceData);
+        }
+      })
+      .catch(() => {
       });
   }
 
   crearNuevoWorkspace(workspaceData: any) {
     this.workspaceService.CreateWorkSpace(workspaceData).subscribe({
       next: (response: any) => {
-        console.log('Workspace creado exitosamente:', response);
-        this.cargarEspaciosTrabajo();
+        this.spacesWork.push(workspaceData);
+        this.selectedspace = workspaceData;
         alert('Workspace creado exitosamente!');
       },
       error: (error: any) => {
-        console.error('Error al crear workspace:', error);
-        alert('Error al crear el workspace. Por favor, intenta de nuevo.');
+        if (error.status === 200) {
+          this.spacesWork.push(workspaceData);
+          this.selectedspace = workspaceData;
+          alert('Workspace creado exitosamente!');
+        } else {
+          alert('Error al crear el workspace.');
+        }
+      }
+    });
+  }
+
+  editarWorkspace(workspaceData: any) {
+    this.workspaceService.UpdateWorkSpace(workspaceData).subscribe({
+      next: (response: any) => {
+        // Actualizar el workspace en la lista
+        const index = this.spacesWork.findIndex(space => space.identificador === workspaceData.identificador);
+        if (index !== -1) {
+          this.spacesWork[index] = workspaceData;
+          this.selectedspace = workspaceData;
+        }
+        alert('Workspace actualizado exitosamente!');
+      },
+      error: (error: any) => {
+        if (error.status === 200) {
+          // Actualizar el workspace en la lista
+          const index = this.spacesWork.findIndex(space => space.identificador === workspaceData.identificador);
+          if (index !== -1) {
+            this.spacesWork[index] = workspaceData;
+            this.selectedspace = workspaceData;
+          }
+          alert('Workspace actualizado exitosamente!');
+        } else {
+          alert('Error al actualizar el workspace.');
+        }
       }
     });
   }

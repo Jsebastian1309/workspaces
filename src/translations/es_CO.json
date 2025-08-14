@@ -1,6 +1,5 @@
 {
-	"Company": "WOG",
-	"Workspaces":"PROYECTOS",
+	"Company": "WORKI",
 	"Spanish": "Español",
 	"English": "Inglés",
 	"Email or Username": "Correo electrónico o nombre de usuario",
@@ -11,9 +10,12 @@
 	"Login": "Iniciar sesión",
 	"Remember Me": "Recuérdame",
 	"Forgot Password": "¿Olvidaste tu contraseña?",
+	"Logout": "Cerrar sesión",
+
 
 	"Profile": "Perfil",
-	"Logout": "Cerrar sesión",
+	"Search":"Buscar",
+	"Sign Out": "Cerrar sesión",
 
 	
 	"Create Workspace": "Crear Workspace",
@@ -45,6 +47,7 @@
 
 	"Color *": "Color *",
 	"Icon *": "Icono *",
+	"Select icon": "Seleccione un icono",
 	"The icon is required": "El icono es obligatorio",
 	"Preview": "Vista previa",
 	"Workspace Name": "Nombre del Workspace",

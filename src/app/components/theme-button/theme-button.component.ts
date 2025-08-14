@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { I18nService } from 'src/app/service/i18n.service';
 
 @Component({
@@ -6,25 +6,28 @@ import { I18nService } from 'src/app/service/i18n.service';
   templateUrl: './theme-button.component.html',
   styleUrls: ['./theme-button.component.scss']
 })
-export class ThemeButtonComponent {
-  public currentLanguage: string = '';
-  public isDarkTheme: boolean = false;
+export class ThemeButtonComponent implements OnInit {
+  isDarkTheme = false;
 
-  constructor(
-      private i18nService: I18nService,
-  ) { }
-
-
-  changeLanguage(langCode: string) {
-    this.currentLanguage = langCode;
-    this.i18nService.language = langCode;
+  ngOnInit(): void {
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      this.isDarkTheme = saved === 'dark';
+    } else {
+      this.isDarkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    this.applyTheme();
   }
-  
-  toggleTheme() {
+
+  toggleTheme(): void {
     this.isDarkTheme = !this.isDarkTheme;
-    document.body.classList.toggle('dark-theme', this.isDarkTheme);
+    localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
+    this.applyTheme();
   }
 
+  private applyTheme(): void {
+    const body = document.body;
+    body.classList.toggle('dark-theme', this.isDarkTheme);
+    body.classList.toggle('light-theme', !this.isDarkTheme);
+  }
 }
-
-

@@ -1,8 +1,13 @@
-<div class="layout">
-  <app-header></app-header>
+<app-splash-screen *ngIf="isLoading"></app-splash-screen>
+<div *ngIf="!isLoading">
+  <header>
+    <app-header></app-header>
+  </header>
   <div class="content">
-    <app-sidebar></app-sidebar>
+    <app-sidebar [workspaces]="workspaces"
+      [selectedWorkspace]="selectedWorkspace"></app-sidebar>
     <div class="main-content">
+      <app-start *ngIf="currentView === 'start'"></app-start>
     </div>
   </div>
 </div>

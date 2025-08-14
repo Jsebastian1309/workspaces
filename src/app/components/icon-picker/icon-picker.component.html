@@ -1,0 +1,29 @@
+<div class="icon-picker-wrapper">
+  <label class="form-label">{{ label }} *</label>
+  <div class="picker-box" [class.invalid]="control?.touched && control?.invalid"
+    (click)="toggle()">
+    <div class="preview" *ngIf="control?.value; else choose">
+      <i [ngClass]="['bi', control?.value]"></i>
+      <span class="icon-name">{{ control?.value?.replace('bi-', '') }}</span>
+      <button type="button" class="btn-clear" (click)="clear($event)"
+        title="Remove icon">×</button>
+    </div>
+    <ng-template #choose>
+      <span class="placeholder">Select icon</span>
+    </ng-template>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="panel" *ngIf="open">
+    <input type="text" class="form-control form-control-sm mb-2"
+      placeholder="Search icon" [(ngModel)]="search"
+      [ngModelOptions]="{standalone:true}" (input)="filterIcons()" />
+    <div class="icon-grid">
+      <button type="button" *ngFor="let icon of filtered" (click)="select(icon)"
+        [title]="icon" class="icon-btn">
+        <i [ngClass]="['bi', icon]"></i>
+      </button>
+    </div>
+  </div>
+  <div class="invalid-feedback d-block"
+    *ngIf="control?.touched && control?.invalid">The icon is required</div>
+</div>

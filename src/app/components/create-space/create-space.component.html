@@ -1,18 +1,25 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="onCancel()"></button>
+  <button type="button" class="btn btn-icon" aria-label="Cerrar"
+    (click)="onCancel()">
+    <i class="bi bi-x-lg" aria-hidden="true"></i>
+  </button>
 </div>
 
 <div class="modal-body">
-  <div class="workspace-info" *ngIf="espacioTrabajoSeleccionado">
-    <div class="d-flex align-items-center mb-3 p-2 bg-light rounded">
-      <div class="workspace-avatar me-2" [style.background-color]="espacioTrabajoSeleccionado.color">
-        {{ espacioTrabajoSeleccionado.icono }}
+  <div class="workspace-info" *ngIf="SelectedWorkspace">
+    <div class="d-flex align-items-center mb-3 p-2  rounded">
+      <div class="workspace-avatar me-2"
+        [style.background-color]="SelectedWorkspace.color">
+        <ng-container *ngIf="SelectedWorkspace.icono; else wsInitial">
+          <i class="bi" [ngClass]="SelectedWorkspace.icono" aria-hidden="true"></i>
+        </ng-container>
+        <ng-template #wsInitial>{{ obtenerInicial(SelectedWorkspace?.nombre) }}</ng-template>
       </div>
       <div>
-        <small class="text-muted">Creating space in:</small>
+        <small class="text-form">Creating space in:</small>
         <br>
-        <strong>{{ espacioTrabajoSeleccionado.nombre }}</strong>
+        <strong>{{ SelectedWorkspace.nombre }}</strong>
       </div>
     </div>
   </div>
@@ -27,8 +34,7 @@
         class="form-control"
         formControlName="nombre"
         placeholder="Ej: Marketing Team"
-        [class.is-invalid]="hasError('nombre')"
-      />
+        [class.is-invalid]="hasError('nombre')" />
       <div class="invalid-feedback" *ngIf="hasError('nombre', 'required')">
         El nombre es obligatorio
       </div>
@@ -45,8 +51,7 @@
         class="form-control"
         formControlName="descripcion"
         placeholder="Brief description of this space..."
-        rows="3"
-      ></textarea>
+        rows="3"></textarea>
     </div>
 
     <!-- Row para Categoría y Color -->
@@ -58,65 +63,42 @@
             id="categoria"
             class="form-select"
             formControlName="categoria"
-            [class.is-invalid]="hasError('categoria')"
-          >
-            <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+            [class.is-invalid]="hasError('categoria')">
+            <option *ngFor="let cat of categorias" [value]="cat">{{ cat
+              }}</option>
           </select>
         </div>
       </div>
       <div class="col-md-6">
-        <div class="mb-3">
-          <label for="icono" class="form-label">Icon *</label>
-          <input
-            type="text"
-            id="icono"
-            class="form-control"
-            formControlName="icono"
-            placeholder="Ej: M"
-            maxlength="2"
-            [class.is-invalid]="hasError('icono')"
-          />
-          <div class="form-text">Se auto-genera desde el nombre</div>
-          <div class="invalid-feedback" *ngIf="hasError('icono', 'required')">
-            El icono es obligatorio
-          </div>
-        </div>
+        <app-icon-picker formControlName="icono" label="Icon"></app-icon-picker>
       </div>
     </div>
 
     <!-- Selector de Color -->
     <div class="mb-3">
-      <label class="form-label">Color *</label>
-      <div class="color-picker">
-        <div class="color-options">
-          <div 
-            *ngFor="let color of colores" 
-            class="color-option"
-            [style.background-color]="color"
-            [class.selected]="spaceForm.get('color')?.value === color"
-            (click)="spaceForm.patchValue({color: color})"
-            title="{{ getColorName(color) }}"
-          ></div>
-        </div>
-      </div>
+      <app-color-picker formControlName="color" label="Color"></app-color-picker>
     </div>
 
     <!-- Vista previa del space -->
     <div class="mb-3">
       <label class="form-label">Preview</label>
       <div class="d-flex align-items-center">
-        <div 
-          class="space-preview me-3" 
-          [style.background-color]="spaceForm.get('color')?.value"
-        >
-          {{ spaceForm.get('icono')?.value || 'S' }}
+        <div class="space-preview me-3"
+          [style.background-color]="spaceForm.get('color')?.value">
+          <ng-container
+            *ngIf="spaceForm.get('icono')?.value as bi; else initialIcon">
+            <i class="bi" [ngClass]="bi"></i>
+          </ng-container>
+          <ng-template #initialIcon>{{ (spaceForm.get('nombre')?.value ||
+            'S').charAt(0) }}</ng-template>
         </div>
         <div>
           <strong>{{ spaceForm.get('nombre')?.value || 'Space Name' }}</strong>
           <br>
-          <small class="text-muted">{{ spaceForm.get('categoria')?.value }}</small>
+          <span class="form-text m-0">{{ spaceForm.get('categoria')?.value
+            }}</span>
           <br>
-          <small class="text-muted" *ngIf="spaceForm.get('descripcion')?.value">
+          <small class="form-text" *ngIf="spaceForm.get('descripcion')?.value">
             {{ spaceForm.get('descripcion')?.value }}
           </small>
         </div>
@@ -130,12 +112,12 @@
           class="form-check-input"
           type="checkbox"
           id="publico"
-          formControlName="publico"
-        />
+          formControlName="publico" />
         <label class="form-check-label" for="publico">
           Public space
         </label>
-        <div class="form-text">Public spaces can be viewed by other team members</div>
+        <div class="form-text">Public spaces can be viewed by other team
+          member</div>
       </div>
     </div>
   </form>
@@ -145,12 +127,11 @@
   <button type="button" class="btn btn-secondary" (click)="onCancel()">
     Cancel
   </button>
-  <button 
-    type="button" 
-    class="btn btn-primary" 
+  <button
+    type="button"
+    class="btn btn-primary"
     (click)="onSubmit()"
-    [disabled]="spaceForm.invalid || !espacioTrabajoSeleccionado"
-  >
+    [disabled]="spaceForm.invalid || !SelectedWorkspace">
     <i class="bi bi-plus-circle me-2"></i>
     Create Space
   </button>
