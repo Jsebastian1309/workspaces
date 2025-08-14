@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -34,6 +35,7 @@ import { CreateListComponent } from './components/create-list/create-list.compon
 import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
 import { StartComponent } from './components/start/start.component';
 import { InboxComponent } from './components/inbox/inbox.component';
+import { ListViewComponent } from './components/list-view/list-view.component';
 
 @NgModule({
   declarations: [
@@ -53,10 +55,12 @@ import { InboxComponent } from './components/inbox/inbox.component';
     CreateListComponent,
     SplashScreenComponent,
     StartComponent,
-    InboxComponent
+  InboxComponent,
+  ListViewComponent
   ],
   imports: [
     BrowserModule,
+  BrowserAnimationsModule,
     TreeModule,
     FormsModule,
     ReactiveFormsModule,

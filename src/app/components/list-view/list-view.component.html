@@ -1,0 +1,14 @@
+<div class="list-view" *ngIf="list; else empty">
+  <h2 class="title">{{ list.nombre }}</h2>
+  <p class="desc" *ngIf="list.descripcion">{{ list.descripcion }}</p>
+  <div class="meta">
+    <span>ID: {{ list.identificador || list.id }}</span>
+  </div>
+  <!-- Aquí luego irán las tareas dentro de la lista -->
+  <div class="placeholder">Tasks will appear here…</div>
+</div>
+<ng-template #empty>
+  <div class="list-view empty">
+    <p>Select a list to view details</p>
+  </div>
+</ng-template>

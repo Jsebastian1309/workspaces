@@ -67,7 +67,7 @@
   <div class="sidebar-section">
     <span class="section-title" translate>Favorites</span>
   </div>
-  <app-spaces-tree [SelectedWorkspace]="selectedspace"></app-spaces-tree>
+  <app-spaces-tree [SelectedWorkspace]="selectedspace" (listSelected)="onListSelected($event)"></app-spaces-tree>
   <div class="sidebar-footer">
     <button class="invite-btn">Invite</button>
     <button class="help-btn">Help</button>

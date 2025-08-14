@@ -5,9 +5,11 @@
   </header>
   <div class="content">
     <app-sidebar [workspaces]="workspaces"
-      [selectedWorkspace]="selectedWorkspace"></app-sidebar>
+      [selectedWorkspace]="selectedWorkspace"
+      (listSelected)="onListSelected($event)"></app-sidebar>
     <div class="main-content">
       <app-start *ngIf="currentView === 'start'"></app-start>
+      <app-list-view *ngIf="currentView === 'list-view'" [list]="selectedList"></app-list-view>
     </div>
   </div>
 </div>
