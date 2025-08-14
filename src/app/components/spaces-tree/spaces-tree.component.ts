@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -8,12 +8,14 @@ import { FolderService } from '../../service/folder.service';
 import { CreateFolderComponent } from '../create-folder/create-folder.component';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
+import { ListService } from '../../service/list.service';
+import { CreateListComponent } from '../create-list/create-list.component';
 
 interface SpaceNode {
   id?: number;
   identificador?: string;
   nombre: string;
-  tipo: 'space' | 'folder' | 'task';
+  tipo: 'space' | 'folder' | 'list' | 'task';
   color?: string;
   icono?: string;
   descripcion?: string;
@@ -29,6 +31,7 @@ interface SpaceNode {
 })
 export class SpacesTreeComponent implements OnInit {
   @Input() SelectedWorkspace: any;
+  @Output() listSelected = new EventEmitter<any>();
 
   treeControl = new NestedTreeControl<SpaceNode>(node => node.children);
   dataSource = new MatTreeNestedDataSource<SpaceNode>();
@@ -40,7 +43,8 @@ export class SpacesTreeComponent implements OnInit {
   constructor(
     private modalService: NgbModal,
     private workspaceService: WorkspaceService,
-    private folderService: FolderService
+  private folderService: FolderService,
+  private listService: ListService
   ) {}
 
   ngOnInit() {
@@ -113,8 +117,9 @@ export class SpacesTreeComponent implements OnInit {
       .subscribe({
         next: ({ baseNodes, results }) => {
           // Adjuntar folders a cada space
+          const allFolderNodes: SpaceNode[] = [];
           for (const { spaceNode, folders } of results || []) {
-            spaceNode.children = (folders || []).map((f: any) => ({
+            const folderNodes = (folders || []).map((f: any) => ({
               id: f.id,
               identificador: f.identificador,
               nombre: f.nombre,
@@ -123,19 +128,60 @@ export class SpacesTreeComponent implements OnInit {
               icono: 'folder',
               descripcion: f.descripcion,
               espacioTrabajoIdentificador: f.espacioTrabajoIdentificador,
-              expandable: true
+              expandable: true,
+              children: []
             }));
+            spaceNode.children = folderNodes;
+            allFolderNodes.push(...folderNodes);
           }
-          this.dataSource.data = baseNodes;
-          this.isLoading = false;
-          // Reset expansion state if needed when data reloads
-          const existing = new Set(this.expandedSpaces);
-          this.expandedSpaces.clear();
-          // Keep expanded if still present by key
-          for (const space of baseNodes) {
-            const key = this.getKey(space);
-            if (existing.has(key)) this.expandedSpaces.add(key);
+
+          // Si no hay carpetas, establecemos data y terminamos
+          if (!allFolderNodes.length) {
+            this.dataSource.data = baseNodes;
+            this.isLoading = false;
+            this._restoreExpansion(baseNodes);
+            return;
           }
+
+          // Cargar listas para cada carpeta por carpetaIdentificador
+          const listCalls = allFolderNodes.map(folderNode =>
+            this.listService.searchListsFiltered(folderNode.identificador || '').pipe(
+              map((resp: any) => {
+                const lists = Array.isArray(resp)
+                  ? resp
+                  : (resp?.proyListaList || resp?.data || resp?.lista || resp?.content || resp?.items || []);
+                return { folderNode, lists };
+              }),
+              catchError(err => {
+                console.warn('Error cargando listas para carpeta', folderNode.identificador, err);
+                return of({ folderNode, lists: [] });
+              })
+            )
+          );
+
+          forkJoin(listCalls).subscribe({
+            next: (pairs) => {
+              for (const { folderNode, lists } of pairs) {
+                folderNode.children = (lists || []).map((l: any) => ({
+                  id: l.id,
+                  identificador: l.identificador,
+                  nombre: l.nombre,
+                  tipo: 'list' as const,
+                  descripcion: l.descripcion,
+                  expandable: false
+                }));
+              }
+              this.dataSource.data = baseNodes;
+              this.isLoading = false;
+              this._restoreExpansion(baseNodes);
+            },
+            error: (err) => {
+              console.error('Error al cargar listas:', err);
+              this.dataSource.data = baseNodes;
+              this.isLoading = false;
+              this._restoreExpansion(baseNodes);
+            }
+          });
         },
         error: (error) => {
           console.error('Error al cargar spaces/folders:', error);
@@ -177,6 +223,9 @@ export class SpacesTreeComponent implements OnInit {
     console.log('Nodo clickeado:', node);
   this.selectedKey = this.getKey(node);
   // TODO: Implementar lógica para abrir/editar el nodo
+  if (node.tipo === 'list') {
+    this.listSelected.emit(node);
+  }
   }
 
   onAddSpace() {
@@ -237,9 +286,28 @@ export class SpacesTreeComponent implements OnInit {
       .catch(() => console.log('Create folder modal dismissed'));
   }
 
-  onAddTask(parentNode: SpaceNode) {
-    console.log('Agregar tarea a:', parentNode);
-    // TODO: Implementar agregar tarea
+  // onAddTask removido por ahora; tareas irán dentro de las listas
+
+  onAddList(folderNode: SpaceNode) {
+    console.log('Agregar lista a carpeta:', folderNode);
+    const modalRef = this.modalService.open(CreateListComponent, {
+      centered: true,
+      backdrop: 'static',
+      size: 'md'
+    });
+    modalRef.componentInstance.title = 'Create New List';
+    modalRef.componentInstance.SelectedWorkspace = this.SelectedWorkspace;
+    modalRef.componentInstance.SelectedSpace = undefined; // opcional
+    modalRef.componentInstance.SelectedFolder = folderNode;
+
+    modalRef.result
+      .then((result: any) => {
+        if (result) {
+          // Tras crear, recargar arbol
+          this.cargarSpaces();
+        }
+      })
+      .catch(() => console.log('Create list modal dismissed'));
   }
 
   onEditNode(node: SpaceNode) {
@@ -270,4 +338,18 @@ export class SpacesTreeComponent implements OnInit {
   onSelectEverything() {
     this.selectedKey = 'everything';
   }
+
+  private _restoreExpansion(baseNodes: SpaceNode[]) {
+    const existing = new Set(this.expandedSpaces);
+    this.expandedSpaces.clear();
+    for (const space of baseNodes) {
+      const key = this.getKey(space);
+      if (existing.has(key)) this.expandedSpaces.add(key);
+    }
+  }
+
+  // trackBy helpers to reduce re-renders and avoid portal host reuse issues
+  trackBySpace = (_: number, node: SpaceNode) => node.identificador || node.id || node.nombre;
+  trackByFolder = (_: number, node: SpaceNode) => `f:${node.identificador || node.id || node.nombre}`;
+  trackByList = (_: number, node: SpaceNode) => `l:${node.identificador || node.id || node.nombre}`;
 }

@@ -11,6 +11,7 @@ export class HomeComponent {
   workspaces: any[] = [];
   selectedWorkspace: any = null;
   currentView = 'start';
+  selectedList: any = null;
 
   constructor(private workspaceService: WorkspaceService) {}
 
@@ -19,6 +20,11 @@ export class HomeComponent {
   }
   onViewChange(view: string) {
     this.currentView = view;
+  }
+
+  onListSelected(list: any) {
+    this.selectedList = list;
+    this.currentView = 'list-view';
   }
 
   loadWorkspaces() {

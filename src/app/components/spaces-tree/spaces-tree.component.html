@@ -68,12 +68,9 @@
               <span class="label">{{ folder.nombre }}</span>
             </div>
             <div class="right" (click)="$event.stopPropagation()">
-              <button mat-icon-button class="action-btn add-btn" [matMenuTriggerFor]="folderAddMenu" title="Add item">
+              <button mat-icon-button class="action-btn add-btn" (click)="onAddList(folder)" title="Add list">
                 <mat-icon>add</mat-icon>
               </button>
-              <mat-menu #folderAddMenu="matMenu">
-                <button mat-menu-item (click)="onAddTask(folder)"><mat-icon>task_alt</mat-icon><span>Add Task</span></button>
-              </mat-menu>
               <button mat-icon-button class="action-btn more-btn" [matMenuTriggerFor]="folderMenu" title="More options">
                 <mat-icon>more_horiz</mat-icon>
               </button>
@@ -81,6 +78,21 @@
                 <button mat-menu-item (click)="onEditNode(folder)"><mat-icon>edit</mat-icon><span>Edit</span></button>
                 <button mat-menu-item (click)="onDeleteNode(folder)" class="delete-option"><mat-icon>delete</mat-icon><span>Delete</span></button>
               </mat-menu>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lists under each folder -->
+        <div *ngIf="isExpanded(space)" class="children">
+          <div class="row-item child" *ngFor="let folder of space.children">
+            <div class="children" *ngIf="folder.children && folder.children.length">
+              <div class="row-item child" *ngFor="let list of folder.children" (click)="onNodeClick(list)"
+                   [class.is-selected]="selectedKey === getKey(list)">
+                <div class="left">
+                  <mat-icon class="prefix">format_list_bulleted</mat-icon>
+                  <span class="label">{{ list.nombre }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

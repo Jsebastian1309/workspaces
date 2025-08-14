@@ -12,6 +12,7 @@ export class SidebarComponent implements OnInit {
   @Input() workspaces: any[] = [];
   @Input() selectedWorkspace: any = null;
   @Output() viewChange = new EventEmitter<string>();
+  @Output() listSelected = new EventEmitter<any>();
   activeView = 'start';
 
   spacesWork: any[] = [];
@@ -38,6 +39,10 @@ export class SidebarComponent implements OnInit {
 
   selectSpace(space: any) {
     this.selectedspace = space;
+  }
+
+  onListSelected(list: any) {
+    this.listSelected.emit(list);
   }
 
   getAvatar(name: string): string {
