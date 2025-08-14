@@ -1,16 +1,25 @@
 .modal-header {
-  border-bottom: 1px solid #e9ecef;
-  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background-color: var(--background-color);
   color: var(--text-color);
-  
+
   .modal-title {
-    font-weight: 600;
+    color: var(--text-color);
     margin: 0;
   }
-  
-  .btn-close {
-    color:var(--nav-color);
+
+
+
+  .btn-icon {
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    color: var(--text-color);
+    background: transparent;
   }
 }
 

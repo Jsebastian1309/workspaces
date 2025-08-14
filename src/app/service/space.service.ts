@@ -1,3 +1,4 @@
+
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable, of } from "rxjs";
@@ -15,9 +16,6 @@ export class WorkspaceService {
 
     constructor(private http: HttpClient, private authService: AuthService) { }
 
-    /**
-     * Crear headers con token de autorización y información del usuario
-     */
     private createHeaders(): HttpHeaders {
         const token = this.authService.getKeycloakToken();
         let headers = new HttpHeaders({
@@ -29,21 +27,24 @@ export class WorkspaceService {
         return headers;
     }
 
-    /**
-     * Listar todos los espacios de trabajo
-     */
     listSpaces(): Observable<any[]> {
         const headers = this.createHeaders();
         return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar`,{ headers });
     }
 
-    /**
-     * Listar espacios por workspace específico
-     */
     listSpacesByWorkspace(espacioTrabajoIdentificador: string): Observable<any[]> {
         const headers = this.createHeaders();
-        // Usar el endpoint con parámetros de consulta para filtrar por workspace
         return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar?espacioTrabajoIdentificador=${espacioTrabajoIdentificador}`, { headers });
+    }
+
+
+    searchSpacesFiltered(espacioTrabajoIdentificador: string): Observable<any[]> {
+        const headers = this.createHeaders();
+        const body: any = {
+            espacioTrabajoIdentificador,
+            publico: true
+        };
+        return this.http.post<any[]>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers });
     }
 
     /**
@@ -72,13 +73,16 @@ export class WorkspaceService {
             identificador: identificador,
             nombre: workspace.nombre,
             categoria: workspace.categoria,
-            organizacionId: currentUser?.organizacion_id || workspace.organizacion_id,
-            clienteId: currentUser?.cliente_id || workspace.cliente_id,
+            organizacionId: currentUser?.organizacion_id,
+            clienteId: currentUser?.cliente_id,
             color: workspace.color,
             icono: workspace.icono,
             publico: workspace.publico,
             estado: workspace.estado,
-            usuario_creacion: currentUser?.username || 'unknown'
+            usuario_creacion: currentUser?.username,
+            // Identificadores del workspace padre
+            espacioTrabajoId:"10",
+            espacioTrabajoIdentificador: workspace.espacioTrabajoIdentificador,
         };
         
         console.log('Enviando datos al backend:', workspaceData);

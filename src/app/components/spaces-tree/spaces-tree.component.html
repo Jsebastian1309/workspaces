@@ -1,167 +1,107 @@
 <div class="spaces-tree-container">
-  <!-- Header del tree con botón de agregar space -->
   <div class="tree-header">
     <div class="d-flex justify-content-between align-items-center">
       <span class="section-title">Spaces</span>
-      <button 
-        mat-icon-button 
-        class="add-space-btn" 
-        (click)="onAddSpace()"
-        title="Add Space"
-        *ngIf="espacioTrabajoSeleccionado">
+      <button mat-icon-button class="btn" (click)="onAddSpace()" title="Add Space" *ngIf="SelectedWorkspace">
         <mat-icon>add</mat-icon>
       </button>
     </div>
   </div>
+  <hr>
 
-  <!-- Mensaje cuando no hay workspace seleccionado -->
-  <div class="no-workspace" *ngIf="!espacioTrabajoSeleccionado">
+  <div class="no-workspace" *ngIf="!SelectedWorkspace">
     <mat-icon class="empty-icon">work_outline</mat-icon>
     <p>Select a workspace to view spaces</p>
   </div>
 
-  <!-- Loading indicator -->
-  <div class="loading-spaces" *ngIf="espacioTrabajoSeleccionado && isLoading">
+  <div class="loading-spaces" *ngIf="SelectedWorkspace && isLoading">
     <mat-icon class="loading-icon">refresh</mat-icon>
     <p>Loading spaces...</p>
   </div>
 
-  <!-- Tree de spaces -->
-  <mat-tree 
-    [dataSource]="dataSource" 
-    [treeControl]="treeControl" 
-    class="spaces-tree"
-    *ngIf="espacioTrabajoSeleccionado && !isLoading">
-    
-    <!-- Nodo con hijos (spaces y folders) -->
-    <mat-tree-node 
-      *matTreeNodeDef="let node; when: hasChild" 
-      matTreeNodeToggle
-      [attr.aria-label]="'toggle ' + node.nombre"
-      class="tree-node"
-      [ngClass]="getNodeClass(node)">
-      
-      <div class="node-content" (click)="onNodeClick(node)">
-        <!-- Botón de expand/collapse -->
-        <button 
-          mat-icon-button 
-          matTreeNodeToggle
-          class="toggle-btn"
-          [attr.aria-label]="'toggle ' + node.nome">
-          <mat-icon class="mat-icon-rtl-mirror">
-            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-          </mat-icon>
-        </button>
-
-        <!-- Icono del nodo -->
-        <div class="node-icon" [style.background-color]="node.color">
-          <mat-icon *ngIf="node.tipo !== 'space'" [fontIcon]="getNodeIcon(node)"></mat-icon>
-          <span *ngIf="node.tipo === 'space'" class="space-avatar">{{ node.icono }}</span>
-        </div>
-
-        <!-- Nombre del nodo -->
-        <span class="node-name">{{ node.nombre }}</span>
-
-        <!-- Botones de acción -->
-        <div class="node-actions" (click)="$event.stopPropagation()">
-          <!-- Botón agregar (solo para spaces y folders) -->
-          <button 
-            mat-icon-button 
-            class="action-btn add-btn"
-            *ngIf="node.tipo === 'space' || node.tipo === 'folder'"
-            [matMenuTriggerFor]="addMenu"
-            title="Add item">
-            <mat-icon>add</mat-icon>
-          </button>
-
-          <!-- Menu de agregar -->
-          <mat-menu #addMenu="matMenu">
-            <button mat-menu-item (click)="onAddFolder(node)" *ngIf="node.tipo === 'space'">
-              <mat-icon>folder</mat-icon>
-              <span>Add Folder</span>
-            </button>
-            <button mat-menu-item (click)="onAddTask(node)">
-              <mat-icon>task_alt</mat-icon>
-              <span>Add Task</span>
-            </button>
-          </mat-menu>
-
-          <!-- Botón de más opciones -->
-          <button 
-            mat-icon-button 
-            class="action-btn more-btn"
-            [matMenuTriggerFor]="moreMenu"
-            title="More options">
-            <mat-icon>more_horiz</mat-icon>
-          </button>
-
-          <!-- Menu de más opciones -->
-          <mat-menu #moreMenu="matMenu">
-            <button mat-menu-item (click)="onEditNode(node)">
-              <mat-icon>edit</mat-icon>
-              <span>Edit</span>
-            </button>
-            <button mat-menu-item (click)="onDeleteNode(node)" class="delete-option">
-              <mat-icon>delete</mat-icon>
-              <span>Delete</span>
-            </button>
-          </mat-menu>
+  <ng-container *ngIf="SelectedWorkspace && !isLoading">
+    <div class="simple-list">
+      <!-- Everything row -->
+      <div class="row-item" [class.is-selected]="selectedKey === 'everything'" (click)="onSelectEverything()">
+        <div class="left">
+          <mat-icon class="prefix">grade</mat-icon>
+          <span class="label">Everything</span>
         </div>
       </div>
-    </mat-tree-node>
 
-    <!-- Nodo sin hijos (tasks) -->
-    <mat-tree-node 
-      *matTreeNodeDef="let node" 
-      class="tree-node"
-      [ngClass]="getNodeClass(node)">
-      
-      <div class="node-content" (click)="onNodeClick(node)">
-        <!-- Espaciado para alineación -->
-        <div class="toggle-spacer"></div>
-
-        <!-- Icono del nodo -->
-        <div class="node-icon">
-          <mat-icon [fontIcon]="getNodeIcon(node)"></mat-icon>
+      <!-- Spaces -->
+      <ng-container *ngFor="let space of dataSource.data">
+        <div class="row-item"
+             [class.is-selected]="selectedKey === getKey(space)"
+             (click)="onNodeClick(space)">
+          <div class="left">
+            <button *ngIf="space.children?.length" mat-icon-button class="chev" (click)="$event.stopPropagation(); toggleSpace(space)">
+              <mat-icon>{{ isExpanded(space) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+            </button>
+            <div class="space-avatar" [style.background-color]="space.color">
+              <i *ngIf="isBootstrapIcon(space.icono)" class="bi" [ngClass]="space.icono" aria-hidden="true"></i>
+              <span *ngIf="!isBootstrapIcon(space.icono)">{{ space.icono }}</span>
+            </div>
+            <span class="label">{{ space.nombre }}</span>
+          </div>
+          <div class="right" (click)="$event.stopPropagation()">
+            <button mat-icon-button class="action-btn add-btn" (click)="onAddFolder(space)" title="Add folder">
+              <mat-icon>add</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn more-btn" [matMenuTriggerFor]="spaceMenu" title="More options">
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+            <mat-menu #spaceMenu="matMenu">
+              <button mat-menu-item (click)="onEditNode(space)"><mat-icon>edit</mat-icon><span>Edit</span></button>
+              <button mat-menu-item (click)="onDeleteNode(space)" class="delete-option"><mat-icon>delete</mat-icon><span>Delete</span></button>
+            </mat-menu>
+          </div>
         </div>
 
-        <!-- Nombre del nodo -->
-        <span class="node-name">{{ node.nombre }}</span>
+        <!-- Folders under space -->
+        <div *ngIf="isExpanded(space)" class="children">
+          <div class="row-item child" *ngFor="let folder of space.children"
+               [class.is-selected]="selectedKey === getKey(folder)"
+               (click)="onNodeClick(folder)">
+            <div class="left">
+              <mat-icon class="prefix" [fontIcon]="'folder'"></mat-icon>
+              <span class="label">{{ folder.nombre }}</span>
+            </div>
+            <div class="right" (click)="$event.stopPropagation()">
+              <button mat-icon-button class="action-btn add-btn" [matMenuTriggerFor]="folderAddMenu" title="Add item">
+                <mat-icon>add</mat-icon>
+              </button>
+              <mat-menu #folderAddMenu="matMenu">
+                <button mat-menu-item (click)="onAddTask(folder)"><mat-icon>task_alt</mat-icon><span>Add Task</span></button>
+              </mat-menu>
+              <button mat-icon-button class="action-btn more-btn" [matMenuTriggerFor]="folderMenu" title="More options">
+                <mat-icon>more_horiz</mat-icon>
+              </button>
+              <mat-menu #folderMenu="matMenu">
+                <button mat-menu-item (click)="onEditNode(folder)"><mat-icon>edit</mat-icon><span>Edit</span></button>
+                <button mat-menu-item (click)="onDeleteNode(folder)" class="delete-option"><mat-icon>delete</mat-icon><span>Delete</span></button>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+      </ng-container>
 
-        <!-- Botones de acción -->
-        <div class="node-actions" (click)="$event.stopPropagation()">
-          <!-- Botón de más opciones -->
-          <button 
-            mat-icon-button 
-            class="action-btn more-btn"
-            [matMenuTriggerFor]="taskMenu"
-            title="More options">
-            <mat-icon>more_horiz</mat-icon>
-          </button>
-
-          <!-- Menu de opciones para tasks -->
-          <mat-menu #taskMenu="matMenu">
-            <button mat-menu-item (click)="onEditNode(node)">
-              <mat-icon>edit</mat-icon>
-              <span>Edit</span>
-            </button>
-            <button mat-menu-item (click)="onDeleteNode(node)" class="delete-option">
-              <mat-icon>delete</mat-icon>
-              <span>Delete</span>
-            </button>
-          </mat-menu>
+      <!-- Create Space CTA -->
+      <div class="row-item create" (click)="onAddSpace()">
+        <div class="left">
+          <mat-icon class="prefix">add</mat-icon>
+          <span class="label">Create Space</span>
         </div>
       </div>
-    </mat-tree-node>
-  </mat-tree>
+    </div>
 
-  <!-- Mensaje cuando no hay spaces -->
-  <div class="empty-spaces" *ngIf="espacioTrabajoSeleccionado && !isLoading && dataSource.data.length === 0">
-    <mat-icon class="empty-icon">folder_open</mat-icon>
-    <p>No spaces yet</p>
-    <button mat-raised-button color="primary" (click)="onAddSpace()">
-      <mat-icon>add</mat-icon>
-      Create your first space
-    </button>
-  </div>
+    <div class="empty-spaces" *ngIf="dataSource.data.length === 0">
+      <mat-icon class="empty-icon">folder_open</mat-icon>
+      <p>No spaces yet</p>
+      <button mat-raised-button color="primary" (click)="onAddSpace()">
+        <mat-icon>add</mat-icon>
+        Create your first space
+      </button>
+    </div>
+  </ng-container>
 </div>

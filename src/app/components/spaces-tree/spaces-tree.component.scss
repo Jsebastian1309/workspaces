@@ -1,48 +1,18 @@
 .spaces-tree-container {
-  height: 100%;
+  --row-height: 40px;
+  --row-padding-x: 8px;
+  --row-radius: 8px;
+  --toggle-size: 28px;
+  --avatar-size: 22px;
+  --row-border: rgba(0, 0, 0, 0.08);
+  --row-hover: rgba(0, 0, 0, 0.04);
+
   display: flex;
   flex-direction: column;
-
   .tree-header {
-    padding: 1rem 1rem 0.5rem 1rem;
-    border-bottom: 1px solid var(--sidebar-border, #e9ecef);
-
+    padding: 0.5rem 0.1rem 0.1rem 1rem;
     .section-title {
-      font-size: 0.85rem;
       color: var(--sidebar-color);
-      font-weight: 600;
-    }
-
-    .add-space-btn {
-      width: 32px;
-      height: 32px;
-      line-height: 32px;
-      border-radius: 8px;
-      background: transparent;
-      border: none;
-      transition: all 0.2s ease;
-      
-      &:hover {
-        background-color: rgba(76, 175, 80, 0.1);
-        transform: scale(1.05);
-      }
-
-      &:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
-      }
-      
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        color: #4caf50;
-        transition: color 0.2s ease;
-      }
-
-      &:hover mat-icon {
-        color: #45a049;
-      }
     }
   }
 
@@ -87,50 +57,18 @@
   .spaces-tree {
     flex: 1;
     overflow-y: auto;
-    padding: 0.25rem 0;
+    padding: 0.25rem 0.15rem;
 
     .tree-node {
-      &.node-space {
-        .node-content {
-          padding: 0.75rem 1rem 0.75rem 0.5rem;
-          font-weight: 600;
-          border-radius: 8px;
-          margin: 3px 12px;
-          background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-          border: 1px solid rgba(255,255,255,0.08);
-          
-          &:hover {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-            border-color: rgba(255,255,255,0.15);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          }
-
-          .node-icon .space-avatar {
-            width: 28px;
-            height: 28px;
-            font-size: 14px;
-            font-weight: 700;
-            border: 2px solid rgba(255,255,255,0.3);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-          }
-
-          .node-name {
-            font-size: 15px;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-          }
-        }
-      }
-
+      /* Compact folder row styling */
       &.node-folder {
         .node-content {
-          padding-left: 2.5rem;
+          padding-left: 2.25rem;
           font-weight: 500;
-          font-size: 14px;
+          font-size: 13px;
           
           &:hover {
-            background-color: rgba(var(--bs-secondary-rgb), 0.1);
+            background-color: var(--row-hover);
           }
 
           .node-icon mat-icon {
@@ -146,25 +84,26 @@
 
       &.node-task {
         .node-content {
-          padding-left: 3.5rem;
+          padding-left: 2.75rem;
           font-weight: 400;
-          font-size: 13px;
+          font-size: 12.5px;
         }
       }
 
       .node-content {
         display: flex;
         align-items: center;
-        padding: 0.5rem 1rem;
-        min-height: 42px;
+  padding: 0  var(--row-padding-x);
+        min-height: var(--row-height);
         cursor: pointer;
-        border-radius: 6px;
-        margin: 1px 8px;
+        border-radius: var(--row-radius);
+        margin: 4px 6px;
+        border: 1px solid var(--row-border);
         transition: all 0.2s ease;
         position: relative;
 
         &:hover {
-          background-color: var(--sidebar-hover-bg);
+          background-color: var(--row-hover);
 
           .node-actions {
             opacity: 1;
@@ -172,17 +111,17 @@
         }
 
         .toggle-btn {
-          width: 28px;
-          height: 28px;
-          line-height: 28px;
-          margin-right: 0.75rem;
-          border-radius: 6px;
+          width: var(--toggle-size);
+          height: var(--toggle-size);
+          line-height: var(--toggle-size);
+          margin-right: 8px;
+          border-radius: 4px;
           background: transparent;
           border: none;
           transition: all 0.2s ease;
 
           &:hover {
-            background-color: rgba(255,255,255,0.1);
+            background-color: var(--row-hover);
           }
 
           mat-icon {
@@ -194,49 +133,46 @@
         }
 
         .toggle-spacer {
-          width: 40px;
-          height: 28px;
+          width: calc(var(--toggle-size) + 8px);
+          height: var(--toggle-size);
         }
 
         .node-icon {
-          margin-right: 0.75rem;
+          margin-right: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
 
           mat-icon {
-            font-size: 20px;
-            width: 20px;
-            height: 20px;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
             color: var(--sidebar-color);
           }
 
           .space-avatar {
-            width: 24px;
-            height: 24px;
+            width: var(--avatar-size);
+            height: var(--avatar-size);
             border-radius: 50%;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: white;
+            color: #fff;
+            font-weight: 600;
             font-size: 12px;
-            position: relative;
-            
-            &::before {
-              content: '';
-              position: absolute;
-              inset: -2px;
-              border-radius: 50%;
-              background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-              z-index: -1;
+            box-shadow: 0 1px 3px rgba(0,0,0,.12);
+
+            i.bi {
+              font-size: 14px;
+              line-height: 1;
+              color: #fff;
             }
           }
         }
 
         .node-name {
           flex: 1;
-          font-size: 14px;
+          font-size: 13.5px;
           color: var(--sidebar-color);
           overflow: hidden;
           text-overflow: ellipsis;
@@ -301,6 +237,42 @@
       }
     }
   }
+
+  /* Tabs and list view */
+  .simple-list { padding: 4px 6px; }
+  .simple-list .row-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 36px;
+    padding: 2px 6px;
+    margin: 2px 2px;
+    border-radius: 8px;
+    color: var(--sidebar-color);
+    transition: background .15s ease;
+  }
+  .simple-list .row-item:hover { background: var(--row-hover); }
+  .simple-list .row-item.is-selected {
+    background: #5b42f3; /* purple selection similar to screenshot */
+    color: #fff;
+  }
+  .simple-list .row-item.is-selected .left .label,
+  .simple-list .row-item.is-selected mat-icon,
+  .simple-list .row-item.is-selected .action-btn mat-icon { color: #fff !important; }
+
+  .simple-list .left { display: flex; align-items: center; gap: 8px; }
+  .simple-list .left .prefix { opacity: .95; color: var(--sidebar-color); }
+  .simple-list .left .label { font-size: 13.5px; }
+  .simple-list .right { display: flex; gap: 4px; }
+
+  .simple-list .chev { width: 26px; height: 26px; }
+  .simple-list .space-avatar {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 600; font-size: 11px;
+  }
+  .simple-list .children { margin-left: 26px; }
+  .simple-list .child .prefix { margin-right: 2px; }
 }
 
 // Material theme overrides
@@ -326,6 +298,8 @@
 // Dark theme adjustments
 .dark-theme {
   .spaces-tree-container {
+  --row-border: rgba(255, 255, 255, 0.12);
+  --row-hover: rgba(255, 255, 255, 0.06);
     .tree-header {
       border-bottom-color: #333;
     }

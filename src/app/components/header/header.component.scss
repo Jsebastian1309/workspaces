@@ -1,7 +1,7 @@
 .color-nav {
   background: var(--nav-bg);
   color: var(--nav-color);
-  height: 64px;
+  height: var(--header-height);
   display: flex;
   align-items: center;
 }
@@ -17,22 +17,14 @@
 
   input {
     flex: 1;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 0.5rem;
-    background-color: var(--nav-bg);
-    color: var(--nav-color);
-
-    &::placeholder {
-      color: #aaa;
-    }
+    border-radius: 8px;
+    background-color: var(--nav-color);
+    color: var(--text-color);
+    border: none;
   }
 
   button {
     border: none;
-
-    color: #fff;
-    padding: 0.5rem 1rem;
     border-radius: 4px;
   }
 }
@@ -41,16 +33,28 @@
   background: var(--nav-bg);
   color: var(--nav-color);
   border: none;
-  padding: 0.5rem;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  transition: background-color 0.3s ease;
 }
 
-.dropdown-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
-  font-weight: bold;
+.dropdown-menu {
+  background: var(--sidebar-bg);
+  color: var(--text-color);
+}
+
+.dropdown-item {
+  background: transparent;
+  color: var(--text-color);
+  transition: background .12s;
+}
+
+.dropdown-menu .dropdown-header {
+  color: var(--text-color);
+}
+
+.dropdown-menu .dropdown-header i {
+  color: var(--text-color) !important;
+}
+
+:host-context(.dark-theme) .dropdown-menu {
+  border: 1px var(--sidebar-bg);
+  box-shadow: 0 6px 20px rgba(0,0,0,.55);
 }

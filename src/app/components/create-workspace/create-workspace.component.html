@@ -1,114 +1,68 @@
 <div class="modal-header">
-    <h4 class="modal-title">{{ title }}</h4>
-    <button type="button" class="btn-close" aria-label="Close"
-        (click)="onCancel()"></button>
+    <h4 class="modal-title">
+        <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square' : 'bi-plus-circle'" aria-hidden="true"></i>
+        {{ title }}
+    </h4>
+    <button type="button" class="btn btn-icon" aria-label="Cerrar"(click)="onCancel()">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+    </button>
 </div>
 
 <div class="modal-body">
+    <div class="alert alert-info" *ngIf="isEditMode">
+        <i class="bi bi-info-circle me-2"></i>
+        You are editing the workspace: <strong>{{ workspaceData?.nombre }}</strong>
+    </div>
     <form [formGroup]="workspaceForm" (ngSubmit)="onSubmit()">
         <div class="mb-3">
-            <label for="nombre" class="form-label" translate>Workspace
-                Name*</label>
-            <input
-                type="text"
-                id="nombre"
-                class="form-control"
-                formControlName="nombre"
-                [class.is-invalid]="hasError('nombre')" />
-            <div class="invalid-feedback" translate
-                *ngIf="hasError('nombre', 'required')">
+            <label for="nombre" class="form-label" translate>Workspace Name*</label>
+            <input type="text" id="nombre" class="form-control" formControlName="nombre"[class.is-invalid]="hasError('nombre')" />
+            <div class="invalid-feedback" translate *ngIf="hasError('nombre', 'required')">
                 The name is required
             </div>
-            <div class="invalid-feedback" translate
-                *ngIf="hasError('nombre', 'minlength')">
+            <div class="invalid-feedback" translate *ngIf="hasError('nombre', 'minlength')">
                 The name must be at least 3 characters long
             </div>
         </div>
 
         <!-- Categoría -->
         <div class="mb-3">
-            <label for="categoria" class="form-label" translate>Category
-                *</label>
-            <select
-                id="categoria"
-                class="form-select"
-                formControlName="categoria"
-                [class.is-invalid]="hasError('categoria')"
-                aria-placeholder="Select a category|translate">
-                <option value disabled selected translate>Select a
-                    category</option>
+            <label for="categoria" class="form-label" translate>Category*</label>
+            <select id="categoria" class="form-select" formControlName="categoria" [class.is-invalid]="hasError('categoria')" aria-placeholder="Select a category|translate">
+                <option value disabled selected translate>Select a category</option>
                 <option value="Personal" translate>Personal</option>
                 <option value="Trabajo" translate>Work</option>
                 <option value="Educación" translate>School</option>
             </select>
         </div>
 
-        <!-- Row para Organización y Cliente -->
+        <!-- Organización y Cliente derivados del token (solo lectura) -->
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="organizacion_id" class="form-label">Organization
-                        *</label>
-                    <input
-                        type="text"
-                        id="organizacion_id"
-                        class="form-control"
-                        formControlName="organizacion_id"
-                        placeholder="Ej: WOG"
-                        [class.is-invalid]="hasError('organizacion_id')" />
-                    <div class="invalid-feedback"
-                        *ngIf="hasError('organizacion_id', 'required')">
-                        The organization is required
-                    </div>
+                    <label class="form-label">Organization</label>
+                    <div class="form-control bg-light" style="opacity: .85;">{{
+                        workspaceForm.get('organizacion_id')?.value }}</div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="cliente_id" class="form-label">Client *</label>
-                    <input
-                        type="text"
-                        id="cliente_id"
-                        class="form-control"
-                        formControlName="cliente_id"
-                        [class.is-invalid]="hasError('cliente_id')" />
-                    <div class="invalid-feedback"
-                        *ngIf="hasError('cliente_id', 'required')">
-                        The client is required
-                    </div>
+                    <label class="form-label">Client</label>
+                    <div class="form-control bg-light" style="opacity: .85;">{{
+                        workspaceForm.get('cliente_id')?.value || 'N/A' }}</div>
                 </div>
             </div>
         </div>
 
         <!-- Row para Color e Icono -->
-        <div class="row">
+        <div class="row  mb-3">
             <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="color" class="form-label">Color *</label>
-                    <select
-                        id="color"
-                        class="form-select"
-                        formControlName="color"
-                        [class.is-invalid]="hasError('color')">
-                        <option *ngFor="let color of colores" [value]="color">{{
-                            color }}</option>
-                    </select>
-                </div>
+                <app-color-picker formControlName="color"
+                    label="Color"></app-color-picker>
             </div>
             <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="icono" class="form-label">Icon *</label>
-                    <input
-                        type="text"
-                        id="icono"
-                        class="form-control"
-                        formControlName="icono"
-                        maxlength="2"
-                        [class.is-invalid]="hasError('icono')" />
-                    <div class="invalid-feedback"
-                        *ngIf="hasError('icono', 'required')">
-                        The icon is required
-                    </div>
-                </div>
+                <app-icon-picker formControlName="icono"
+                    label="Icon"></app-icon-picker>
             </div>
         </div>
 
@@ -116,10 +70,15 @@
         <div class="mb-3">
             <label class="form-label" translate>Preview</label>
             <div class="d-flex align-items-center">
-                <div
-                    class="avatar-preview me-3"
-                    [style.background-color]="getColorValue(workspaceForm.get('color')?.value)">
-                    {{ workspaceForm.get('icono')?.value || 'A' }}
+                <div class="avatar-preview me-3"
+                    [style.background-color]="workspaceForm.get('color')?.value">
+                    <ng-container
+                        *ngIf="workspaceForm.get('icono')?.value as bi; else initialW">
+                        <i class="bi" [ngClass]="bi"></i>
+                    </ng-container>
+                    <ng-template #initialW>{{
+                        (workspaceForm.get('nombre')?.value || 'A').charAt(0)
+                        }}</ng-template>
                 </div>
                 <div>
                     <strong>
@@ -127,10 +86,10 @@
                         'Workspace Name') | translate }}
                     </strong>
                     <br>
-                    <small class="text-muted">
+                    <span class="form-text m-0">
                         {{ (workspaceForm.get('categoria')?.value || 'Category')
                         | translate }}
-                    </small>
+                    </span>
                 </div>
             </div>
         </div>
@@ -154,13 +113,14 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+    <button type="button" class="btn btn-secondary"
+        (click)="onCancel()">Cancel</button>
     <button
         type="button"
         class="btn btn-primary"
         (click)="onSubmit()"
         [disabled]="workspaceForm.invalid">
-        <i class="bi bi-plus-circle me-2"></i>
-        Create Workspace
+        <i class="bi" [ngClass]="isEditMode ? 'bi-check-circle' : 'bi-plus-circle'" aria-hidden="true"></i>
+        {{ isEditMode ? 'Update Workspace' : 'Create Workspace' }}
     </button>
 </div>

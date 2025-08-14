@@ -1,0 +1,16 @@
+<div class="color-picker-wrapper">
+	<label class="form-label">{{ label }} *</label>
+	<div class="color-grid" [class.disabled]="disabled">
+		<button
+			type="button"
+			class="color-swatch"
+			*ngFor="let c of palette"
+			[style.backgroundColor]="c"
+			[class.selected]="value === c"
+			[attr.aria-label]="c"
+			(click)="select(c)"
+		>
+			<i class="bi bi-check2" *ngIf="value === c"></i>
+		</button>
+	</div>
+</div>

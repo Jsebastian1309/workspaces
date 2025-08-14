@@ -61,10 +61,4 @@ export class LoginComponent implements OnInit {
       }
     });
   }
-
-  toggleTheme() {
-    this.isDarkTheme = !this.isDarkTheme;
-    document.body.classList.toggle('dark-theme', this.isDarkTheme);
-  }
-
 }

@@ -63,4 +63,42 @@ export class WorkspaceService {
         
         return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, workspaceData, { headers });
     }
+
+    /**
+     * Actualizar un espacio de trabajo existente
+     */
+    UpdateWorkSpace(workspace: any): Observable<any> {
+        const currentUser = this.authService.getCurrentUser();
+        const username = currentUser?.username || 'system';
+        
+        // Crear headers con información de auditoría
+        let headers = this.createHeaders();
+        headers = headers.set('X-Usuario-Actualizacion', username);
+        headers = headers.set('X-Fecha-Actualizacion', new Date().toISOString());
+        
+        console.log('Usuario actual:', currentUser);
+        console.log('Username para auditoría:', username);
+        
+        // NO enviar campos de auditoría en el body ya que tienen @JsonIgnore
+        const workspaceData = {
+            identificador: workspace.identificador,
+            estado: workspace.estado,
+            nombre: workspace.nombre,
+            descripcion: workspace.descripcion || '',
+            color: workspace.color,
+            icono: workspace.icono,
+            organizacionId: workspace.organizacionId || workspace.organizacion_id,
+            clienteId: workspace.clienteId || workspace.cliente_id,
+            espacioTrabajoId: workspace.espacioTrabajoId || 10,
+            espacioTrabajoIdentificador: workspace.espacioTrabajoIdentificador || workspace.identificador,
+            publico: workspace.publico === true || workspace.publico === 'true',
+            categoria: workspace.categoria,
+            usuarioActualizacion: username
+
+        };
+        
+        console.log('Datos enviados al backend para actualizar:', workspaceData);
+        
+        return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, workspaceData, { headers });
+    }
 }
