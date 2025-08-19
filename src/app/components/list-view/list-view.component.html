@@ -1,11 +1,122 @@
 <div class="list-view" *ngIf="list; else empty">
-  <h2 class="title">{{ list.nombre }}</h2>
-  <p class="desc" *ngIf="list.descripcion">{{ list.descripcion }}</p>
-  <div class="meta">
-    <span>ID: {{ list.identificador || list.id }}</span>
+  <div class="header">
+    <div>
+      <h2 class="title">{{ list.nombre }}</h2>
+      <p class="desc" *ngIf="list.descripcion">{{ list.descripcion }}</p>
+    </div>
   </div>
-  <!-- Aquí luego irán las tareas dentro de la lista -->
-  <div class="placeholder">Tasks will appear here…</div>
+
+  <div class="hint" *ngIf="loading">Loading…</div>
+  <div class="error" *ngIf="!loading && error">{{ error }}</div>
+
+  <!-- Empty state: no tasks in any status -->
+  <div class="cards" *ngIf="!hasAnyTasks(); else cardsTpl">
+    <div class="status-card">
+      <div class="card-header">
+        <span class="status-pill" style="background:#9AA0A6"></span>
+        <span class="st-label">OPEN</span>
+        <span class="count">0</span>
+        <span class="spacer"></span>
+        <button class="link" *ngIf="addingFor !== 'OPEN'" (click)="startAdd('OPEN')">+ Add Task</button>
+      </div>
+      <div class="table">
+        <div class="thead">
+          <div class="th name">Name</div>
+          <div class="th due">Due date</div>
+          <div class="th prio">Priority</div>
+          <div class="th asg">Persona que se le asignó</div>
+          <div class="th act"></div>
+        </div>
+        <div class="tbody">
+          <div class="tr adding" *ngIf="addingFor === 'OPEN'">
+            <div class="td name"><input class="input" placeholder="Task name" [(ngModel)]="draft.nombre" /></div>
+            <div class="td due"><input class="input" type="date" [(ngModel)]="draft.fechaVencimiento" /></div>
+            <div class="td prio">
+              <select class="select" [(ngModel)]="draft.prioridad">
+                <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+              </select>
+            </div>
+            <div class="td asg"><input class="input" placeholder="Assignee" [(ngModel)]="draft.asignadoA" /></div>
+            <div class="td act">
+              <button class="primary" (click)="saveAdd()" [disabled]="!draft.nombre">Add</button>
+              <button class="link" (click)="cancelAdd()">Cancel</button>
+            </div>
+          </div>
+          <div class="tr empty" *ngIf="addingFor !== 'OPEN'">
+            <div class="td name" colspan="5">No tasks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards when there are tasks -->
+  <ng-template #cardsTpl>
+    <div class="cards">
+      <div class="status-card" *ngFor="let key of visibleStatuses()">
+        <div class="card-header">
+          <span class="status-pill" [style.background]="getStatusMeta(key).color"></span>
+          <span class="st-label">{{ getStatusMeta(key).label }}</span>
+          <span class="count">{{ grouped[key] ? grouped[key].length : 0 }}</span>
+          <span class="spacer"></span>
+          <button class="link" *ngIf="addingFor !== key" (click)="startAdd(key)">+ Add Task</button>
+        </div>
+        <div class="table">
+          <div class="thead">
+            <div class="th name">Name</div>
+            <div class="th due">Due date</div>
+            <div class="th prio">Priority</div>
+            <div class="th asg">Persona que se le asignó</div>
+            <div class="th act"></div>
+          </div>
+          <div class="tbody">
+            <div class="tr" *ngFor="let t of grouped[key]; trackBy: trackById">
+              <ng-container *ngIf="!editing[t.identificador]; else editRow">
+                <div class="td name">{{ t.nombre }}</div>
+                <div class="td due">{{ t.fechaVencimiento | date:'mediumDate' }}</div>
+                <div class="td prio">{{ t.prioridad }}</div>
+                <div class="td asg">{{ assigneeLabel(t.asignadoA) }}</div>
+                <div class="td act"><button class="link" (click)="startEdit(t)">Edit</button></div>
+              </ng-container>
+              <ng-template #editRow>
+                <div class="td name"><input class="input" placeholder="Task name" [(ngModel)]="t.nombre" /></div>
+                <div class="td due"><input class="input" type="date" [(ngModel)]="t.fechaVencimiento" /></div>
+                <div class="td prio">
+                  <select class="select" [(ngModel)]="t.prioridad">
+                    <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+                  </select>
+                </div>
+                <div class="td asg"><input class="input" placeholder="Assignee" [(ngModel)]="t.asignadoA" /></div>
+                <div class="td act">
+                  <select class="select compact" [(ngModel)]="t.estado" (ngModelChange)="onStatusChange(t, $event)">
+                    <option *ngFor="let s of statuses" [value]="s.key">{{ s.label }}</option>
+                  </select>
+                  <button class="primary" (click)="saveEdit(t)">Save</button>
+                  <button class="link" (click)="cancelEdit(t)">Cancel</button>
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Add row -->
+            <div class="tr adding" *ngIf="addingFor === key">
+              <div class="td name"><input class="input" placeholder="Task name" [(ngModel)]="draft.nombre" /></div>
+              <div class="td due"><input class="input" type="date" [(ngModel)]="draft.fechaVencimiento" /></div>
+              <div class="td prio">
+                <select class="select" [(ngModel)]="draft.prioridad">
+                  <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+                </select>
+              </div>
+              <div class="td asg"><input class="input" placeholder="Assignee" [(ngModel)]="draft.asignadoA" /></div>
+              <div class="td act">
+                <button class="primary" (click)="saveAdd()" [disabled]="!draft.nombre">Add</button>
+                <button class="link" (click)="cancelAdd()">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
 </div>
 <ng-template #empty>
   <div class="list-view empty">
