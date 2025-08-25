@@ -14,21 +14,14 @@ export class ListService {
   
       constructor(private http: HttpClient, private authService: AuthService) { }
 
-      private createHeaders(): HttpHeaders {
-        const token = this.authService.getKeycloakToken();
-        let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-        if (token) {
-          headers = headers.set('Authorization', `Bearer ${token}`);
-        }
-        return headers;
-      }
+
 
       /**
        * Crear una nueva lista
        * Espera datos mínimos desde el formulario y hereda IDs del folder seleccionado
        */
       createList(payload: any): Observable<any> {
-        const headers = this.createHeaders();
+        const headers = this.authService.createHeaders();
 
         const currentUser = this.authService.getCurrentUser();
 
@@ -65,7 +58,7 @@ export class ListService {
        * Buscar listas filtradas por carpetaIdentificador
        */
       searchListsFiltered(carpetaIdentificador: string): Observable<any[]> {
-        const headers = this.createHeaders();
+        const headers = this.authService.createHeaders();
         const body: any = {
           paginador: 'Y', offset: 0, limit: 100, campoOrder: '', direccionOrder: '', estado: 'Activo',
           carpetaIdentificador,

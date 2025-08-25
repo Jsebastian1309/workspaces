@@ -4,22 +4,20 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LoginComponent } from './components/login/login.component';
+import { LoginComponent } from './components/pages/login/login.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { I18nService } from './service/i18n.service';
 import { HttpClientModule } from '@angular/common/http';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HomeComponent } from './components/home/home.component';
-import { HeaderComponent } from './components/header/header.component';
+import { HomeComponent } from './components/pages/home/home.component';
+import { HeaderComponent } from './components/core/header/header.component';
 import { TreeModule } from 'ng2-tree';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { CreateSpaceComponent } from './components/create-space/create-space.component';
-import { CreateWorkspaceComponent } from './components/create-workspace/create-workspace.component';
-import { ThemeButtonComponent } from './components/theme-button/theme-button.component';
-import { SpacesTreeComponent } from './components/spaces-tree/spaces-tree.component';
-import { IconPickerComponent } from './components/icon-picker/icon-picker.component';
-import { LanguageButtonComponent } from './components/language-button/language-button.component';
+import { SidebarComponent } from './components/core/sidebar/sidebar.component';
+import { ThemeButtonComponent } from './components/core/theme-button/theme-button.component';
+import { SpacesTreeComponent } from './components/core/spaces-tree/spaces-tree.component';
+import { IconPickerComponent } from './components/shared/icon-picker/icon-picker.component';
+import { LanguageButtonComponent } from './components/core/language-button/language-button.component';
 
 
 // Angular Material imports
@@ -29,13 +27,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ColorPickerComponent } from './components/color-picker/color-picker.component';
-import { CreateFolderComponent } from './components/create-folder/create-folder.component';
-import { CreateListComponent } from './components/create-list/create-list.component';
-import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
-import { StartComponent } from './components/start/start.component';
-import { InboxComponent } from './components/inbox/inbox.component';
-import { ListViewComponent } from './components/list-view/list-view.component';
+import { ColorPickerComponent } from './components/shared/color-picker/color-picker.component';
+import { ModalFolderComponent } from './components/modals/modal-folder/modal-folder.component';
+import { SplashScreenComponent } from './components/core/splash-screen/splash-screen.component';
+import { StartComponent } from './components/pages/start/start.component';
+import { InboxComponent } from './components/pages/inbox/inbox.component';
+import { ListViewComponent } from './components/views/list-view/list-view.component';
+import { ModalSpaceComponent } from './components/modals/modal-space/modal-space.component';
+import { ModalWorkspaceComponent } from './components/modals/modal-workspace/modal-workspace.component';
+import { ModalListComponent } from './components/modals/modal-list/modal-list.component';
+import { TemplatesComponent } from './components/pages/templates/templates.component';
+import { CalendarViewComponent } from './components/views/calendar-view/calendar-view.component';
+import { GantViewComponent } from './components/views/gant-view/gant-view.component';
+import { TaskComponent } from './components/pages/task/task.component';
 
 @NgModule({
   declarations: [
@@ -44,23 +48,27 @@ import { ListViewComponent } from './components/list-view/list-view.component';
     HomeComponent,
     HeaderComponent,
     SidebarComponent,
-    CreateSpaceComponent,
-    CreateWorkspaceComponent,
     ThemeButtonComponent,
     SpacesTreeComponent,
     IconPickerComponent,
     LanguageButtonComponent,
     ColorPickerComponent,
-    CreateFolderComponent,
-    CreateListComponent,
+    ModalFolderComponent,
     SplashScreenComponent,
     StartComponent,
-  InboxComponent,
-  ListViewComponent
+    InboxComponent,
+    ListViewComponent,
+    ModalSpaceComponent,
+    ModalWorkspaceComponent,
+    ModalListComponent,
+    TemplatesComponent,
+    CalendarViewComponent,
+    GantViewComponent,
+    TaskComponent
   ],
   imports: [
     BrowserModule,
-  BrowserAnimationsModule,
+    BrowserAnimationsModule,
     TreeModule,
     FormsModule,
     ReactiveFormsModule,
@@ -73,7 +81,7 @@ import { ListViewComponent } from './components/list-view/list-view.component';
     MatButtonModule,
     MatMenuModule,
     MatTooltipModule,
-  MatTabsModule,
+    MatTabsModule,
     NgbDropdownModule,
   ],
   providers: [I18nService],

@@ -1,0 +1,71 @@
+.templates-page {
+	display: grid;
+	grid-template-columns: 280px 1fr;
+	gap: 16px;
+	height: 100%;
+}
+
+.sidebar {
+	border-right: 1px solid #e0e0e0;
+	padding-right: 12px;
+}
+.sidebar .header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+.list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.list li {
+	padding: 8px 10px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+.list li.active {
+	background: #f1f5f9;
+}
+.list .name { font-weight: 600; }
+.list .meta { font-size: 12px; color: #6b7280; }
+
+.editor {
+	padding-left: 8px;
+}
+.editor-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+.editor-header .title {
+	flex: 1;
+	font-size: 18px;
+	padding: 6px 10px;
+}
+
+.statuses-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+.status-row {
+	display: grid;
+	grid-template-columns: 24px 24px 1fr 80px 160px auto;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 0;
+}
+.status-name { padding: 4px 8px; }
+.status-color { width: 80px; height: 32px; padding: 0; }
+.status-type { height: 32px; }
+.icon { width: 24px; height: 24px; line-height: 24px; }
+
+.empty {
+	color: #64748b;
+	padding: 24px;
+}

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { KeycloakService } from './keycloak.service';
+import { HttpHeaders } from '@angular/common/http';
 export interface User {
   username: string;
   name: string;
@@ -306,5 +307,16 @@ export class AuthService {
 
   extendSession(): Observable<boolean> {
     return this.refreshKeycloakToken();
+  }
+
+  createHeaders(): HttpHeaders {
+    const token = this.getKeycloakToken();
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
   }
 }

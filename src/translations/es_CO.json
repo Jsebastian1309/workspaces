@@ -11,6 +11,9 @@
 	"Remember Me": "Recuérdame",
 	"Forgot Password": "¿Olvidaste tu contraseña?",
 	"Logout": "Cerrar sesión",
+	"Loading workspaces": "Cargando espacios de trabajo",
+	"Welcome To Worki": "Bienvenido a Worki,{{ currentUser?.name }}.",
+	"Select a menu option to begin": "Seleccione una opción del menú para comenzar",
 
 
 	"Profile": "Perfil",

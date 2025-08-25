@@ -14,30 +14,21 @@ export class FolderService {
   
       constructor(private http: HttpClient, private authService: AuthService) { }
   
-      private createHeaders(): HttpHeaders {
-          const token = this.authService.getKeycloakToken();
-          let headers = new HttpHeaders({
-              'Content-Type': 'application/json'
-          });
-          if (token) {
-              headers = headers.set('Authorization', `Bearer ${token}`);
-          }
-          return headers;
-      }
+
   
     listFolders(): Observable<any[]> {
-          const headers = this.createHeaders();
+          const headers = this.authService.createHeaders();
           return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar`,{ headers });
       }
   
     listFoldersByWorkspace(espacioTrabajoIdentificador: string): Observable<any[]> {
-          const headers = this.createHeaders();
+          const headers = this.authService.createHeaders();
           return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar?espacioTrabajoIdentificador=${espacioTrabajoIdentificador}`, { headers });
       }
   
   
     searchFoldersFiltered(espacioTrabajoIdentificador: string, espacioIdentificador?: string): Observable<any[]> {
-          const headers = this.createHeaders();
+          const headers = this.authService.createHeaders();
           const body: any = {
           paginador: 'Y', offset: 0, limit: 100, campoOrder: '', direccionOrder: '', estado: 'Activo',
           espacioTrabajoIdentificador,
@@ -51,7 +42,7 @@ export class FolderService {
        * Buscar un espacio de trabajo por identificador
        */
     searchFolder(identificador: string): Observable<any> {
-          const headers = this.createHeaders();
+          const headers = this.authService.createHeaders();
           return this.http.get<any>(`${this.apiUrl}${this.baseUrl}/buscar/${identificador}`, { headers });
       }
   
@@ -59,7 +50,7 @@ export class FolderService {
        * Crear un nuevo espacio de trabajo
        */
       createFolder(payload: any): Observable<any> {
-          const headers = this.createHeaders();
+          const headers = this.authService.createHeaders();
           
           // Obtener información del usuario logueado
           const currentUser = this.authService.getCurrentUser();

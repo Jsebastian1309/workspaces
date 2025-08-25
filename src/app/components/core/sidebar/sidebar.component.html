@@ -1,0 +1,81 @@
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div ngbDropdown class="workspace-dropdown">
+      <button type="button" class="btn workspace-btn" id="dropdownWorkspace"
+        ngbDropdownToggle>
+        <div class="avatar" [style.background-color]="selectedspace?.color">
+          <ng-container *ngIf="selectedspace?.icono; else selectedInitial">
+            <i class="bi" [ngClass]="selectedspace.icono"
+              aria-hidden="true"></i>
+          </ng-container>
+          <ng-template #selectedInitial>{{ getAvatar(selectedspace?.nombre)
+            }}</ng-template>
+        </div>
+        <span class="workspace-name">{{ selectedspace?.nombre}}</span>
+      </button>
+      <div ngbDropdownMenu aria-labelledby="dropdownWorkspace">
+        <div class="dropdown-header" *ngIf="selectedspace">
+          <span class="workspace-name">{{ selectedspace.nombre }}</span>
+        </div>
+        <div class="dropdown-divider" *ngIf="selectedspace"></div>
+        <div *ngFor="let spaces of spacesWork">
+          <button ngbDropdownItem (click)="selectSpace(spaces)"
+            [class.active]="selectedspace?.identificador === spaces.identificador">
+            <div class="d-flex align-items-center">
+              <div class="avatar-small me-2"
+                [style.background-color]="spaces.color">
+                <ng-container *ngIf="spaces.icono; else itemInitial">
+                  <i class="bi" [ngClass]="spaces.icono" aria-hidden="true"></i>
+                </ng-container>
+                <ng-template #itemInitial>{{ getAvatar(spaces.nombre)
+                  }}</ng-template>
+              </div>
+              <div>
+                <div class="workspace-name-small">{{ spaces.nombre }}</div>
+                <div class="workspace-category">{{ spaces.categoria }}</div>
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="dropdown-divider"></div>
+        <button ngbDropdownItem translate (click)="openEditWorkspaceModal()">
+          <i class="bi bi-gear-fill me-2"></i> Settings
+        </button>
+        <button ngbDropdownItem translate
+          (click)="deleteWorkspace(selectedspace)">
+          <i class="bi bi-trash-fill me-2"></i> Delete
+        </button>
+        <button ngbDropdownItem translate>
+          <i class="bi bi-people-fill me-2"></i> Manage Users
+        </button>
+        <div class="dropdown-divider"></div>
+        <button ngbDropdownItem class="create-workspace-btn"
+          (click)="openCreateWorkspaceModal()">
+          <i class="bi bi-plus-circle me-2"></i> Create Workspace
+        </button>
+      </div>
+    </div>
+  </div>
+  <ul class="sidebar-menu">
+    <li [class.active]="activeView === 'start'" (click)="navigateTo('start')">
+      <i class="bi bi-house-door"></i> Home
+    </li>
+    <li [class.active]="activeView === 'inbox'" (click)="navigateTo('inbox')">
+      <i class="bi bi-inbox"></i> Inbox
+    </li>
+    <li [class.active]="activeView === 'templates'"(click)="navigateTo('templates')">
+      <i class="bi bi-sliders"></i> Templates
+    </li>
+    <li><i class="bi bi-kanban"></i> Dashboards</li>
+    <li><i class="bi bi-three-dots"></i> More</li>
+  </ul>
+  <div class="sidebar-section">
+    <span class="section-title" translate>Favorites</span>
+  </div>
+  <app-spaces-tree [SelectedWorkspace]="selectedspace"
+    (listSelected)="onListSelected($event)"></app-spaces-tree>
+  <div class="sidebar-footer">
+    <button class="invite-btn">Invite</button>
+    <button class="help-btn">Help</button>
+  </div>
+</div>

@@ -59,33 +59,56 @@ export class TaskService {
     /**
      * Buscar tareas filtradas con los campos exactos provistos:
      * {
-     *   espacioTrabajoIdentificador, espacioIdentificador, carpetaIdentificador,
+     *   espacioTrabajoIdentificador, espacio_identificador, carpeta_identificador,
      *   listaIdentificador, tipoTarea, etiqueta, prioridad
      * }
      */
     searchTasksFiltered(params: {
         espacioTrabajoIdentificador?: string;
-        espacioIdentificador?: string;
-        carpetaIdentificador?: string;
-        listaIdentificador?: string;
+        espacio_identificador?: string;
+        carpeta_identificador?: string;
+        lista_identificador?: string;
         tipoTarea?: string;
         etiqueta?: string;
         prioridad?: string;
     }): Observable<Task[]> {
         const headers = this.createHeaders();
-        const body = { ...params } as any;
+        
+        // Limpiar parámetros - solo incluir los que tienen valores válidos
+        const body: any = {};
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                body[key] = value;
+            }
+        });
+        
+        console.log('Parámetros originales:', params);
+        console.log('Enviando al backend searchTasksFiltered (limpio):', body);
+        
         return this.http.post<Task[] | any>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers }).pipe(
-            map(resp => this.ensureArray(resp).map((t: any) => this.mapBackendTask(t)))
+            map(resp => {
+                console.log('Respuesta cruda del backend:', resp);
+                const arrayData = this.ensureArray(resp);
+                console.log('Array extraído:', arrayData);
+                const mappedTasks = arrayData.map((t: any) => this.mapBackendTask(t));
+                console.log('Tareas mapeadas:', mappedTasks);
+                return mappedTasks;
+            })
         );
     }
 
     private normalizeStatus(status?: string): string | undefined {
         if (!status) return status;
         const s = String(status).toUpperCase();
+        console.log('Normalizando estado:', status, 'a:', s);
+        
         if (/(BLOCK|BLOQUE)/.test(s)) return 'BLOCKED';
-        if (/PEND/.test(s)) return 'PENDING';
-        if (/OPEN|ABIERT/.test(s)) return 'OPEN';
-    if (/DONE|CLOSED|CERRAD|COMPLETAD/.test(s)) return 'DONE';
+        if (/(PEND|PENDIENTE)/.test(s)) return 'PENDING';
+        if (/(OPEN|ABIERT|NUEVO|NEW)/.test(s)) return 'OPEN';
+        if (/(DONE|CLOSED|CERRAD|COMPLETAD|TERMINAD|FINALIZ)/.test(s)) return 'DONE';
+        
+        // Si no coincide con ningún patrón, retornar el estado original en mayúsculas
+        console.log('Estado no reconocido, retornando:', s);
         return s;
     }
 
@@ -127,6 +150,18 @@ export class TaskService {
         const headers = this.createHeaders();
         return this.http.get<any>(`${this.apiUrl}${this.baseUrl}/buscar/${identificador}`, { headers });
     }
+
+        /** Crear una tarea (proyTarea) */
+        crearTarea(tarea: any): Observable<any> {
+            const headers = this.createHeaders();
+            return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, tarea, { headers });
+        }
+
+        /** Crear bitácora de tarea (proyBitacora) */
+        crearBitacora(bitacora: any): Observable<any> {
+            const headers = this.createHeaders();
+            return this.http.post<any>(`${this.apiUrl}/proyBitacora/crear`, bitacora, { headers });
+        }
 
     /**
      * Crear un nuevo espacio de trabajo
