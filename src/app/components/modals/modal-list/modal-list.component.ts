@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from 'src/app/service/AuthService.service';
-import { ListService } from 'src/app/service/list.service';
-import { TemplatesService, StatusTemplate } from 'src/app/service/templates.service';
+import { AuthService } from 'src/app/service/core/auth/Auth.service';
+import { ListService } from 'src/app/service/features/list/List.service';
+import { TemplatesService, StatusTemplate } from 'src/app/service/features/templates/Templates.service';
 
 @Component({
   selector: 'app-modal-list',
@@ -88,8 +88,8 @@ export class ModalListComponent implements OnInit {
         descripcion: raw.descripcion,
         publico: !!raw.publico,
         estado: raw.estado,
-        organizacionId: currentUser?.organizacion_id,
-        clienteId: currentUser?.cliente_id,
+        organizacionId: currentUser?.organizacionId,
+        clienteId: currentUser?.clienteId,
         carpetaIdentificador: this.SelectedFolder.identificador || this.SelectedFolder.carpeta_identificador,
         carpetaId: this.SelectedFolder.id || this.SelectedFolder.carpeta_id
       };

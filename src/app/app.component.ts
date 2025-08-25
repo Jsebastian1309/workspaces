@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { I18nService } from './service/i18n.service';
+import { I18nService } from './service/core/i18n/i18n.service';
 import { environment } from 'src/environments/environment';
 
 @Component({

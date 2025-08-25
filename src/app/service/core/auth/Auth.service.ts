@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { KeycloakService } from './keycloak.service';
+import { KeycloakService } from '../security/Keycloak.service';
 import { HttpHeaders } from '@angular/common/http';
 export interface User {
   username: string;
   name: string;
   roles: string[];
-  organizacion_id: string;
-  cliente_id: string;
+  organizacionId: string;
+  clienteId: string;
   email?: string;
 }
 export interface UserContext {
@@ -100,8 +100,8 @@ export class AuthService {
             username: userInfo.username,
             name: userInfo.name,
             roles: userInfo.roles,
-            organizacion_id: userInfo.organizacion_id,
-            cliente_id: userInfo.cliente_id,
+            organizacionId: userInfo.organizacion_id,
+            clienteId: userInfo.cliente_id,
             email: userInfo.email
           };
 
@@ -172,19 +172,19 @@ export class AuthService {
 
 
   getOrganizacionId(): string | undefined {
-    return this.currentUserSubject.value?.organizacion_id;
+    return this.currentUserSubject.value?.organizacionId;
   }
 
   getClienteId(): string | undefined {
-    return this.currentUserSubject.value?.cliente_id;
+    return this.currentUserSubject.value?.clienteId;
   }
 
   getUserContext(): { org_id: string, cliente_id: string } | null {
     const user = this.currentUserSubject.value;
     if (user) {
       return {
-        org_id: user.organizacion_id,
-        cliente_id: user.cliente_id,
+        org_id: user.organizacionId,
+        cliente_id: user.clienteId,
       };
     }
     return null;
@@ -251,8 +251,8 @@ export class AuthService {
     const headers: { [key: string]: string } = {};
     if (user) {
       headers['X-User-Id'] = user.username;
-      headers['X-Org-Id'] = user.organizacion_id;
-      headers['X-Cliente-Id'] = user.cliente_id;
+      headers['X-Org-Id'] = user.organizacionId;
+      headers['X-Cliente-Id'] = user.clienteId;
     }
 
     const keycloakToken = this.getKeycloakToken();

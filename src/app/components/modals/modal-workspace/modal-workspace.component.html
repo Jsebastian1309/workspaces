@@ -3,20 +3,22 @@
         <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square' : 'bi-plus-circle'" aria-hidden="true"></i>
         {{ title }}
     </h4>
-    <button type="button" class="btn btn-icon" aria-label="Cerrar"(click)="onCancel()">
+    <button type="button" class="btn btn-icon" aria-label="Cerrar" (click)="onCancel()">
         <i class="bi bi-x-lg" aria-hidden="true"></i>
     </button>
 </div>
 
 <div class="modal-body">
-    <div class="alert alert-info" *ngIf="isEditMode">
+    <!-- Información del Workspace -->
+    <div class="alert alert-info" *ngIf="isEditMode" translate>
         <i class="bi bi-info-circle me-2"></i>
         You are editing the workspace: <strong>{{ workspaceData?.nombre }}</strong>
     </div>
     <form [formGroup]="workspaceForm" (ngSubmit)="onSubmit()">
+        <!-- Nombre del Workspace -->
         <div class="mb-3">
-            <label for="nombre" class="form-label" translate>Workspace Name*</label>
-            <input type="text" id="nombre" class="form-control" formControlName="nombre"[class.is-invalid]="hasError('nombre')" />
+            <label for="nombre" class="form-label" translate>Workspace Name *</label>
+                <input type="text" id="nombre" class="form-control" formControlName="nombre" [class.is-invalid]="hasError('nombre')" />
             <div class="invalid-feedback" translate *ngIf="hasError('nombre', 'required')">
                 The name is required
             </div>
@@ -27,7 +29,7 @@
 
         <!-- Categoría -->
         <div class="mb-3">
-            <label for="categoria" class="form-label" translate>Category*</label>
+            <label for="categoria" class="form-label" translate>Category *</label>
             <select id="categoria" class="form-select" formControlName="categoria" [class.is-invalid]="hasError('categoria')" aria-placeholder="Select a category|translate">
                 <option value disabled selected translate>Select a category</option>
                 <option value="Personal" translate>Personal</option>
@@ -42,14 +44,14 @@
                 <div class="mb-3">
                     <label class="form-label">Organization</label>
                     <div class="form-control bg-light" style="opacity: .85;">{{
-                        workspaceForm.get('organizacion_id')?.value }}</div>
+                        workspaceForm.get('organizacionId')?.value }}</div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Client</label>
                     <div class="form-control bg-light" style="opacity: .85;">{{
-                        workspaceForm.get('cliente_id')?.value || 'N/A' }}</div>
+                        workspaceForm.get('clienteId')?.value}}</div>
                 </div>
             </div>
         </div>
@@ -77,7 +79,7 @@
                         <i class="bi" [ngClass]="bi"></i>
                     </ng-container>
                     <ng-template #initialW>{{
-                        (workspaceForm.get('nombre')?.value || 'A').charAt(0)
+                        (workspaceForm.get('nombre')?.value).charAt(0)
                         }}</ng-template>
                 </div>
                 <div>

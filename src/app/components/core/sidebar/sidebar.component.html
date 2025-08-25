@@ -8,7 +8,7 @@
             <i class="bi" [ngClass]="selectedspace.icono"
               aria-hidden="true"></i>
           </ng-container>
-          <ng-template #selectedInitial>{{ getAvatar(selectedspace?.nombre)
+          <ng-template #selectedInitial>{{(selectedspace?.nombre)
             }}</ng-template>
         </div>
         <span class="workspace-name">{{ selectedspace?.nombre}}</span>
@@ -27,7 +27,7 @@
                 <ng-container *ngIf="spaces.icono; else itemInitial">
                   <i class="bi" [ngClass]="spaces.icono" aria-hidden="true"></i>
                 </ng-container>
-                <ng-template #itemInitial>{{ getAvatar(spaces.nombre)
+                <ng-template #itemInitial>{{(spaces.nombre)
                   }}</ng-template>
               </div>
               <div>
@@ -57,13 +57,13 @@
     </div>
   </div>
   <ul class="sidebar-menu">
-    <li [class.active]="activeView === 'start'" (click)="navigateTo('start')">
-      <i class="bi bi-house-door"></i> Home
+    <li translate [class.active]="activeView === 'start'" (click)="navigateTo('start')">
+      <i class="bi bi-house-door" ></i> Home
     </li>
-    <li [class.active]="activeView === 'inbox'" (click)="navigateTo('inbox')">
-      <i class="bi bi-inbox"></i> Inbox
+    <li translate [class.active]="activeView === 'inbox'" (click)="navigateTo('inbox')">
+      <i class="bi bi-inbox" ></i> Inbox
     </li>
-    <li [class.active]="activeView === 'templates'"(click)="navigateTo('templates')">
+    <li translate [class.active]="activeView === 'templates'" (click)="navigateTo('templates')">
       <i class="bi bi-sliders"></i> Templates
     </li>
     <li><i class="bi bi-kanban"></i> Dashboards</li>

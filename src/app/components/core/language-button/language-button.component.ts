@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { I18nService } from 'src/app/service/i18n.service';
+import { I18nService } from 'src/app/service/core/i18n/i18n.service';
 
 @Component({
   selector: 'app-language-button',

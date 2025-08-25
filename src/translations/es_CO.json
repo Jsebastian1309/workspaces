@@ -22,6 +22,10 @@
 
 	
 	"Create Workspace": "Crear Workspace",
+	"Create New Workspace": "Crear Nuevo Workspace",
+	"Workspace created": "Workspace creado",
+	"Workspace updated": "Workspace actualizado",
+	"Workspace deleted": "Workspace eliminado",
 	"Settings": "Configuración",
 	"Manage Users": "Gestionar usuarios",
 	"Home": "Inicio",

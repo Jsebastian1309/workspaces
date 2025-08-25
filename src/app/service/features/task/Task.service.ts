@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { AuthService } from './AuthService.service';
+import { AuthService } from '../../core/auth/Auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
-import { Task } from '../models/task.model';
+import { Task } from '../../../models/task.model';
 
 @Injectable({
   providedIn: 'root'
@@ -181,8 +181,8 @@ export class TaskService {
             identificador: identificador,
             nombre: worktask.nombre,
             categoria: worktask.categoria,
-            organizacionId: currentUser?.organizacion_id,
-            clienteId: currentUser?.cliente_id,
+            organizacionId: currentUser?.organizacionId,
+            clienteId: currentUser?.clienteId,
             color: worktask.color,
             icono: worktask.icono,
             publico: worktask.publico,

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { I18nService } from 'src/app/service/i18n.service';
+import { I18nService } from 'src/app/service/core/i18n/i18n.service';
 import { TranslateService } from '@ngx-translate/core';
-import { AuthService } from 'src/app/service/AuthService.service';
+import { AuthService } from 'src/app/service/core/auth/Auth.service';
 
 @Component({
   selector: 'app-login',

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TemplatesService, StatusTemplate, StatusItem } from 'src/app/service/templates.service';
+import { TemplatesService, StatusTemplate, StatusItem } from 'src/app/service/features/templates/Templates.service';
 
 @Component({
   selector: 'app-templates',

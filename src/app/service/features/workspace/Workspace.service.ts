@@ -2,7 +2,8 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
-import { AuthService } from "./AuthService.service";
+import { AuthService } from "../../core/auth/Auth.service";
+import { UniqueIdService } from "../../core/utils/uniqueId.service";
 
 @Injectable({
     providedIn: 'root',
@@ -12,7 +13,7 @@ export class WorkspaceService {
     private apiUrl = environment.Backend;
     private baseUrl = '/proyEspacioTrabajo';
 
-    constructor(private http: HttpClient, private authService: AuthService) { }
+    constructor(private http: HttpClient, private authService: AuthService, private uniqueIdService: UniqueIdService) { }
     
     /**
      * Listar todos los espacios de trabajo
@@ -36,11 +37,18 @@ export class WorkspaceService {
     CreateWorkSpace(workspace: any): Observable<any> {
         const headers = this.authService.createHeaders();
         const currentUser = this.authService.getCurrentUser();
+        const identificador = this.uniqueIdService.generateId((workspace?.nombre).toString());
         const workspaceData = {
-            ...workspace,
-            usuario_creacion: currentUser?.username,
-            organizacion_id: currentUser?.organizacion_id,
-            cliente_id: currentUser?.cliente_id
+            identificador,
+            nombre: workspace.nombre,
+            categoria: workspace.categoria,
+            color: workspace.color,
+            icono: workspace.icono,
+            publico: workspace.publico,
+            estado: workspace.estado,
+            // usuario_creacion: currentUser?.username,
+            organizacionId: currentUser?.organizacionId,
+            clienteId: currentUser?.clienteId
         };
         return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, workspaceData, { headers });
     }
@@ -64,7 +72,6 @@ export class WorkspaceService {
             publico: workspace.publico,
             // usuarioActualizacion: username
         };
-        console.log('Datos enviados al backend para actualizar:', workspaceData);
         return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, workspaceData, { headers });
     }
 

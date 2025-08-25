@@ -1,8 +1,8 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { TaskService } from 'src/app/service/task.service';
-import { TemplatesService } from 'src/app/service/templates.service';
-import { AuthService } from 'src/app/service/AuthService.service';
+import { TaskService } from 'src/app/service/features/task/Task.service';
+import { TemplatesService } from 'src/app/service/features/templates/Templates.service';
+import { AuthService } from 'src/app/service/core/auth/Auth.service';
 import { Task } from 'src/app/models/task.model';
 
 @Component({
@@ -237,8 +237,8 @@ export class ListViewComponent implements OnChanges {
       fechaCerrada: fechaActual,
       fechaTerminada: fechaActual,
       facturable: false,
-      organizacionId: currentUser?.organizacion_id || '',
-      clienteId: currentUser?.cliente_id || '',
+      organizacionId: currentUser?.organizacionId || '',
+      clienteId: currentUser?.clienteId || '',
       carpeta_identificador: this.carpetaIdentificador || this.list?.carpeta_identificador || '',
       lista_identificador: this.list?.identificador || '',
       tipoTarea: 'TASK',

@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './components/pages/login/login.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { I18nService } from './service/i18n.service';
+import { I18nService } from './service/core/i18n/i18n.service';
 import { HttpClientModule } from '@angular/common/http';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HomeComponent } from './components/pages/home/home.component';
@@ -40,6 +40,8 @@ import { TemplatesComponent } from './components/pages/templates/templates.compo
 import { CalendarViewComponent } from './components/views/calendar-view/calendar-view.component';
 import { GantViewComponent } from './components/views/gant-view/gant-view.component';
 import { TaskComponent } from './components/pages/task/task.component';
+import { ModalInfoComponent } from './components/modals/modal-info/modal-info.component';
+import { ModalDeleteComponent } from './components/modals/modal-delete/modal-delete.component';
 
 @NgModule({
   declarations: [
@@ -64,7 +66,9 @@ import { TaskComponent } from './components/pages/task/task.component';
     TemplatesComponent,
     CalendarViewComponent,
     GantViewComponent,
-    TaskComponent
+    TaskComponent,
+    ModalInfoComponent,
+    ModalDeleteComponent
   ],
   imports: [
     BrowserModule,
