@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { I18nService } from 'src/app/service/i18n.service';
 
 @Component({
   selector: 'app-theme-button',

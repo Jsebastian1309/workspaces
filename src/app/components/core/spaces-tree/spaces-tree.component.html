@@ -2,7 +2,7 @@
   <div class="tree-header">
     <div class="d-flex justify-content-between align-items-center">
       <span class="section-title">Spaces</span>
-      <button mat-icon-button class="btn" (click)="onAddSpace()" title="Add Space" *ngIf="SelectedWorkspace">
+      <button mat-icon-button class="btn" (click)="openCreateSpaceModal()" title="Add Space" *ngIf="SelectedWorkspace">
         <mat-icon>add</mat-icon>
       </button>
     </div>
@@ -54,12 +54,12 @@
               </button>
               <div ngbDropdownMenu class="dropdown-menu-sm-end dropdown-menu-dark">
                 <button ngbDropdownItem (click)="onEditNode(space)">
-                  <mat-icon>settings</mat-icon>
-                  <span>Space settings</span>
+                  <i class="bi bi-pencil-square"></i>
+                  <span>Edit</span>
                 </button>
                 <div class="dropdown-divider"></div>
                 <button ngbDropdownItem class="danger" (click)="onDeleteNode(space)">
-                  <mat-icon>delete</mat-icon>
+                  <i class="bi bi-trash-fill"></i>
                   <span>Delete</span>
                 </button>
               </div>
@@ -85,12 +85,12 @@
                   <mat-icon>more_horiz</mat-icon>
                 </button>
                 <div ngbDropdownMenu class="dropdown-menu-sm-end dropdown-menu-dark">
-                  <button ngbDropdownItem (click)="onEditNode(folder)">
-                    <mat-icon>edit</mat-icon>
+                  <button ngbDropdownItem (click)="onEditFolder(folder)">
+                    <i class="bi bi-pencil-square"></i>
                     <span>Edit</span>
                   </button>
                   <button ngbDropdownItem class="danger" (click)="onDeleteNode(folder)">
-                    <mat-icon>delete</mat-icon>
+                    <i class="bi bi-trash-fill"></i>
                     <span>Delete</span>
                   </button>
                 </div>
@@ -116,7 +116,7 @@
       </ng-container>
 
       <!-- Create Space CTA -->
-      <div class="row-item create" (click)="onAddSpace()">
+      <div class="row-item create" (click)="openCreateSpaceModal()">
         <div class="left">
           <mat-icon class="prefix">add</mat-icon>
           <span class="label">Create Space</span>
@@ -127,7 +127,7 @@
     <div class="empty-spaces" *ngIf="dataSource.data.length === 0">
       <mat-icon class="empty-icon">folder_open</mat-icon>
       <p>No spaces yet</p>
-      <button mat-raised-button color="primary" (click)="onAddSpace()">
+      <button mat-raised-button color="primary" (click)="openCreateSpaceModal()">
         <mat-icon>add</mat-icon>
         Create your first space
       </button>

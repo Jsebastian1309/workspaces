@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { AuthService } from './AuthService.service';
+import { AuthService } from '../../core/auth/Auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 
@@ -28,15 +28,17 @@ export class FolderService {
   
   
     searchFoldersFiltered(espacioTrabajoIdentificador: string, espacioIdentificador?: string): Observable<any[]> {
-          const headers = this.authService.createHeaders();
-          const body: any = {
-          paginador: 'Y', offset: 0, limit: 100, campoOrder: '', direccionOrder: '', estado: 'Activo',
-          espacioTrabajoIdentificador,
-          espacioIdentificador: espacioIdentificador || '' ,
-          publico: true
-          };
-          return this.http.post<any[]>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers });
-      }
+        const headers = this.authService.createHeaders();
+        const body: any = {
+        paginador: 'Y', offset: 0, limit: 100, campoOrder: '', direccionOrder: '', estado: 'Activo',
+        espacioTrabajoIdentificador,
+        espacioIdentificador: espacioIdentificador || '' ,
+        publico: true
+        };
+        return this.http
+        .post<any>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers })
+        .pipe(map((resp: any) => Array.isArray(resp) ? resp : (resp?.proyCarpetaList ?? [])));
+    }
   
       /**
        * Buscar un espacio de trabajo por identificador
@@ -63,8 +65,8 @@ export class FolderService {
           const workspaceData = {
               identificador: identificador,
               nombre: payload.nombre,
-              organizacionId: currentUser?.organizacion_id,
-              clienteId: currentUser?.cliente_id,
+              organizacionId: currentUser?.organizacionId,
+              clienteId: currentUser?.clienteId,
               descripcion: payload.descripcion,
               publico: payload.publico,
               estado: payload.estado,
@@ -73,22 +75,16 @@ export class FolderService {
               espacioIdentificador: payload.espacioIdentificador
           };
           
-          console.log('Enviando datos al backend:', workspaceData);
-          
           return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, workspaceData, { 
               headers,
               observe: 'response' // Para obtener la respuesta completa con status
           }).pipe(
               map((response: any) => {
-
-                  console.log('Respuesta completa del backend:', response);
                   return response.body;
               }),
               catchError((error: any) => {
-                  console.error('Error detallado del backend:', error);
                   // Si es un error 200/201 pero con contenido de error, lo tratamos como éxito
                   if (error.status === 200 || error.status === 201) {
-                      console.log('Tratando respuesta como exitosa a pesar del status');
                       return of(error.error);
                   }
                   throw error;

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from 'src/app/service/AuthService.service';
+import { AuthService } from 'src/app/service/core/auth/Auth.service';
 
 @Component({
   selector: 'app-modal-folder',
@@ -43,8 +43,8 @@ export class ModalFolderComponent {
         espacioId: this.SelectedSpace.id || this.SelectedSpace.espacio_id || null,
         nombre: nombreLimpio,
         descripcion: raw.descripcion,
-        organizacionId: currentUser?.organizacion_id,
-        clienteId: currentUser?.cliente_id,
+        organizacionId: currentUser?.organizacionId,
+        clienteId: currentUser?.clienteId,
         espacioTrabajoIdentificador: this.SelectedWorkspace.identificador || this.SelectedWorkspace.espacio_trabajo_identificador,
         espacioIdentificador: this.SelectedSpace.identificador || this.SelectedSpace.espacio_identificador,
         publico: !!raw.publico

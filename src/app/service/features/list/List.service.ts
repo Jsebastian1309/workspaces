@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { AuthService } from './AuthService.service';
+import { AuthService } from '../../core/auth/Auth.service';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -32,8 +32,8 @@ export class ListService {
           estado: payload.estado ?? 'Activo',
           nombre: payload.nombre,
           descripcion: payload.descripcion,
-          organizacionId: payload.organizacionId || currentUser?.organizacion_id,
-          clienteId: payload.clienteId || currentUser?.cliente_id,
+          organizacionId: payload.organizacionId || currentUser?.organizacionId,
+          clienteId: payload.clienteId || currentUser?.clienteId,
           carpetaIdentificador: payload.carpetaIdentificador,
           carpetaId: payload.carpetaId,
           publico: payload.publico
@@ -64,7 +64,9 @@ export class ListService {
           carpetaIdentificador,
           publico: true
         };
-        return this.http.post<any[]>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers });
+        return this.http
+          .post<any>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers })
+          .pipe(map((resp: any) => Array.isArray(resp) ? resp : (resp?.proyListaList ?? [])));
       }
 
       /**

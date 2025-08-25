@@ -12,14 +12,16 @@
       <div class="workspace-avatar me-2"
         [style.background-color]="SelectedWorkspace.color">
         <ng-container *ngIf="SelectedWorkspace.icono; else wsInitial">
-          <i class="bi" [ngClass]="SelectedWorkspace.icono" aria-hidden="true"></i>
+          <i class="bi" [ngClass]="SelectedWorkspace.icono"
+            aria-hidden="true"></i>
         </ng-container>
-        <ng-template #wsInitial>{{ obtenerInicial(SelectedWorkspace?.nombre) }}</ng-template>
+        <ng-template #wsInitial>{{(SelectedWorkspace?.nombre)
+          }}</ng-template>
       </div>
       <div>
         <small class="text-form">Creating space in:</small>
         <br>
-        <strong>{{ SelectedWorkspace.nombre }}</strong>
+        {{ SelectedWorkspace.nombre }}
       </div>
     </div>
   </div>
@@ -36,10 +38,11 @@
         placeholder="Ej: Marketing Team"
         [class.is-invalid]="hasError('nombre')" />
       <div class="invalid-feedback" *ngIf="hasError('nombre', 'required')">
-        El nombre es obligatorio
+
+        The name is required
       </div>
       <div class="invalid-feedback" *ngIf="hasError('nombre', 'minlength')">
-        El nombre debe tener al menos 3 caracteres
+        The name must be at least 3 characters long
       </div>
     </div>
 
@@ -54,30 +57,18 @@
         rows="3"></textarea>
     </div>
 
-    <!-- Row para Categoría y Color -->
-    <div class="row">
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label for="categoria" class="form-label">Category *</label>
-          <select
-            id="categoria"
-            class="form-select"
-            formControlName="categoria"
-            [class.is-invalid]="hasError('categoria')">
-            <option *ngFor="let cat of categorias" [value]="cat">{{ cat
-              }}</option>
-          </select>
+    <!-- Row para icono y Color -->
+    <div class="row  mb-3">
+        <div class="col-md-6">
+            <app-color-picker formControlName="color"
+                label="Color"></app-color-picker>
         </div>
-      </div>
-      <div class="col-md-6">
-        <app-icon-picker formControlName="icono" label="Icon"></app-icon-picker>
-      </div>
+        <div class="col-md-6">
+            <app-icon-picker formControlName="icono"
+                label="Icon"></app-icon-picker>
+        </div>
     </div>
 
-    <!-- Selector de Color -->
-    <div class="mb-3">
-      <app-color-picker formControlName="color" label="Color"></app-color-picker>
-    </div>
 
     <!-- Vista previa del space -->
     <div class="mb-3">
@@ -132,7 +123,8 @@
     class="btn btn-primary"
     (click)="onSubmit()"
     [disabled]="spaceForm.invalid || !SelectedWorkspace">
-  <i class="bi" [ngClass]="isEditMode ? 'bi-check-circle' : 'bi-plus-circle'"></i>
-  {{ isEditMode ? 'Update Space' : 'Create Space' }}
+    <i class="bi"
+      [ngClass]="isEditMode ? 'bi-check-circle' : 'bi-plus-circle'"></i>
+    {{ isEditMode ? 'Update Space' : 'Create Space' }}
   </button>
 </div>
