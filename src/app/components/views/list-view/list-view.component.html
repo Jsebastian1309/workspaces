@@ -1,0 +1,157 @@
+<div class="list-view" *ngIf="list; else empty">
+  <!-- Header con información de la lista -->
+  <div class="header">
+    <div class="list-info">
+      <h2 class="title">{{ list.nombre }}</h2>
+      <p class="desc" *ngIf="list.descripcion">{{ list.descripcion }}</p>
+    </div>
+  </div>
+
+  <!-- Estados de carga y error -->
+  <div class="status-message">
+    <div class="loading" *ngIf="loading">Cargando tareas...</div>
+    <div class="error" *ngIf="!loading && error">{{ error }}</div>
+    <div class="success" *ngIf="!loading && info">{{ info }}</div>
+  </div>
+
+  <div class="tasks-table">
+    <div class="table-header">
+      <h3>Tareas  ({{ getTotalTasksCount() }})</h3>
+    </div>
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="col-name">Nombre</th>
+            <th class="col-status">Estado</th>
+            <th class="col-priority">Prioridad</th>
+            <th class="col-due">Fecha Vencimiento</th>
+            <th class="col-assignee">Asignado a</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Fila para agregar nueva tarea -->
+          <tr class="add-row" *ngIf="addingFor">
+            <td>
+              <input 
+                class="input" 
+                placeholder="Nombre de la tarea" 
+                [(ngModel)]="draft.nombre"
+                (keyup.enter)="saveAdd()"
+                (keyup.escape)="cancelAdd()"
+                #nameInput>
+              <textarea 
+                class="input textarea-small" 
+                placeholder="Descripción (opcional)" 
+                [(ngModel)]="draft.descripcion"
+                rows="2"></textarea>
+            </td>
+            <td>
+              <select class="select" [(ngModel)]="draft.estado">
+                <option *ngFor="let s of statuses" [value]="s.key">{{ s.label }}</option>
+              </select>
+            </td>
+            <td>
+              <select class="select" [(ngModel)]="draft.prioridad">
+                <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+              </select>
+            </td>
+            <td>
+              <input class="input" type="date" [(ngModel)]="draft.fechaVencimiento">
+            </td>
+            <td>
+              <input class="input" placeholder="Asignado a" [(ngModel)]="draft.asignadoA">
+            </td>
+            <td class="actions">
+              <button class="btn-save" (click)="saveAdd()" [disabled]="!draft.nombre">
+                Guardar
+              </button>
+              <button class="btn-cancel" (click)="cancelAdd()">
+                Cancelar
+              </button>
+            </td>
+          </tr>
+
+          <!-- Filas de tareas existentes -->
+          <ng-container *ngFor="let statusKey of getGroupedKeys()">
+            <tr class="task-row" 
+                *ngFor="let task of grouped[statusKey]; trackBy: trackById"
+                [class.editing]="editing[task.identificador]">
+              
+              <!-- Modo visualización -->
+              <ng-container *ngIf="!editing[task.identificador]; else editMode">
+                <td class="col-name">
+                  <div class="task-name">{{ task.nombre }}</div>
+                  <div class="task-desc" *ngIf="task.descripcion">{{ task.descripcion }}</div>
+                </td>
+                <td class="col-status">
+                  <span class="status-badge" [style.background-color]="getStatusColor(task.estado || 'OPEN')">
+                    {{ getStatusLabel(task.estado || 'OPEN') }}
+                  </span>
+                </td>
+                <td class="col-priority">
+                  <span class="priority-badge" [class]="'priority-' + (task.prioridad || 'medium').toLowerCase()">
+                    {{ task.prioridad || 'Medium' }}
+                  </span>
+                </td>
+                <td class="col-due">
+                  <span *ngIf="task.fechaVencimiento">{{ task.fechaVencimiento | date:'shortDate' }}</span>
+                  <span *ngIf="!task.fechaVencimiento" class="no-date">Sin fecha</span>
+                </td>
+                <td class="col-assignee">{{ assigneeLabel(task.asignadoA) || 'Sin asignar' }}</td>
+                <td class="col-actions">
+                  <button class="btn-edit" (click)="startEdit(task)">Editar</button>
+                  <button class="btn-delete" (click)="deleteTask(task)">Eliminar</button>
+                </td>
+              </ng-container>
+
+              <!-- Modo edición -->
+              <ng-template #editMode>
+                <td>
+                  <input class="input" [(ngModel)]="task.nombre" placeholder="Nombre de la tarea">
+                </td>
+                <td>
+                  <select class="select" [(ngModel)]="task.estado" (ngModelChange)="onStatusChange(task, $event)">
+                    <option *ngFor="let s of statuses" [value]="s.key">{{ s.label }}</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="select" [(ngModel)]="task.prioridad">
+                    <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+                  </select>
+                </td>
+                <td>
+                  <input class="input" type="date" [(ngModel)]="task.fechaVencimiento">
+                </td>
+                <td>
+                  <input class="input" [(ngModel)]="task.asignadoA" placeholder="Asignado a">
+                </td>
+                <td class="actions">
+                  <button class="btn-save" (click)="saveEdit(task)">Guardar</button>
+                  <button class="btn-cancel" (click)="cancelEdit(task)">Cancelar</button>
+                </td>
+              </ng-template>
+            </tr>
+          </ng-container>
+
+          <!-- Estado vacío -->
+          <tr *ngIf="!hasAnyTasks() && !addingFor" class="empty-state">
+            <td colspan="6" class="empty-message">
+              <div class="empty-content">
+                <span class="empty-icon">📝</span>
+                <p>No hay tareas en esta lista</p>
+                <p class="empty-subtitle">Haz clic en "Add Task" para crear la primera tarea</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<ng-template #empty>
+  <div class="list-view empty">
+    <p>Select a list to view details</p>
+  </div>
+</ng-template>

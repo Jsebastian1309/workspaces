@@ -1,0 +1,23 @@
+<app-splash-screen *ngIf="isLoading"></app-splash-screen>
+<div *ngIf="!isLoading">
+  <header>
+    <app-header></app-header>
+  </header>
+  <div class="content">
+    <app-sidebar [workspaces]="workspaces"
+      [selectedWorkspace]="selectedWorkspace"
+      [activeView]="currentView"
+      (viewChange)="onViewChange($event)"
+      (listSelected)="onListSelected($event)"></app-sidebar>
+    <div class="main-content">
+      <app-start *ngIf="currentView === 'start'"></app-start>
+      <app-templates *ngIf="currentView === 'templates'"></app-templates>
+      <app-task *ngIf="currentView === 'list-view'" 
+        [list]="selectedList"
+        [espacioTrabajoIdentificador]="selectedWorkspace?.identificador"
+        [espacioIdentificador]="selectedList?.espacioIdentificador"
+        [carpetaIdentificador]="selectedList?.carpetaIdentificador">
+      </app-task>
+    </div>
+  </div>
+</div>

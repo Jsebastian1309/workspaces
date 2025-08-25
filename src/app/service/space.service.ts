@@ -9,37 +9,28 @@ import { AuthService } from "./AuthService.service";
 @Injectable({
     providedIn: 'root',
 })
-export class WorkspaceService {
+export class SpaceService {
 
     private apiUrl = environment.Backend;
     private baseUrl = '/proyEspacio';
 
     constructor(private http: HttpClient, private authService: AuthService) { }
 
-    private createHeaders(): HttpHeaders {
-        const token = this.authService.getKeycloakToken();
-        let headers = new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-        if (token) {
-            headers = headers.set('Authorization', `Bearer ${token}`);
-        }
-        return headers;
-    }
+
 
     listSpaces(): Observable<any[]> {
-        const headers = this.createHeaders();
+        const headers = this.authService.createHeaders();
         return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar`,{ headers });
     }
 
     listSpacesByWorkspace(espacioTrabajoIdentificador: string): Observable<any[]> {
-        const headers = this.createHeaders();
+        const headers = this.authService.createHeaders();
         return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar?espacioTrabajoIdentificador=${espacioTrabajoIdentificador}`, { headers });
     }
 
 
     searchSpacesFiltered(espacioTrabajoIdentificador: string): Observable<any[]> {
-        const headers = this.createHeaders();
+        const headers =this.authService.createHeaders();
         const body: any = {
             espacioTrabajoIdentificador,
             publico: true
@@ -51,7 +42,7 @@ export class WorkspaceService {
      * Buscar un espacio de trabajo por identificador
      */
     Searchspace(identificador: string): Observable<any> {
-        const headers = this.createHeaders();
+        const headers = this.authService.createHeaders();
         return this.http.get<any>(`${this.apiUrl}${this.baseUrl}/buscar/${identificador}`, { headers });
     }
 
@@ -59,7 +50,7 @@ export class WorkspaceService {
      * Crear un nuevo espacio de trabajo
      */
     CreateSpace(workspace: any): Observable<any> {
-        const headers = this.createHeaders();
+        const headers = this.authService.createHeaders();
         
         // Obtener información del usuario logueado
         const currentUser = this.authService.getCurrentUser();
@@ -105,6 +96,36 @@ export class WorkspaceService {
                 throw error;
             })
         );
+    }
+
+    /**
+     * Actualizar un espacio existente
+     */
+    updateSpace(space: any): Observable<any> {
+        const headers = this.authService.createHeaders();
+        const payload = {
+            identificador: space.identificador,
+            estado: space.estado,
+            nombre: space.nombre,
+            color: space.color,
+            icono: space.icono,
+            organizacionId: space.organizacionId,
+            clienteId: space.clienteId,
+            categoria: space.categoria,
+            publico: space.publico,
+            descripcion: space.descripcion,
+            espacioTrabajoIdentificador: space.espacioTrabajoIdentificador
+        };
+        return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, payload, { headers });
+    }
+
+    /**
+     * Eliminar un espacio
+     */
+    deleteSpace(space: any): Observable<any> {
+        const headers = this.authService.createHeaders();
+        const body = space.identificador ? { identificador: space.identificador } : space;
+        return this.http.delete<any>(`${this.apiUrl}${this.baseUrl}/eliminar`, { headers, body });
     }
 
     /**

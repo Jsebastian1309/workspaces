@@ -13,26 +13,12 @@ export class WorkspaceService {
     private baseUrl = '/proyEspacioTrabajo';
 
     constructor(private http: HttpClient, private authService: AuthService) { }
-
-    /**
-     * Crear headers con token de autorización y información del usuario
-     */
-    private createHeaders(): HttpHeaders {
-        const token = this.authService.getKeycloakToken();
-        let headers = new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-        if (token) {
-            headers = headers.set('Authorization', `Bearer ${token}`);
-        }
-        return headers;
-    }
-
+    
     /**
      * Listar todos los espacios de trabajo
      */
     listWorkSpaces(): Observable<any[]> {
-        const headers = this.createHeaders();
+        const headers = this.authService.createHeaders();
         return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar`,{ headers });
     }
 
@@ -40,7 +26,7 @@ export class WorkspaceService {
      * Buscar un espacio de trabajo por identificador
      */
     SearchWorkSpace(identificador: string): Observable<any> {
-        const headers = this.createHeaders();
+        const headers = this.authService.createHeaders();
         return this.http.get<any>(`${this.apiUrl}${this.baseUrl}/buscar/${identificador}`, { headers });
     }
 
@@ -48,19 +34,14 @@ export class WorkspaceService {
      * Crear un nuevo espacio de trabajo
      */
     CreateWorkSpace(workspace: any): Observable<any> {
-        const headers = this.createHeaders();
-        
-        // Obtener información del usuario logueado
+        const headers = this.authService.createHeaders();
         const currentUser = this.authService.getCurrentUser();
-        
-        // Preparar el objeto con la información del usuario y organizacion
         const workspaceData = {
             ...workspace,
-            usuario_creacion: currentUser?.username || 'unknown',
-            organizacion_id: currentUser?.organizacion_id || workspace.organizacion_id,
-            cliente_id: currentUser?.cliente_id || workspace.cliente_id
+            usuario_creacion: currentUser?.username,
+            organizacion_id: currentUser?.organizacion_id,
+            cliente_id: currentUser?.cliente_id
         };
-        
         return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, workspaceData, { headers });
     }
 
@@ -68,37 +49,30 @@ export class WorkspaceService {
      * Actualizar un espacio de trabajo existente
      */
     UpdateWorkSpace(workspace: any): Observable<any> {
+        const headers = this.authService.createHeaders();
         const currentUser = this.authService.getCurrentUser();
-        const username = currentUser?.username || 'system';
-        
-        // Crear headers con información de auditoría
-        let headers = this.createHeaders();
-        headers = headers.set('X-Usuario-Actualizacion', username);
-        headers = headers.set('X-Fecha-Actualizacion', new Date().toISOString());
-        
-        console.log('Usuario actual:', currentUser);
-        console.log('Username para auditoría:', username);
-        
-        // NO enviar campos de auditoría en el body ya que tienen @JsonIgnore
+        const username = currentUser?.username
         const workspaceData = {
             identificador: workspace.identificador,
             estado: workspace.estado,
             nombre: workspace.nombre,
-            descripcion: workspace.descripcion || '',
             color: workspace.color,
             icono: workspace.icono,
-            organizacionId: workspace.organizacionId || workspace.organizacion_id,
-            clienteId: workspace.clienteId || workspace.cliente_id,
-            espacioTrabajoId: workspace.espacioTrabajoId || 10,
-            espacioTrabajoIdentificador: workspace.espacioTrabajoIdentificador || workspace.identificador,
-            publico: workspace.publico === true || workspace.publico === 'true',
+            organizacionId: workspace.organizacionId,
+            clienteId: workspace.clienteId,
             categoria: workspace.categoria,
-            usuarioActualizacion: username
-
+            publico: workspace.publico,
+            // usuarioActualizacion: username
         };
-        
         console.log('Datos enviados al backend para actualizar:', workspaceData);
-        
         return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, workspaceData, { headers });
+    }
+
+    /**
+     * Eliminar un espacio de trabajo
+     */
+    DeleteWorkSpace(workspace: any): Observable<any> {
+        const headers = this.authService.createHeaders();
+        return this.http.delete<any>(`${this.apiUrl}${this.baseUrl}/eliminar`, {headers,body: workspace});
     }
 }

@@ -1,0 +1,138 @@
+<div class="spaces-tree-container">
+  <div class="tree-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="section-title">Spaces</span>
+      <button mat-icon-button class="btn" (click)="onAddSpace()" title="Add Space" *ngIf="SelectedWorkspace">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </div>
+  <hr>
+
+  <div class="no-workspace" *ngIf="!SelectedWorkspace">
+    <mat-icon class="empty-icon">work_outline</mat-icon>
+    <p>Select a workspace to view spaces</p>
+  </div>
+
+  <div class="loading-spaces" *ngIf="SelectedWorkspace && isLoading">
+    <mat-icon class="loading-icon">refresh</mat-icon>
+    <p>Loading spaces...</p>
+  </div>
+
+  <ng-container *ngIf="SelectedWorkspace && !isLoading">
+    <div class="simple-list">
+      <!-- Everything row -->
+      <div class="row-item" [class.is-selected]="selectedKey === 'everything'" (click)="onSelectEverything()">
+        <div class="left">
+          <mat-icon class="prefix">grade</mat-icon>
+          <span class="label">Everything</span>
+        </div>
+      </div>
+
+      <!-- Spaces -->
+      <ng-container *ngFor="let space of dataSource.data">
+  <div class="row-item"
+             [class.is-selected]="selectedKey === getKey(space)"
+             (click)="onNodeClick(space)">
+          <div class="left">
+            <button *ngIf="space.children?.length" mat-icon-button class="chev" (click)="$event.stopPropagation(); toggleSpace(space)">
+              <mat-icon>{{ isExpanded(space) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+            </button>
+            <div class="space-avatar" [style.background-color]="space.color">
+              <i *ngIf="isBootstrapIcon(space.icono)" class="bi" [ngClass]="space.icono" aria-hidden="true"></i>
+              <span *ngIf="!isBootstrapIcon(space.icono)">{{ space.icono }}</span>
+            </div>
+            <span class="label">{{ space.nombre }}</span>
+          </div>
+          <div class="right" (click)="$event.stopPropagation()">
+            <button mat-icon-button class="action-btn add-btn" (click)="onAddFolder(space)" title="Add folder">
+              <mat-icon>add</mat-icon>
+            </button>
+            <div ngbDropdown class="overflow-dropdown" display="dynamic">
+              <button mat-icon-button class="action-btn more-btn no-caret" ngbDropdownToggle title="More options">
+                <mat-icon>more_horiz</mat-icon>
+              </button>
+              <div ngbDropdownMenu class="dropdown-menu-sm-end dropdown-menu-dark">
+                <button ngbDropdownItem (click)="onEditNode(space)">
+                  <mat-icon>settings</mat-icon>
+                  <span>Space settings</span>
+                </button>
+                <div class="dropdown-divider"></div>
+                <button ngbDropdownItem class="danger" (click)="onDeleteNode(space)">
+                  <mat-icon>delete</mat-icon>
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Folders under space -->
+        <div *ngIf="isExpanded(space)" class="children">
+          <div class="row-item child" *ngFor="let folder of space.children"
+               [class.is-selected]="selectedKey === getKey(folder)"
+               (click)="onNodeClick(folder)">
+            <div class="left">
+              <mat-icon class="prefix" [fontIcon]="'folder'"></mat-icon>
+              <span class="label">{{ folder.nombre }}</span>
+            </div>
+            <div class="right" (click)="$event.stopPropagation()">
+              <button mat-icon-button class="action-btn add-btn" (click)="onAddList(folder)" title="Add list">
+                <mat-icon>add</mat-icon>
+              </button>
+              <div ngbDropdown class="overflow-dropdown" display="dynamic">
+                <button mat-icon-button class="action-btn more-btn no-caret" ngbDropdownToggle title="More options">
+                  <mat-icon>more_horiz</mat-icon>
+                </button>
+                <div ngbDropdownMenu class="dropdown-menu-sm-end dropdown-menu-dark">
+                  <button ngbDropdownItem (click)="onEditNode(folder)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Edit</span>
+                  </button>
+                  <button ngbDropdownItem class="danger" (click)="onDeleteNode(folder)">
+                    <mat-icon>delete</mat-icon>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lists under each folder -->
+        <div *ngIf="isExpanded(space)" class="children">
+          <div class="row-item child" *ngFor="let folder of space.children">
+            <div class="children" *ngIf="folder.children && folder.children.length">
+              <div class="row-item child" *ngFor="let list of folder.children" (click)="onNodeClick(list)"
+                   [class.is-selected]="selectedKey === getKey(list)">
+                <div class="left">
+                  <mat-icon class="prefix">format_list_bulleted</mat-icon>
+                  <span class="label">{{ list.nombre }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Create Space CTA -->
+      <div class="row-item create" (click)="onAddSpace()">
+        <div class="left">
+          <mat-icon class="prefix">add</mat-icon>
+          <span class="label">Create Space</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-spaces" *ngIf="dataSource.data.length === 0">
+      <mat-icon class="empty-icon">folder_open</mat-icon>
+      <p>No spaces yet</p>
+      <button mat-raised-button color="primary" (click)="onAddSpace()">
+        <mat-icon>add</mat-icon>
+        Create your first space
+      </button>
+    </div>
+  </ng-container>
+</div>
+
+

@@ -1,0 +1,101 @@
+<div class="task-container">
+  <div class="main-header">
+    <div class="breadcrumb-section">
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">
+          <span class="icon"></span>
+          Space
+        </span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item" *ngIf="getCarpetaName()">
+          <span class="icon"></span>
+          {{ getCarpetaName() }}
+        </span>
+        <span class="breadcrumb-separator" *ngIf="getCarpetaName()">/</span>
+        <span class="breadcrumb-item current">
+          <span class="icon"></span>
+          {{ list?.nombre }}
+        </span>
+      </div>
+    </div>
+    <hr>
+
+    <!-- Controles principales -->
+    <div class="header-controls">
+      <!-- Selector de vistas (Board, List, Gantt) -->
+      <div class="view-selector">
+        <button 
+          [class]="'view-btn ' + (currentView === 'board' ? 'active' : '')"
+          (click)="switchView('board')">
+          <i class="bi bi-clipboard-fill"></i>
+          <span class="view-label">Board</span>
+        </button>
+        <button 
+          [class]="'view-btn ' + (currentView === 'list' ? 'active' : '')"
+          (click)="switchView('list')">
+          <i class="bi bi-list"></i>
+          <span class="view-label">List</span>
+        </button>
+        <button 
+          [class]="'view-btn ' + (currentView === 'gantt' ? 'active' : '')"
+          (click)="switchView('gantt')">
+          <i class="bi bi-kanban"></i>
+          <span class="view-label">Gantt</span>
+        </button>
+                <button 
+          [class]="'view-btn ' + (currentView === 'gantt' ? 'active' : '')"
+          (click)="switchView('gantt')">
+          <i class="bi bi-calendar"></i>
+          <span class="view-label">Calendar</span>
+        </button>
+      </div>
+
+      <!-- Botones adicionales -->
+      <div class="action-buttons">
+        <button class="btn-search" title="Search">
+<i class="bi bi-search"></i>        </button>
+        <button class="btn-filter" title="Filter">
+<i class="bi bi-filter"></i>
+        </button>
+        <button class="btn-customize" title="Customize">
+          <i class="bi bi-gear"></i>
+        </button>
+        <button class="btn-add-task" (click)="addNewTask()">
+          <span class="icon">+</span>
+          Add Task
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido de las vistas -->
+  <div class="view-content">
+    <!-- Vista de Lista -->
+    <app-list-view 
+      #listView
+      *ngIf="currentView === 'list'"
+      [list]="list"
+      [espacioTrabajoIdentificador]="espacioTrabajoIdentificador"
+      [espacioIdentificador]="espacioIdentificador"
+      [carpetaIdentificador]="carpetaIdentificador">
+    </app-list-view>
+
+    <!-- Vista de Board (placeholder por ahora) -->
+    <div *ngIf="currentView === 'board'" class="view-placeholder">
+      <div class="placeholder-content">
+        <span class="placeholder-icon">�</span>
+        <h3>Vista Board</h3>
+        <p>Esta vista estará disponible próximamente</p>
+      </div>
+    </div>
+
+    <!-- Vista de Gantt (placeholder por ahora) -->
+    <div *ngIf="currentView === 'gantt'" class="view-placeholder">
+      <div class="placeholder-content">
+        <span class="placeholder-icon">�</span>
+        <h3>Vista Gantt</h3>
+        <p>Esta vista estará disponible próximamente</p>
+      </div>
+    </div>
+  </div>
+</div>
