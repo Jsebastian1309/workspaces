@@ -4,14 +4,19 @@
       <div class="breadcrumb">
         <span class="breadcrumb-item">
           <span class="icon"></span>
-          Space
+          {{ getEspacioTrabajoName() }}
         </span>
         <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item" *ngIf="getEspacioName()">
+          <span class="icon"></span>
+          {{ getEspacioName() }}
+        </span>
+        <span class="breadcrumb-separator" *ngIf="getCarpetaName()">/</span>
         <span class="breadcrumb-item" *ngIf="getCarpetaName()">
           <span class="icon"></span>
           {{ getCarpetaName() }}
         </span>
-        <span class="breadcrumb-separator" *ngIf="getCarpetaName()">/</span>
+        <span class="breadcrumb-separator">/</span>
         <span class="breadcrumb-item current">
           <span class="icon"></span>
           {{ list?.nombre }}
@@ -20,7 +25,7 @@
     </div>
     <hr>
 
-    <!-- Controles principales -->
+  <!-- Controles principales -->
     <div class="header-controls">
       <!-- Selector de vistas (Board, List, Gantt) -->
       <div class="view-selector">
@@ -42,9 +47,9 @@
           <i class="bi bi-kanban"></i>
           <span class="view-label">Gantt</span>
         </button>
-                <button 
-          [class]="'view-btn ' + (currentView === 'gantt' ? 'active' : '')"
-          (click)="switchView('gantt')">
+        <button 
+          [class]="'view-btn ' + (currentView === 'calendar' ? 'active' : '')"
+          (click)="switchView('calendar')">
           <i class="bi bi-calendar"></i>
           <span class="view-label">Calendar</span>
         </button>
@@ -68,6 +73,46 @@
     </div>
   </div>
 
+  <!-- Sección de filtros (Bootstrap row) -->
+  <div class="container-fluid filters-section">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-sm-6 col-md-3 col-lg-2">
+        <label class="form-label">Categoría</label>
+        <input class="form-control" placeholder="Categoría" [(ngModel)]="filtroCategoria" (ngModelChange)="fetchTasks()" />
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label">Desde</label>
+        <input class="form-control" type="date" [(ngModel)]="filtroFechaInicio" (ngModelChange)="fetchTasks()" />
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label">Hasta</label>
+        <input class="form-control" type="date" [(ngModel)]="filtroFechaFin" (ngModelChange)="fetchTasks()" />
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label">Prioridad</label>
+        <select class="form-select" [(ngModel)]="filtroPrioridad" (ngModelChange)="fetchTasks()">
+          <option value="">Todas</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label">Estado</label>
+        <select class="form-select" [(ngModel)]="filtroEstado" (ngModelChange)="fetchTasks()">
+          <option value="">Todos</option>
+          <option value="OPEN">Open</option>
+          <option value="PENDING">Pending</option>
+          <option value="BLOCKED">Blocked</option>
+          <option value="DONE">Done</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-3 col-lg-2 d-flex gap-2 justify-content-start justify-content-md-end">
+        <button class="btn btn-outline-secondary" (click)="clearFilters()">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Contenido de las vistas -->
   <div class="view-content">
     <!-- Vista de Lista -->
@@ -77,7 +122,9 @@
       [list]="list"
       [espacioTrabajoIdentificador]="espacioTrabajoIdentificador"
       [espacioIdentificador]="espacioIdentificador"
-      [carpetaIdentificador]="carpetaIdentificador">
+      [carpetaIdentificador]="carpetaIdentificador"
+      [tasks]="tasks"
+      (refresh)="fetchTasks()">
     </app-list-view>
 
     <!-- Vista de Board (placeholder por ahora) -->

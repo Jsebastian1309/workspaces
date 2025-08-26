@@ -12,6 +12,10 @@
     <div class="main-content">
       <app-start *ngIf="currentView === 'start'"></app-start>
       <app-templates *ngIf="currentView === 'templates'"></app-templates>
+      <app-team *ngIf="currentView === 'team'"></app-team>
+      <app-status-template *ngIf="currentView === 'status-templates'"></app-status-template>
+      <app-task-template *ngIf="currentView === 'task-templates'"></app-task-template>
+      <app-team *ngIf="currentView === 'team'"></app-team>
       <app-task *ngIf="currentView === 'list-view'" 
         [list]="selectedList"
         [espacioTrabajoIdentificador]="selectedWorkspace?.identificador"

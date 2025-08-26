@@ -21,7 +21,6 @@ export class HomeComponent {
   onViewChange(view: string) {
     this.currentView = view;
     if (view === 'start') {
-      // Al volver al inicio, limpiamos la lista seleccionada
       this.selectedList = null;
     }
   }

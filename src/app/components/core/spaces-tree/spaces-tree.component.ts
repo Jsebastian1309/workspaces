@@ -24,8 +24,15 @@ interface SpaceNode {
   espacioTrabajoIdentificador?: string;
   espacioIdentificador?: string;
   carpetaIdentificador?: string;
-  children?: SpaceNode[];
+  // display helper names
+  espacioTrabajoNombre?: string;
+  espacioNombre?: string;
+  carpetaNombre?: string;
+  folders?: SpaceNode[];
+  lists?: SpaceNode[];
   expandable?: boolean;
+  // keep original backend object when available (for delete, etc.)
+  raw?: any;
 }
 
 @Component({
@@ -37,12 +44,12 @@ export class SpacesTreeComponent implements OnInit {
   @Input() SelectedWorkspace: any;
   @Output() listSelected = new EventEmitter<any>();
 
-  treeControl = new NestedTreeControl<SpaceNode>(node => node.children);
+  treeControl = new NestedTreeControl<SpaceNode>(node => node.folders || node.lists || []);
   dataSource = new MatTreeNestedDataSource<SpaceNode>();
   isLoading = false;
-  // UI state for simple list view
   selectedKey: string | null = null;
   private expandedSpaces = new Set<string>();
+  private expandedFolders = new Set<string>();
 
   constructor(
     private modalService: NgbModal,
@@ -74,10 +81,15 @@ export class SpacesTreeComponent implements OnInit {
             tipo: 'space' as const,
             color: space.color,
             icono: space.icono,
+            estado: space.estado,
+            publico: space.publico,
+            organizacionId: space.organizacionId,
+            clienteId: space.clienteId,
             descripcion: space.descripcion,
             espacioTrabajoIdentificador: space.espacioTrabajoIdentificador,
             expandable: true,
-            children: []
+            folders: [],
+            raw: space
           }));
 
           const folderCalls = baseNodes.map(spaceNode =>
@@ -101,10 +113,12 @@ export class SpacesTreeComponent implements OnInit {
               icono: 'folder',
               descripcion: f.descripcion,
               espacioTrabajoIdentificador: f.espacioTrabajoIdentificador,
+              espacioIdentificador: spaceNode.identificador,
               expandable: true,
-              children: []
+              lists: [],
+              raw: f
             }));
-            spaceNode.children = folderNodes;
+            spaceNode.folders = folderNodes;
             allFolderNodes.push(...folderNodes);
           }
 
@@ -118,8 +132,8 @@ export class SpacesTreeComponent implements OnInit {
           forkJoin(listCalls).subscribe({
             next: (pairs) => {
               for (const { folderNode, lists } of pairs) {
-                const parentSpace = baseNodes.find(space => space.children?.some(folder => folder.identificador === folderNode.identificador));
-                folderNode.children = (lists || []).map((l: any) => ({
+                const parentSpace = baseNodes.find(space => space.folders?.some(folder => folder.identificador === folderNode.identificador));
+                const listNodes: SpaceNode[] = (lists || []).map((l: any) => ({
                   id: l.id,
                   identificador: l.identificador,
                   nombre: l.nombre,
@@ -128,8 +142,14 @@ export class SpacesTreeComponent implements OnInit {
                   expandable: true,
                   espacioTrabajoIdentificador: folderNode.espacioTrabajoIdentificador || parentSpace?.espacioTrabajoIdentificador,
                   espacioIdentificador: parentSpace?.identificador,
-                  carpetaIdentificador: folderNode.identificador
+                  carpetaIdentificador: folderNode.identificador,
+                  // names for breadcrumb/display
+                  espacioTrabajoNombre: this.SelectedWorkspace?.nombre,
+                  espacioNombre: parentSpace?.nombre,
+                  carpetaNombre: folderNode.nombre,
+                  raw: l
                 }));
+                folderNode.lists = listNodes;
               }
               this.dataSource.data = baseNodes; this.isLoading = false; this._restoreExpansion(baseNodes);
             },
@@ -177,6 +197,25 @@ export class SpacesTreeComponent implements OnInit {
       .catch(() => { });
   }
 
+  openEditSpaceModal(spaceNode: SpaceNode) {
+    const modalRef = this.modalService.open(ModalSpaceComponent, {
+      centered: true,
+      backdrop: 'static',
+      size: 'lg'
+    });
+    modalRef.componentInstance.title = 'Edit Space';
+    modalRef.componentInstance.isEditMode = true;
+    modalRef.componentInstance.SelectedWorkspace = this.SelectedWorkspace;
+    modalRef.componentInstance.spaceData = spaceNode;
+    modalRef.result
+      .then((spaceData: any) => {
+        if (spaceData) {
+          this.editSpace(spaceData);
+        }
+      })
+      .catch(() => { });
+  }
+
   createNewSpace(spaceData: any) {
     const success = () => {
       this.openInfo('Space created', `El espacio "${spaceData?.nombre}" se creó correctamente.`);
@@ -189,10 +228,63 @@ export class SpacesTreeComponent implements OnInit {
     });
   }
 
+  editSpace(spaceData: any) {
+    const success = () => {
+      this.openInfo('Space updated', `El espacio "${spaceData?.nombre}" se actualizó correctamente.`);
+      this.loadSpaces();
+    };
+    this.SpaceService.updateSpace(spaceData).subscribe({
+      next: () => success(),
+      error: (e) => (e?.status === 200 || e?.status === 201) ? success()
+        : this.openInfo('Error', 'Error al actualizar el espacio.')
+    });
+  }
 
+  deleteSpace(node: SpaceNode) {
+      this.openDelete('Delete space', `Are you sure you want to delete the space "${node.nombre}"?`)
+        .then((confirmed) => {
+          if (!confirmed) return;
+          const payload = node.raw || node;
+          const success = () => {
+            this.openInfo('Space deleted', `El espacio "${node.nombre}" se eliminó correctamente.`);
+            this.loadSpaces();
+          };
+          this.SpaceService.deleteSpace(payload).subscribe({
+            next: success,
+            error: (err) => {
+              console.error('Error deleting space', err);
+              if (err?.status === 200) success();
+              else this.openInfo('Error', 'Error al eliminar el espacio.');
+            }
+          });
+        });
+  }
+
+  deleteList(list: SpaceNode) {
+      this.openDelete('Delete list', `Are you sure you want to delete the list "${list.nombre}"?`)
+        .then((confirmed) => {
+          if (!confirmed) return;
+          const success = () => {
+            this.openInfo('List deleted', `La lista "${list.nombre}" se eliminó correctamente.`);
+            this.loadSpaces();
+          };
+          this.listService.deleteList(list).subscribe({
+            next: success,
+            error: (err) => {
+              console.error('Error deleting list', err);
+              if (err?.status === 200) success();
+              else this.openInfo('Error', 'Error al eliminar la lista.');
+            }
+          });
+        });
+  }
 
   // Los spaces siempre usan el template expandible para mantener el diseño correcto
-  hasChild = (_: number, node: SpaceNode) => node.tipo === 'space' || (!!node.children && node.children.length > 0);
+  hasChild = (_: number, node: SpaceNode) => {
+    if (node.tipo === 'space') return !!(node.folders && node.folders.length > 0);
+    if (node.tipo === 'folder') return !!(node.lists && node.lists.length > 0);
+    return false;
+  };
 
   getNodeIcon(node: SpaceNode): string {
     switch (node.tipo) {
@@ -257,7 +349,6 @@ export class SpacesTreeComponent implements OnInit {
               this.loadSpaces();
             },
             error: (err: any) => {
-              // Algunos backends devuelven 200 con error de parseo
               if (err && (err.status === 200 || err.status === 201)) {
                 console.warn('Tratando respuesta 2xx con error como éxito en carpeta.');
                 this.loadSpaces();
@@ -317,11 +408,9 @@ export class SpacesTreeComponent implements OnInit {
         })
         .catch(() => { });
     } else if (node.tipo === 'folder') {
-      // TODO: abrir modal de carpeta en modo edición cuando esté disponible
-      console.warn('Editar carpeta aún no implementado');
+      this.onEditFolder(node);
     } else if (node.tipo === 'list') {
-      // TODO: abrir modal de lista en modo edición cuando esté disponible
-      console.warn('Editar lista aún no implementado');
+      this.onEditList(node);
     }
   }
 
@@ -334,14 +423,22 @@ export class SpacesTreeComponent implements OnInit {
     });
     modalRef.componentInstance.title = 'Edit Folder';
     modalRef.componentInstance.SelectedWorkspace = this.SelectedWorkspace;
-    modalRef.componentInstance.SelectedSpace = undefined; // opcional
-    modalRef.componentInstance.SelectedFolder = node;
+    modalRef.componentInstance.SelectedSpace = this.getParentSpaceOfFolder(node) || undefined;
+    (modalRef.componentInstance as any).isEditMode = true;
+    (modalRef.componentInstance as any).SelectedFolder = node;
 
     modalRef.result
       .then((updated: any) => {
         if (updated) {
-          // Si el modal ya llamó al servicio, solo recargamos
-          this.loadSpaces();
+          const success = () => {
+            this.openInfo('Folder updated', `La carpeta "${updated?.nombre || node.nombre}" se actualizó correctamente.`);
+            this.loadSpaces();
+          };
+          this.folderService.updateFolder(updated).subscribe({
+            next: () => success(),
+            error: (e) => (e?.status === 200 || e?.status === 201) ? success()
+              : this.openInfo('Error', 'Error al actualizar la carpeta.')
+          });
         }
       })
       .catch(() => { });
@@ -350,22 +447,60 @@ export class SpacesTreeComponent implements OnInit {
   onDeleteNode(node: SpaceNode) {
     console.log('Eliminar nodo:', node);
     if (node.tipo === 'space') {
-      const ok = confirm(`Are you sure you want to delete the space "${node.nombre}"?`);
-      if (!ok) return;
-      this.SpaceService.deleteSpace({ identificador: node.identificador }).subscribe({
-        next: () => this.loadSpaces(),
-        error: (err) => {
-          console.error('Error deleting space', err);
-          // A veces 200 viene en error
-          if (err?.status === 200) this.loadSpaces();
-        }
-      });
+      this.openDelete('Delete space', `Are you sure you want to delete the space "${node.nombre}"?`)
+        .then((confirmed) => {
+          if (!confirmed) return;
+          const payload = node.raw || node;
+          const success = () => {
+            this.openInfo('Space deleted', `El espacio "${node.nombre}" se eliminó correctamente.`);
+            this.loadSpaces();
+          };
+          this.SpaceService.deleteSpace(payload).subscribe({
+            next: success,
+            error: (err) => {
+              console.error('Error deleting space', err);
+              // Algunos backends envían 200 en error
+              if (err?.status === 200) success();
+              else this.openInfo('Error', 'Error al eliminar el espacio.');
+            }
+          });
+        });
     } else if (node.tipo === 'folder') {
-      // TODO: implementar eliminación de carpeta usando FolderService cuando el backend esté listo
-      console.warn('Eliminar carpeta aún no implementado');
+      this.openDelete('Delete folder', `Are you sure you want to delete the folder "${node.nombre}"?`)
+        .then((confirmed) => {
+          if (!confirmed) return;
+          const payload = node.raw || { identificador: node.identificador };
+          const success = () => {
+            this.openInfo('Folder deleted', `La carpeta "${node.nombre}" se eliminó correctamente.`);
+            this.loadSpaces();
+          };
+          this.folderService.deleteFolder(payload).subscribe({
+            next: () => success(),
+            error: (err) => {
+              console.error('Error deleting folder', err);
+              if (err?.status === 200 || err?.status === 201) success();
+              else this.openInfo('Error', 'Error al eliminar la carpeta.');
+            }
+          });
+        });
     } else if (node.tipo === 'list') {
-      // TODO: implementar eliminación de lista usando ListService cuando el backend esté listo
-      console.warn('Eliminar lista aún no implementado');
+      this.openDelete('Delete list', `Are you sure you want to delete the list "${node.nombre}"?`)
+        .then((confirmed) => {
+          if (!confirmed) return;
+          const payload = node.raw || { identificador: node.identificador };
+          const success = () => {
+            this.openInfo('List deleted', `La lista "${node.nombre}" se eliminó correctamente.`);
+            this.loadSpaces();
+          };
+          this.listService.deleteList(payload).subscribe({
+            next: () => success(),
+            error: (err) => {
+              console.error('Error deleting list', err);
+              if (err?.status === 200 || err?.status === 201) success();
+              else this.openInfo('Error', 'Error al eliminar la lista.');
+            }
+          });
+        });
     }
   }
 
@@ -384,6 +519,16 @@ export class SpacesTreeComponent implements OnInit {
     return this.expandedSpaces.has(this.getKey(space));
   }
 
+  toggleFolder(folder: SpaceNode) {
+    const key = this.getKey(folder);
+    if (this.expandedFolders.has(key)) this.expandedFolders.delete(key);
+    else this.expandedFolders.add(key);
+  }
+
+  isFolderExpanded(folder: SpaceNode): boolean {
+    return this.expandedFolders.has(this.getKey(folder));
+  }
+
   onSelectEverything() {
     this.selectedKey = 'everything';
   }
@@ -395,6 +540,53 @@ export class SpacesTreeComponent implements OnInit {
       const key = this.getKey(space);
       if (existing.has(key)) this.expandedSpaces.add(key);
     }
+  }
+
+  // Helpers to locate parents
+  private getParentSpaceOfFolder(folder: SpaceNode): SpaceNode | undefined {
+    const spaces = this.dataSource.data || [];
+    for (const s of spaces) {
+      if (s.folders?.some(f => (f.identificador || f.id) === (folder.identificador || folder.id))) {
+        return s;
+      }
+    }
+    return undefined;
+  }
+
+  private getParentFolderOfList(list: SpaceNode): SpaceNode | undefined {
+    const spaces = this.dataSource.data || [];
+    for (const s of spaces) {
+      for (const f of s.folders || []) {
+        if (f.lists?.some(l => (l.identificador || l.id) === (list.identificador || list.id))) {
+          return f;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  onEditList(node: SpaceNode) {
+    console.log('Editar lista:', node);
+    const modalRef = this.modalService.open(ModalListComponent, {
+      centered: true,
+      backdrop: 'static',
+      size: 'md'
+    });
+    modalRef.componentInstance.title = 'Edit List';
+    modalRef.componentInstance.SelectedWorkspace = this.SelectedWorkspace;
+    modalRef.componentInstance.SelectedSpace = undefined;
+    modalRef.componentInstance.SelectedFolder = this.getParentFolderOfList(node) || { identificador: node.carpetaIdentificador };
+    (modalRef.componentInstance as any).isEditMode = true;
+    (modalRef.componentInstance as any).SelectedList = node;
+
+    modalRef.result
+      .then((updated: any) => {
+        if (updated) {
+          // El modal realiza update internamente; solo recargamos
+          this.loadSpaces();
+        }
+      })
+      .catch(() => { });
   }
 
   // trackBy helpers to reduce re-renders and avoid portal host reuse issues

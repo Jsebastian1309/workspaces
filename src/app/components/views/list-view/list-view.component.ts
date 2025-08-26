@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TaskService } from 'src/app/service/features/task/Task.service';
 import { TemplatesService } from 'src/app/service/features/templates/Templates.service';
@@ -15,6 +15,8 @@ export class ListViewComponent implements OnChanges {
   @Input() espacioTrabajoIdentificador?: string;
   @Input() espacioIdentificador?: string;
   @Input() carpetaIdentificador?: string;
+  @Input() tasks: Task[] = [];
+  @Output() refresh = new EventEmitter<void>();
 
   loading = false;
   error?: string;
@@ -31,87 +33,30 @@ export class ListViewComponent implements OnChanges {
   priorities = ['Low', 'Medium', 'High'];
 
   constructor(
-    private tasks: TaskService, 
+    private taskService: TaskService,
     private templates: TemplatesService,
     private authService: AuthService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     const listChanged = !!changes['list'];
-    const filtersChanged = !!(changes['espacioTrabajoIdentificador'] || changes['espacioIdentificador'] || changes['carpetaIdentificador']);
-    if ((listChanged || filtersChanged) && this.list?.identificador) this.fetch();
+    const tasksChanged = !!changes['tasks'];
+    if (listChanged) this.setupStatusesFromTemplate();
+    if (listChanged || tasksChanged) this.groupTasksFromInput();
   }
 
-  private fetch() {
-    this.loading = true;
+  private groupTasksFromInput() {
+    this.loading = false;
     this.error = undefined;
-    this.grouped = {};
-    this.setupStatusesFromTemplate();
-    
-    // Construir parámetros con validaciones
-    const params: any = {};
-    
-    // Siempre incluir lista_identificador si está disponible
-    if (this.list?.identificador) {
-      params.lista_identificador = this.list.identificador;
+    const byStatus: { [k: string]: Task[] } = {};
+    const safe = Array.isArray(this.tasks) ? this.tasks : [];
+    for (const t of safe) {
+      const label = (t.estado || t.estadoLabel || 'OPEN').toString().toUpperCase();
+      (t as any).estadoLabel = label;
+      byStatus[label] = byStatus[label] || [];
+      byStatus[label].push(t);
     }
-    
-    // Incluir espacioTrabajoIdentificador
-    const espacioTrabajo = this.espacioTrabajoIdentificador || this.list?.espacioTrabajoIdentificador;
-    if (espacioTrabajo) {
-      params.espacioTrabajoIdentificador = espacioTrabajo;
-    }
-    
-    // Incluir espacio_identificador
-    const espacio = this.espacioIdentificador || this.list?.espacioIdentificador;
-    if (espacio) {
-      params.espacio_identificador = espacio;
-    }
-    
-    // Incluir carpeta_identificador
-    const carpeta = this.carpetaIdentificador || this.list?.carpetaIdentificador;
-    if (carpeta) {
-      params.carpeta_identificador = carpeta;
-    }
-    
-    console.log('Datos del list:', this.list);
-    console.log('Props del componente:', {
-      espacioTrabajoIdentificador: this.espacioTrabajoIdentificador,
-      espacioIdentificador: this.espacioIdentificador,
-      carpetaIdentificador: this.carpetaIdentificador
-    });
-    console.log('Parámetros finales enviados a searchTasksFiltered:', params);
-    
-    this.tasks.searchTasksFiltered(params).subscribe({
-      next: (items) => {
-        console.log('Tareas recibidas en list-view:', items);
-        const byStatus: { [k: string]: Task[] } = {};
-        const safe = Array.isArray(items) ? items : [];
-        console.log('Array seguro de tareas:', safe);
-        
-        for (const t of safe) {
-          const label = (t.estadoLabel || t.estado || 'Sin estado').toString();
-          const key = label.toUpperCase();
-          console.log(`Procesando tarea ${t.nombre}: estado=${t.estado}, estadoLabel=${t.estadoLabel}, key=${key}`);
-          (t as any).estadoLabel = key;
-          byStatus[key] = byStatus[key] || [];
-          byStatus[key].push(t);
-        }
-        
-        console.log('Tareas agrupadas por estado:', byStatus);
-        this.grouped = byStatus;
-      },
-      error: (e) => {
-        console.error('Error cargando tareas:', e);
-        this.error = e?.message || 'Error loading tasks';
-        this.loading = false;
-      },
-      complete: () => {
-        console.log('Carga de tareas completada. Estado final del grouped:', this.grouped);
-        console.log('Total de tareas:', this.getTotalTasksCount());
-        this.loading = false;
-      }
-    });
+    this.grouped = byStatus;
   }
 
   private setupStatusesFromTemplate() {
@@ -248,12 +193,12 @@ export class ListViewComponent implements OnChanges {
 
     console.log('Datos de tarea enviados al backend:', taskData);
 
-    this.tasks.crearTarea(taskData).subscribe({
+  this.taskService.crearTarea(taskData).subscribe({
       next: (response) => {
         console.log('Tarea creada exitosamente:', response);
         this.info = 'Tarea creada exitosamente';
         this.cancelAdd();
-        this.fetch(); // Recargar las tareas
+    this.refresh.emit(); // Pedir al padre que recargue tareas
         setTimeout(() => this.info = undefined, 3000);
       },
       error: (error) => {

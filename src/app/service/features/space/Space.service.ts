@@ -61,7 +61,8 @@ export class SpaceService {
         const headers = this.authService.createHeaders();
         const currentUser = this.authService.getCurrentUser();
         const username = currentUser?.username
-        const payload = {
+        console.log('Updating space:', Space);
+        const workspaceData = {
             identificador: Space.identificador,
             estado: Space.estado,
             nombre: Space.nombre,
@@ -75,7 +76,7 @@ export class SpaceService {
             espacioTrabajoIdentificador: Space.espacioTrabajoIdentificador
             // usuarioActualizacion: username
         };
-        return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, payload, { headers });
+        return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, workspaceData, { headers });
     }
 
 
@@ -84,8 +85,7 @@ export class SpaceService {
      */
     deleteSpace(Space: any): Observable<any> {
         const headers = this.authService.createHeaders();
-        const body = Space.identificador ? { identificador: Space.identificador } : Space;
-        return this.http.delete<any>(`${this.apiUrl}${this.baseUrl}/eliminar`, { headers, body });
+        return this.http.delete<any>(`${this.apiUrl}${this.baseUrl}/eliminar`, {headers,body: Space});
     }
 
 }

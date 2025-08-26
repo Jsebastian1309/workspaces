@@ -71,6 +71,10 @@ export class TaskService {
         tipoTarea?: string;
         etiqueta?: string;
         prioridad?: string;
+        categoria?: string;
+        estado?: string;
+        fechaInicio?: string; // YYYY-MM-DD
+        fechaFin?: string;    // YYYY-MM-DD
     }): Observable<Task[]> {
         const headers = this.createHeaders();
         

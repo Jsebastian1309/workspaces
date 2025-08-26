@@ -12,6 +12,8 @@ export class ModalFolderComponent {
   @Input() title: string = 'Create New Folder';
   @Input() SelectedWorkspace: any; 
   @Input() SelectedSpace: any; 
+  @Input() isEditMode: boolean = false;
+  @Input() SelectedFolder: any; // when edit
 
   folderForm: FormGroup;
 
@@ -28,29 +30,57 @@ export class ModalFolderComponent {
     });
   }
 
+  ngOnInit() {
+    if (this.isEditMode && this.SelectedFolder) {
+      this.title = this.title || 'Edit Folder';
+      const f = this.SelectedFolder;
+      this.folderForm.patchValue({
+        nombre: f.nombre || '',
+        descripcion: f.descripcion || '',
+        publico: typeof f.publico === 'boolean' ? f.publico : true,
+        estado: f.estado || 'Activo'
+      });
+    }
+  }
+
   onSubmit() {
     if (this.folderForm.valid && this.SelectedWorkspace && this.SelectedSpace) {
       const currentUser = this.authService.getCurrentUser();
       const raw = this.folderForm.value;
 
       const nombreLimpio = (raw.nombre || '').trim();
-      const identificador = this.makeIdFromName(nombreLimpio || 'folder');
-
-      const data = {
-        identificador,
-        estado: raw.estado,
-        espacioTrabajoId: this.SelectedWorkspace.id || this.SelectedWorkspace.espacio_trabajo_id || null,
-        espacioId: this.SelectedSpace.id || this.SelectedSpace.espacio_id || null,
-        nombre: nombreLimpio,
-        descripcion: raw.descripcion,
-        organizacionId: currentUser?.organizacionId,
-        clienteId: currentUser?.clienteId,
-        espacioTrabajoIdentificador: this.SelectedWorkspace.identificador || this.SelectedWorkspace.espacio_trabajo_identificador,
-        espacioIdentificador: this.SelectedSpace.identificador || this.SelectedSpace.espacio_identificador,
-        publico: !!raw.publico
-      };
-
-      this.activeModal.close(data);
+      if (this.isEditMode && this.SelectedFolder) {
+        const data = {
+          identificador: this.SelectedFolder.identificador,
+          estado: raw.estado,
+          espacioTrabajoId: this.SelectedWorkspace.id || this.SelectedWorkspace.espacio_trabajo_id || null,
+          espacioId: this.SelectedSpace.id || this.SelectedSpace.espacio_id || null,
+          nombre: nombreLimpio,
+          descripcion: raw.descripcion,
+          organizacionId: this.SelectedFolder.organizacionId || currentUser?.organizacionId,
+          clienteId: this.SelectedFolder.clienteId || currentUser?.clienteId,
+          espacioTrabajoIdentificador: this.SelectedWorkspace.identificador || this.SelectedWorkspace.espacio_trabajo_identificador,
+          espacioIdentificador: this.SelectedSpace.identificador || this.SelectedSpace.espacio_identificador,
+          publico: !!raw.publico
+        };
+        this.activeModal.close(data);
+      } else {
+        const identificador = this.makeIdFromName(nombreLimpio || 'folder');
+        const data = {
+          identificador,
+          estado: raw.estado,
+          espacioTrabajoId: this.SelectedWorkspace.id || this.SelectedWorkspace.espacio_trabajo_id || null,
+          espacioId: this.SelectedSpace.id || this.SelectedSpace.espacio_id || null,
+          nombre: nombreLimpio,
+          descripcion: raw.descripcion,
+          organizacionId: currentUser?.organizacionId,
+          clienteId: currentUser?.clienteId,
+          espacioTrabajoIdentificador: this.SelectedWorkspace.identificador || this.SelectedWorkspace.espacio_trabajo_identificador,
+          espacioIdentificador: this.SelectedSpace.identificador || this.SelectedSpace.espacio_identificador,
+          publico: !!raw.publico
+        };
+        this.activeModal.close(data);
+      }
     } else {
       Object.keys(this.folderForm.controls).forEach(k => this.folderForm.get(k)?.markAsTouched());
     }
