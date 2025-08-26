@@ -20,7 +20,7 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #9aa0a6;
+  color: var(--text-color);
 
   .breadcrumb-item {
     display: flex;
@@ -32,12 +32,12 @@
     }
 
     &.current {
-      color: #e6e6e6;
+      color: var(--text-color);
       font-weight: 500;
     }
 
     &:not(.current):hover {
-      color: #6A4CFF;
+      color: var(----select-bg);
       cursor: pointer;
     }
   }

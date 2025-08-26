@@ -3,104 +3,77 @@ import { environment } from 'src/environments/environment';
 import { AuthService } from '../../core/auth/Auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
+import { UniqueIdService } from '../../core/utils/uniqueId.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class FolderService {
 
-   private apiUrl = environment.Backend;
-      private baseUrl = '/proyCarpeta';
-  
-      constructor(private http: HttpClient, private authService: AuthService) { }
-  
+    private apiUrl = environment.Backend;
+    private baseUrl = '/proyCarpeta';
 
-  
-    listFolders(): Observable<any[]> {
-          const headers = this.authService.createHeaders();
-          return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar`,{ headers });
-      }
-  
-    listFoldersByWorkspace(espacioTrabajoIdentificador: string): Observable<any[]> {
-          const headers = this.authService.createHeaders();
-          return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar?espacioTrabajoIdentificador=${espacioTrabajoIdentificador}`, { headers });
-      }
-  
-  
+    constructor(private http: HttpClient, private authService: AuthService,private uniqueIdService: UniqueIdService) { }
+
+
+    /**
+     * Buscar un espacio de trabajo por espaciotrabajo y espacio
+     */
     searchFoldersFiltered(espacioTrabajoIdentificador: string, espacioIdentificador?: string): Observable<any[]> {
         const headers = this.authService.createHeaders();
-        const body: any = {
-        paginador: 'Y', offset: 0, limit: 100, campoOrder: '', direccionOrder: '', estado: 'Activo',
-        espacioTrabajoIdentificador,
-        espacioIdentificador: espacioIdentificador || '' ,
-        publico: true
-        };
-        return this.http
-        .post<any>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers })
-        .pipe(map((resp: any) => Array.isArray(resp) ? resp : (resp?.proyCarpetaList ?? [])));
+        const body: any = { espacioTrabajoIdentificador, espacioIdentificador: espacioIdentificador };
+        return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers })
+            .pipe(map((resp: any) => Array.isArray(resp) ? resp : (resp?.proyCarpetaList ?? [])));
     }
-  
-      /**
-       * Buscar un espacio de trabajo por identificador
-       */
-    searchFolder(identificador: string): Observable<any> {
-          const headers = this.authService.createHeaders();
-          return this.http.get<any>(`${this.apiUrl}${this.baseUrl}/buscar/${identificador}`, { headers });
-      }
-  
-      /**
-       * Crear un nuevo espacio de trabajo
-       */
-      createFolder(payload: any): Observable<any> {
-          const headers = this.authService.createHeaders();
-          
-          // Obtener información del usuario logueado
-          const currentUser = this.authService.getCurrentUser();
-          
-          // Generar un identificador único cuando no venga
-          const identificador = payload.identificador || this.generateIdFromName(payload.nombre);
-          
-          // Preparar el objeto con la información del usuario y organizacion
-          // Mapear los nombres de los campos al formato que espera el backend
-          const workspaceData = {
-              identificador: identificador,
-              nombre: payload.nombre,
-              organizacionId: currentUser?.organizacionId,
-              clienteId: currentUser?.clienteId,
-              descripcion: payload.descripcion,
-              publico: payload.publico,
-              estado: payload.estado,
-              usuario_creacion: currentUser?.username,
-              espacioId: "10",
-              espacioIdentificador: payload.espacioIdentificador
-          };
-          
-          return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, workspaceData, { 
-              headers,
-              observe: 'response' // Para obtener la respuesta completa con status
-          }).pipe(
-              map((response: any) => {
-                  return response.body;
-              }),
-              catchError((error: any) => {
-                  // Si es un error 200/201 pero con contenido de error, lo tratamos como éxito
-                  if (error.status === 200 || error.status === 201) {
-                      return of(error.error);
-                  }
-                  throw error;
-              })
-          );
-      }
-  
-      /**
-       * Generar un identificador único para el workspace basado en el nombre
-       */
-      private generateIdFromName(nombre: string): string {
-          const timestamp = Date.now();
-          const nombreLimpio = nombre.toLowerCase()
-              .replace(/[^a-z0-9]/g, '_')
-              .replace(/_+/g, '_')
-              .replace(/^_|_$/g, '');
-          return `fd_${nombreLimpio}_${timestamp}`;
-      }
-  }
+
+
+    /**
+     * Crear una carpeta
+     */
+    createFolder(folder: any): Observable<any> {
+        const headers = this.authService.createHeaders();
+        const currentUser = this.authService.getCurrentUser();
+        const identificador = this.uniqueIdService.generateId(folder.nombre);
+        const workspaceData = {
+            identificador: identificador,
+            nombre: folder.nombre,
+            organizacionId: currentUser?.organizacionId,
+            clienteId: currentUser?.clienteId,
+            descripcion: folder.descripcion,
+            publico: folder.publico,
+            estado: folder.estado,
+            // usuario_creacion: currentUser.username,
+            espacioIdentificador: folder.espacioIdentificador
+        };
+        return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, workspaceData, {headers})
+    }
+
+    /**
+     * editar una carpet
+     */
+    updateFolder(folder: any): Observable<any> {
+        const headers = this.authService.createHeaders();
+        const currentUser = this.authService.getCurrentUser();
+        const workspaceData = {
+            identificador: folder.identificador,
+            nombre: folder.nombre,
+            organizacionId: folder.organizacionId,
+            clienteId: folder.clienteId,
+            descripcion: folder.descripcion,
+            publico: folder.publico,
+            estado: folder.estado,
+            // usuarioActualizacion: currentUser.username,
+            espacioIdentificador: folder.espacioIdentificador
+        };
+        return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, workspaceData, { headers });
+    }
+
+    /**
+     * Eliminar una carpeta
+     */
+    deleteFolder(folder: any): Observable<any> {
+        const headers = this.authService.createHeaders();
+        return this.http.delete<any>(`${this.apiUrl}${this.baseUrl}/eliminar`, {headers,body: folder});
+    }
+
+}

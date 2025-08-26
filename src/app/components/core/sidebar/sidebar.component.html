@@ -5,8 +5,7 @@
         ngbDropdownToggle>
         <div class="avatar" [style.background-color]="selectedspace?.color">
           <ng-container *ngIf="selectedspace?.icono; else selectedInitial">
-            <i class="bi" [ngClass]="selectedspace.icono"
-              aria-hidden="true"></i>
+            <i class="bi" [ngClass]="selectedspace.icono"aria-hidden="true"></i>
           </ng-container>
           <ng-template #selectedInitial>{{(selectedspace?.nombre)
             }}</ng-template>
@@ -63,11 +62,17 @@
     <li translate [class.active]="activeView === 'inbox'" (click)="navigateTo('inbox')">
       <i class="bi bi-inbox" ></i> Inbox
     </li>
-    <li translate [class.active]="activeView === 'templates'" (click)="navigateTo('templates')">
-      <i class="bi bi-sliders"></i> Templates
+    <li translate [class.active]="activeView === 'status-templates'" (click)="navigateTo('status-templates')">
+      <i class="bi bi-caret-down-fill"></i> Status template
     </li>
-    <li><i class="bi bi-kanban"></i> Dashboards</li>
-    <li><i class="bi bi-three-dots"></i> More</li>
+    <li translate [class.active]="activeView === 'task-templates'" (click)="navigateTo('task-templates')">
+      <i class="bi bi-list-task"></i>Task template
+    </li>
+    <li translate [class.active]="activeView === 'team'" (click)="navigateTo('team')">
+      <i class="bi bi-people-fill"></i>Team
+    </li>
+    <!-- <li translate><i class="bi bi-kanban"></i> Dashboards</li>
+    <li translate><i class="bi bi-three-dots"></i> More</li> -->
   </ul>
   <div class="sidebar-section">
     <span class="section-title" translate>Favorites</span>
@@ -75,7 +80,7 @@
   <app-spaces-tree [SelectedWorkspace]="selectedspace"
     (listSelected)="onListSelected($event)"></app-spaces-tree>
   <div class="sidebar-footer">
-    <button class="invite-btn">Invite</button>
-    <button class="help-btn">Help</button>
+    <button class="invite-btn" translate>Invite</button>
+    <button class="help-btn" translate>Help</button>
   </div>
 </div>

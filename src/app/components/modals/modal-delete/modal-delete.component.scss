@@ -4,14 +4,10 @@
   justify-content: space-between;
   background-color: var(--background-color);
   color: var(--text-color);
-
   .modal-title {
     color: var(--text-color);
     margin: 0;
   }
-
-
-
   .btn-icon {
     align-items: center;
     justify-content: center;
@@ -38,7 +34,6 @@
   .form-control,
   .form-select {
     border-radius: 6px;
-    border: 1px solid #ced4da;
     
     &:focus {
       border-color: #4f46e5;
@@ -64,7 +59,7 @@
   
   .form-text {
     font-size: 0.875rem;
-    color: #6c757d;
+
     margin-top: 0.25rem;
   }
   
@@ -76,62 +71,21 @@
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    color: white;
     font-size: 18px;
     background-color: #4f46e5;
   }
   
-  .form-check {
-    .form-check-input {
-      &:checked {
-        background-color: #4f46e5;
-        border-color: #4f46e5;
-      }
-      
-      &:focus {
-        border-color: #4f46e5;
-        box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
-      }
-    }
-    
-    .form-check-label {
-      font-weight: 500;
-    }
-  }
+
 }
 
 .modal-footer {
-  border-top: 1px solid #e9ecef;
   padding: 1rem 1.5rem;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
   background-color: var(--background-color);
   
-  .btn {
-    border-radius: 6px;
-    font-weight: 500;
-    padding: 0.5rem 1.25rem;
-    
-    &.btn-primary {
-      background-color: #4f46e5;
-      border-color: #4f46e5;
-      
 
-      
-      &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-    }
-    
-    &.btn-secondary {
-      background-color: #6c757d;
-      border-color: #6c757d;
-      
-
-    }
-  }
 }
 
 // Responsive adjustments

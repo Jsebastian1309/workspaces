@@ -30,12 +30,15 @@
 	"Manage Users": "Gestionar usuarios",
 	"Home": "Inicio",
 	"Inbox": "Bandeja de entrada",
+	"Templates": "Plantillas",
 	"Dashboards": "Tableros",
 	"More": "Más",
 	"Favorites": "Favoritos",
 	"Spaces": "Espacios",
+	"Loading spaces...": "Cargando espacios...",
 	"Invite": "Invitar",
 	"Help": "Ayuda",
+	"Everything": "Todo",
 
 
 	"Workspace Name*": "Nombre del Workspace *",
@@ -62,6 +65,7 @@
 	"Public Workspace": "Workspace público",
 	"Public workspaces can be viewed by other users": "Los workspaces públicos pueden ser vistos por otros usuarios",
 	"Cancel": "Cancelar",
+
 
 
 

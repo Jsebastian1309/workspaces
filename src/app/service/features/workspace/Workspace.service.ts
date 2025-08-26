@@ -37,7 +37,7 @@ export class WorkspaceService {
     CreateWorkSpace(workspace: any): Observable<any> {
         const headers = this.authService.createHeaders();
         const currentUser = this.authService.getCurrentUser();
-        const identificador = this.uniqueIdService.generateId((workspace?.nombre).toString());
+        const identificador = this.uniqueIdService.generateId(workspace?.nombre);   
         const workspaceData = {
             identificador,
             nombre: workspace.nombre,
