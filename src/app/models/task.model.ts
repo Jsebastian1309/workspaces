@@ -9,5 +9,12 @@ export interface Task {
   asignadoA?: string | { nombre?: string; username?: string; id?: string };
   listaIdentificador?: string;
   espacioTrabajoIdentificador?: string;
+  fechaInicio?: string | Date;
+  fechaFin?: string | Date;
+  duracionHoras?: number;
+  tipoTarea?: string;
+  etiqueta?: string;
+  comentarios?: string;
+  progreso?: number;
   // Extend with backend fields as needed
 }

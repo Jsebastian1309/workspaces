@@ -1,0 +1,175 @@
+:host {
+    display: block;
+}
+
+.team-page {
+    padding: 1rem;
+    background:var(--background-color);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"] {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: .4rem .6rem;
+}
+
+.muted {
+    color: #6c757d;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.text-end {
+    text-align: end;
+}
+
+.loading {
+    padding: 1rem;
+}
+
+.badge.bg-success {
+    background: #198754;
+}
+
+.badge.bg-secondary {
+    background: #6c757d;
+}
+
+.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    overflow: hidden;
+    color: var(--text-color);
+    transition: width .2s ease-in-out;
+    z-index: 1000;
+}
+
+.drawer.open {
+    width: 100%;
+}
+
+.drawer-content {
+    position: absolute;
+    top: 46px;
+    right: 0;
+    bottom: 0;
+    width: 420px;
+    max-width: 95vw;
+    background-color: var(--sidebar-bg);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.form-grid {
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .75rem;
+}
+
+.form-row {
+    display: grid;
+    gap: .35rem;
+}
+
+.form-row.inline {
+    grid-auto-flow: column;
+    align-items: center;
+    grid-template-columns: auto 1fr;
+}
+
+.form-actions {
+    display: flex;
+    gap: .5rem;
+    justify-content: flex-end;
+    margin-top: .5rem;
+}
+
+.error {
+    color: #dc3545;
+    font-size: .8rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 22px;
+}
+
+.switch input {
+    display: none;
+}
+
+.switch span {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #ccc;
+    transition: .2s;
+    border-radius: 22px;
+}
+
+.switch span:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background: white;
+    transition: .2s;
+    border-radius: 50%;
+}
+
+.switch input:checked+span {
+    background: #198754;
+}
+
+.switch input:checked+span:before {
+    transform: translateX(16px);
+}
+
+table {
+    width: 100%;
+    border-radius: 10%;
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+th,
+td {
+    background: var(--sidebar-bg);
+    color: var(--text-color);
+
+}

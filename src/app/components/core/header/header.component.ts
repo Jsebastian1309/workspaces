@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/service/core/auth/Auth.service';
+import { AuthService } from 'src/app/service/core/auth/auth.service';
 import { I18nService } from 'src/app/service/core/i18n/i18n.service';
-import { User } from 'src/app/service/core/auth/Auth.service';
+import { User } from 'src/app/service/core/auth/auth.service';
 
 @Component({
   selector: 'app-header',

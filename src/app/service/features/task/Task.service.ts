@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { AuthService } from '../../core/auth/Auth.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Task } from '../../../models/task.model';
@@ -14,55 +14,21 @@ export class TaskService {
 
     constructor(private http: HttpClient, private authService: AuthService) { }
 
-    private createHeaders(): HttpHeaders {
-        const token = this.authService.getKeycloakToken();
-        let headers = new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-        if (token) {
-            headers = headers.set('Authorization', `Bearer ${token}`);
-        }
-        return headers;
-    }
-
-    listtask(): Observable<any[]> {
-        const headers = this.createHeaders();
-        return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar`,{ headers });
-    }
-
-    listtaskByWorktask(espacioTrabajoIdentificador: string): Observable<any[]> {
-        const headers = this.createHeaders();
-        return this.http.get<any[]>(`${this.apiUrl}${this.baseUrl}/listar?espacioTrabajoIdentificador=${espacioTrabajoIdentificador}`, { headers });
-    }
 
 
-    searchtaskFiltered(espacioTrabajoIdentificador: string): Observable<any[]> {
-        const headers = this.createHeaders();
+
+
+    searchtaskFiltered(taskData: any): Observable<any[]> {
+        const headers = this.authService.createHeaders();
         const body: any = {
-            espacioTrabajoIdentificador,
-            publico: true
+            ...taskData
         };
+        console.log('TaskService - searchtaskFiltered - body:', body);  
         return this.http.post<any[]>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers });
     }
 
-    /**
-     * Buscar tareas por lista (list) para alimentar la vista agrupada
-     */
-    searchTasksByList(listaIdentificador: string): Observable<Task[]> {
-        const headers = this.createHeaders();
-        const body: any = { listaIdentificador };
-        return this.http.post<Task[] | any>(`${this.apiUrl}${this.baseUrl}/buscarFiltrado`, body, { headers }).pipe(
-            map(resp => this.ensureArray(resp).map((t: any) => this.mapBackendTask(t)))
-        );
-    }
 
-    /**
-     * Buscar tareas filtradas con los campos exactos provistos:
-     * {
-     *   espacioTrabajoIdentificador, espacio_identificador, carpeta_identificador,
-     *   listaIdentificador, tipoTarea, etiqueta, prioridad
-     * }
-     */
+
     searchTasksFiltered(params: {
         espacioTrabajoIdentificador?: string;
         espacio_identificador?: string;
@@ -76,8 +42,8 @@ export class TaskService {
         fechaInicio?: string; // YYYY-MM-DD
         fechaFin?: string;    // YYYY-MM-DD
     }): Observable<Task[]> {
-        const headers = this.createHeaders();
-        
+        const headers = this.authService.createHeaders();
+
         // Limpiar parámetros - solo incluir los que tienen valores válidos
         const body: any = {};
         Object.entries(params).forEach(([key, value]) => {
@@ -146,33 +112,11 @@ export class TaskService {
             asignadoA: assigned,
         } as Task;
     }
-
-    /**
-     * Buscar un espacio de trabajo por identificador
-     */
-    Searchtask(identificador: string): Observable<any> {
-        const headers = this.createHeaders();
-        return this.http.get<any>(`${this.apiUrl}${this.baseUrl}/buscar/${identificador}`, { headers });
-    }
-
-        /** Crear una tarea (proyTarea) */
-        crearTarea(tarea: any): Observable<any> {
-            const headers = this.createHeaders();
-            return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, tarea, { headers });
-        }
-
-        /** Crear bitácora de tarea (proyBitacora) */
-        crearBitacora(bitacora: any): Observable<any> {
-            const headers = this.createHeaders();
-            return this.http.post<any>(`${this.apiUrl}/proyBitacora/crear`, bitacora, { headers });
-        }
-
     /**
      * Crear un nuevo espacio de trabajo
      */
     Createtask(worktask: any): Observable<any> {
-        const headers = this.createHeaders();
-        
+        const headers =this.authService.createHeaders();
         // Obtener información del usuario logueado
         const currentUser = this.authService.getCurrentUser();
         
@@ -217,6 +161,14 @@ export class TaskService {
                 throw error;
             })
         );
+    }
+
+    /**
+     * Actualizar una tarea existente
+     */
+    actualizarTarea(tarea: any): Observable<any> {
+        const headers = this.authService.createHeaders();
+        return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, tarea, { headers });
     }
 
     /**

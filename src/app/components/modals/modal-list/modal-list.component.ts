@@ -1,8 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from 'src/app/service/core/auth/Auth.service';
-import { ListService } from 'src/app/service/features/list/List.service';
+import { AuthService } from 'src/app/service/core/auth/auth.service';
+import { ListService } from 'src/app/service/features/list/list.service';
+import { TemplateStatusService } from 'src/app/service/features/templates/status/template-status.service';
 import { TemplatesService, StatusTemplate } from 'src/app/service/features/templates/Templates.service';
 
 @Component({

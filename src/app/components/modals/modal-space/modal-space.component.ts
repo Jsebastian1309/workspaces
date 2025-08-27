@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { SpaceService } from 'src/app/service/features/space/Space.service';
+import { SpaceService } from 'src/app/service/features/space/space.service';
 
 @Component({
   selector: 'app-modal-space',

@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { AuthService } from '../../core/auth/Auth.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { UniqueIdService } from '../../core/utils/uniqueId.service';

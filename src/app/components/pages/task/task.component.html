@@ -27,7 +27,6 @@
 
   <!-- Controles principales -->
     <div class="header-controls">
-      <!-- Selector de vistas (Board, List, Gantt) -->
       <div class="view-selector">
         <button 
           [class]="'view-btn ' + (currentView === 'board' ? 'active' : '')"
@@ -78,19 +77,19 @@
     <div class="row g-2 align-items-end">
       <div class="col-12 col-sm-6 col-md-3 col-lg-2">
         <label class="form-label">Categoría</label>
-        <input class="form-control" placeholder="Categoría" [(ngModel)]="filtroCategoria" (ngModelChange)="fetchTasks()" />
+        <input class="form-control" placeholder="Categoría" [(ngModel)]="filterCategory" (ngModelChange)="fetchTasks()" />
       </div>
       <div class="col-6 col-md-3 col-lg-2">
         <label class="form-label">Desde</label>
-        <input class="form-control" type="date" [(ngModel)]="filtroFechaInicio" (ngModelChange)="fetchTasks()" />
+        <input class="form-control" type="date" [(ngModel)]="filterStartDate" (ngModelChange)="fetchTasks()" />
       </div>
       <div class="col-6 col-md-3 col-lg-2">
         <label class="form-label">Hasta</label>
-        <input class="form-control" type="date" [(ngModel)]="filtroFechaFin" (ngModelChange)="fetchTasks()" />
+        <input class="form-control" type="date" [(ngModel)]="filterEndDate" (ngModelChange)="fetchTasks()" />
       </div>
       <div class="col-6 col-md-3 col-lg-2">
         <label class="form-label">Prioridad</label>
-        <select class="form-select" [(ngModel)]="filtroPrioridad" (ngModelChange)="fetchTasks()">
+        <select class="form-select" [(ngModel)]="filterPriority" (ngModelChange)="fetchTasks()">
           <option value="">Todas</option>
           <option value="Low">Low</option>
           <option value="Medium">Medium</option>
@@ -99,7 +98,7 @@
       </div>
       <div class="col-6 col-md-3 col-lg-2">
         <label class="form-label">Estado</label>
-        <select class="form-select" [(ngModel)]="filtroEstado" (ngModelChange)="fetchTasks()">
+        <select class="form-select" [(ngModel)]="filterStatus" (ngModelChange)="fetchTasks()">
           <option value="">Todos</option>
           <option value="OPEN">Open</option>
           <option value="PENDING">Pending</option>

@@ -197,6 +197,67 @@
   }
 }
 
+/* Filters styling: dark, compact, rounded inputs */
+.filters-section {
+  padding: 10px 12px;
+
+  .form-control,
+  .form-select {
+    height: 36px; /* smaller */
+    padding: 6px 10px; /* tighter */
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .form-label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .btn-outline-secondary {
+    height: 36px;
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
+  .filter-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* Compact icon buttons (search/filter/customize) */
+  .btn-search,
+  .btn-filter,
+  .btn-customize {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #c9ced3;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid #2a2f36;
+  }
+
+  .btn-search:hover,
+  .btn-filter:hover,
+  .btn-customize:hover {
+    background: rgba(255,255,255,0.04);
+    color: #e6e6e6;
+  }
+
+  .btn-add-task {
+    height: 36px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  @media (min-width: 1025px) {
+    .form-control, .form-select { width: 100%; }
+  }
+}
+
 // Responsive
 @media (max-width: 1024px) {
   .header-controls {
