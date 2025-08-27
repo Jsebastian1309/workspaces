@@ -1,0 +1,78 @@
+{
+	"Company": "WORKI",
+	"Spanish": "Español",
+	"English": "Inglés",
+	"Email or Username": "Correo electrónico o nombre de usuario",
+	"Password": "Contraseña",
+	"Enter your username or email address": "Ingrese su correo electrónico o nombre de usuario",
+	"Enter your password": "Ingrese su contraseña",
+	"LoggingIn": "Iniciando sesión",
+	"Login": "Iniciar sesión",
+	"Remember Me": "Recuérdame",
+	"Forgot Password": "¿Olvidaste tu contraseña?",
+	"Logout": "Cerrar sesión",
+	"Loading workspaces": "Cargando espacios de trabajo",
+	"Welcome To Worki": "Bienvenido a Worki,{{ currentUser?.name }}.",
+	"Select a menu option to begin": "Seleccione una opción del menú para comenzar",
+
+
+	"Profile": "Perfil",
+	"Search":"Buscar",
+	"Sign Out": "Cerrar sesión",
+
+	
+	"Create Workspace": "Crear Workspace",
+	"Create New Workspace": "Crear Nuevo Workspace",
+	"Workspace created": "Workspace creado",
+	"Workspace updated": "Workspace actualizado",
+	"Workspace deleted": "Workspace eliminado",
+	"Settings": "Configuración",
+	"Manage Users": "Gestionar usuarios",
+	"Home": "Inicio",
+	"Inbox": "Bandeja de entrada",
+	"Templates": "Plantillas",
+	"Dashboards": "Tableros",
+	"More": "Más",
+	"Favorites": "Favoritos",
+	"Spaces": "Espacios",
+	"Loading spaces...": "Cargando espacios...",
+	"Invite": "Invitar",
+	"Help": "Ayuda",
+	"Everything": "Todo",
+
+
+	"Workspace Name*": "Nombre del Workspace *",
+	"The name is required": "El nombre es obligatorio",
+	"The name must be at least 3 characters long": "El nombre debe tener al menos 3 caracteres",
+	"Category *": "Categoría *",
+	"Select a category": "Seleccione una categoría",
+	"Personal": "Personal",
+	"Work": "Trabajo",
+	"School": "Educación",
+
+	"Organization *": "Organización *",
+	"The organization is required": "La organización es obligatoria",
+	"Client *": "Cliente *",
+	"The client is required": "El cliente es obligatorio",
+
+	"Color *": "Color *",
+	"Icon *": "Icono *",
+	"Select icon": "Seleccione un icono",
+	"The icon is required": "El icono es obligatorio",
+	"Preview": "Vista previa",
+	"Workspace Name": "Nombre del Workspace",
+	"Category": "Categoría",
+	"Public Workspace": "Workspace público",
+	"Public workspaces can be viewed by other users": "Los workspaces públicos pueden ser vistos por otros usuarios",
+	"Cancel": "Cancelar",
+
+
+
+
+
+
+
+
+
+	"{{ component.name }}": ""
+}

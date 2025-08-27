@@ -1,0 +1,54 @@
+<div class="modal-header">
+	<h4 class="modal-title">{{ title }}</h4>
+	<button type="button" class="btn btn-icon" aria-label="Close" (click)="onCancel()">
+		<i class="bi bi-x-lg" aria-hidden="true"></i>
+	</button>
+</div>
+
+<div class="modal-body">
+	<form [formGroup]="listForm" (ngSubmit)="onSubmit()">
+		<div class="mb-3">
+			<label for="nombre" class="form-label">List name *</label>
+			<input id="nombre" type="text" class="form-control" formControlName="nombre"
+						 [class.is-invalid]="hasError('nombre')" placeholder="Ej: To-Do" />
+			<div class="invalid-feedback" *ngIf="hasError('nombre', 'required')">Required</div>
+			<div class="invalid-feedback" *ngIf="hasError('nombre', 'minlength')">Min 3 characters</div>
+		</div>
+
+		<div class="mb-3">
+			<label for="descripcion" class="form-label">Description</label>
+			<textarea id="descripcion" rows="3" class="form-control" formControlName="descripcion"
+								placeholder="Brief description..."></textarea>
+		</div>
+
+			<!-- Tipo de template selector -->
+			<div class="mb-3">
+				<label for="templateType" class="form-label">Tipo de template</label>
+				<select id="templateType" class="form-select" [(ngModel)]="selectedTemplateType" name="templateType" (ngModelChange)="filtrarTemplatesPorTipo()">
+					<option *ngFor="let tipo of templateTypes" [value]="tipo">{{ tipo }}</option>
+				</select>
+				<div class="form-text">Primero selecciona el tipo de template (ej: Desarrollo, Marketing, etc).</div>
+			</div>
+			<!-- Template selector filtrado por tipo -->
+			<div class="mb-3">
+				<label for="templateId" class="form-label">Template</label>
+				<select id="templateId" class="form-select" formControlName="templateId">
+					<option *ngFor="let t of templatesFiltered" [ngValue]="t.id">{{ t.name }} ({{ t.statuses.length }} estados)</option>
+				</select>
+				<div class="form-text">Elige un template para que las tareas de la lista usen esos estados.</div>
+			</div>
+
+		<div class="mb-3 form-check">
+			<input id="publico" type="checkbox" class="form-check-input" formControlName="publico" />
+			<label for="publico" class="form-check-label">Public list</label>
+		</div>
+	</form>
+</div>
+
+<div class="modal-footer">
+	<button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+	<button type="button" class="btn btn-primary" [disabled]="listForm.invalid" (click)="onSubmit()">
+		<i class="bi bi-list-check me-2"></i>
+		Create List
+	</button>
+</div>

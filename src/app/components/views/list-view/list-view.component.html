@@ -1,0 +1,122 @@
+<div class="list-view" *ngIf="list; else empty">
+  <!-- Header con información de la lista -->
+  <div class="header">
+    <div class="list-info">
+      <h2 class="title">{{ list.nombre }}</h2>
+      <p class="desc" *ngIf="list.descripcion">{{ list.descripcion }}</p>
+    </div>
+  </div>
+
+  <!-- Estados de carga y error -->
+  <div class="status-message">
+    <div class="loading" *ngIf="loading">Cargando tareas...</div>
+    <div class="error" *ngIf="!loading && error">{{ error }}</div>
+    <div class="success" *ngIf="!loading && info">{{ info }}</div>
+  </div>
+
+  <!-- Tablas agrupadas por estado con funcionalidad de colapsar -->
+  <div class="accordion" id="tasksAccordion">
+    <ng-container *ngFor="let status of statuses; let i = index">
+      <div class="accordion-item" *ngIf="grouped[status.key] && grouped[status.key].length > 0">
+        <h2 class="accordion-header" id="heading{{ i }}">
+          <button
+            class="accordion-button"
+            type="button"
+            data-bs-toggle="collapse"
+            [attr.data-bs-target]="'#collapse' + i"
+            aria-expanded="true"
+            [attr.aria-controls]="'collapse' + i"
+            [style.background-color]="getStatusColor(status.key)"
+          >
+            {{ status.label }}
+          </button>
+          <!-- Add task button (outside collapse button to avoid toggling) -->
+          <button class="btn btn-sm btn-outline-light add-btn" (click)="startAdd(status.key); $event.stopPropagation()" title="Add task">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+        </h2>
+        <div
+          id="collapse{{ i }}"
+          class="accordion-collapse collapse show"
+          [attr.aria-labelledby]="'heading' + i"
+          data-bs-parent="#tasksAccordion"
+        >
+          <div class="accordion-body">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Estado</th>
+                  <th>Prioridad</th>
+                  <th>Fecha Inicio</th>
+                  <th>Fecha Fin</th>
+                  <th>Fecha Vencimiento</th>
+                  <th>Duración Horas</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Add-row: visible when adding for this status -->
+                <tr *ngIf="addingFor === status.key" class="add-row">
+                  <td>
+                    <input class="input" placeholder="Nombre de la tarea" [(ngModel)]="draft.nombre" />
+                    <div style="margin-top:6px"><input class="input" placeholder="Descripción" [(ngModel)]="draft.descripcion" /></div>
+                  </td>
+                  <td>
+                    <select class="select" [(ngModel)]="draft.prioridad">
+                      <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input class="input" type="date" [(ngModel)]="draft.fechaInicio" />
+                  </td>
+                  <td>
+                    <input class="input" type="date" [(ngModel)]="draft.fechaFin" />
+                  </td>
+                  <td>
+                    <input class="input" type="date" [(ngModel)]="draft.fechaVencimiento" />
+                  </td>
+                  <td>
+                    <input class="input" type="number" [(ngModel)]="draft.duracionHoras" />
+                  </td>
+                  <td>
+                    <select class="select" [(ngModel)]="draft.asignadoA">
+                      <option value="">Sin asignar</option>
+                      <option *ngFor="let t of teams" [value]="t.identificador">{{ t.nombres }}</option>
+                    </select>
+                  </td>
+                  <td class="actions">
+                    <button class="btn-save" (click)="saveAdd()" [disabled]="!draft.nombre">Guardar</button>
+                    <button class="btn-cancel" (click)="cancelAdd()">Cancelar</button>
+                  </td>
+                </tr>
+                <tr *ngFor="let task of grouped[status.key]">
+                  <td>{{ task.nombre }}</td>
+                  <td>{{ task.estado }}</td>
+                  <td>{{ task.prioridad }}</td>
+                  <td>{{ task.fechaInicio }}</td>
+                  <td>{{ task.fechaFin }}</td>
+                  <td>{{ task.fechaVencimiento }}</td>
+                  <td>{{ task.duracionHoras }}</td>
+                  <td>
+                    <button class="btn btn-outline-primary btn-sm">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+<ng-template #empty>
+  <div class="list-view empty">
+    <p>Select a list to view details</p>
+  </div>
+</ng-template>

@@ -1,0 +1,173 @@
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AuthService } from 'src/app/service/core/auth/auth.service';
+import { ListService } from 'src/app/service/features/list/list.service';
+import { TemplateStatusService } from 'src/app/service/features/templates/status/template-status.service';
+import { TemplatesService, StatusTemplate } from 'src/app/service/features/templates/Templates.service';
+
+@Component({
+  selector: 'app-modal-list',
+  templateUrl: './modal-list.component.html',
+  styleUrls: ['./modal-list.component.scss']
+})
+export class ModalListComponent implements OnInit {
+  @Input() title: string = 'Create New List';
+  @Input() SelectedWorkspace: any;
+  @Input() SelectedSpace: any;
+  @Input() SelectedFolder: any;
+  @Input() isEditMode: boolean = false;
+  @Input() SelectedList: any;
+
+  listForm: FormGroup;
+  templates: StatusTemplate[] = [];
+  templateTypes: string[] = [];
+  selectedTemplateType: string = '';
+  templatesFiltered: StatusTemplate[] = [];
+
+  constructor(
+    public activeModal: NgbActiveModal,
+    private fb: FormBuilder,
+    private listService: ListService,
+    private authService: AuthService,
+    private templatesService: TemplatesService
+  ) {
+    this.listForm = this.fb.group({
+      nombre: ['', [Validators.required, Validators.minLength(3)]],
+      descripcion: [''],
+      publico: [true],
+      estado: ['Activo'],
+      templateId: [null, []]
+    });
+  }
+
+  ngOnInit(): void {
+    this.templatesService.getAll().subscribe(list => {
+      this.templates = list || [];
+      this.templateTypes = Array.from(new Set(this.templates.map(t => t.tipo || 'Otro')));
+      this.selectedTemplateType = this.templateTypes[0] || '';
+      this.filtrarTemplatesPorTipo();
+      if (this.templatesFiltered.length > 0 && !this.listForm.get('templateId')?.value) {
+        this.listForm.patchValue({ templateId: this.templatesFiltered[0].id });
+      }
+    });
+
+    if (this.isEditMode && this.SelectedList) {
+      this.title = this.title || 'Edit List';
+      const l = this.SelectedList;
+      this.listForm.patchValue({
+        nombre: l.nombre || '',
+        descripcion: l.descripcion || '',
+        publico: typeof l.publico === 'boolean' ? l.publico : true,
+        estado: l.estado || 'Activo'
+      });
+    }
+  }
+
+  filtrarTemplatesPorTipo() {
+    this.templatesFiltered = this.templates.filter(t => (t.tipo || 'Otro') === this.selectedTemplateType);
+    // Si el template seleccionado ya no está en la lista filtrada, lo reseteamos
+    const actual = this.listForm.get('templateId')?.value;
+    if (!this.templatesFiltered.find(t => t.id === actual)) {
+      this.listForm.patchValue({ templateId: this.templatesFiltered[0]?.id || null });
+    }
+  }
+  // Detectar cambio de tipo de template desde el select
+  ngOnChanges() {
+    this.filtrarTemplatesPorTipo();
+  }
+
+  private generateListId(nombre: string): string {
+    const timestamp = Date.now();
+    const nombreLimpio = (nombre || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '');
+    return `ls_${nombreLimpio}_${timestamp}`;
+  }
+
+  onSubmit() {
+    if (this.listForm.valid && this.SelectedFolder) {
+      const currentUser = this.authService.getCurrentUser();
+      const raw = this.listForm.value;
+
+      const nombreLimpio = (raw.nombre || '').trim();
+      if (this.isEditMode && this.SelectedList) {
+        const payload = {
+          identificador: this.SelectedList.identificador,
+          nombre: nombreLimpio,
+          descripcion: raw.descripcion,
+          publico: !!raw.publico,
+          estado: raw.estado,
+          organizacionId: this.SelectedList.organizacionId || currentUser?.organizacionId,
+          clienteId: this.SelectedList.clienteId || currentUser?.clienteId,
+          carpetaIdentificador: this.SelectedFolder.identificador || this.SelectedFolder.carpeta_identificador,
+          carpetaId: this.SelectedFolder.id || this.SelectedFolder.carpeta_id
+        };
+
+        this.listService.updateList(payload).subscribe({
+          next: (resp) => {
+            const listIdent = payload.identificador;
+            const tmplId = raw.templateId;
+            if (tmplId) this.templatesService.setListTemplate(listIdent, tmplId);
+            this.activeModal.close(resp || payload);
+          },
+          error: (err) => {
+            console.error('Error actualizando la lista', err);
+            const tmplId = raw.templateId;
+            if (tmplId) this.templatesService.setListTemplate(payload.identificador, tmplId);
+            this.activeModal.close(payload);
+          }
+        });
+      } else {
+        const identificador = this.generateListId(nombreLimpio);
+        const payload = {
+          identificador,
+          nombre: nombreLimpio,
+          descripcion: raw.descripcion,
+          publico: !!raw.publico,
+          estado: raw.estado,
+          organizacionId: currentUser?.organizacionId,
+          clienteId: currentUser?.clienteId,
+          carpetaIdentificador: this.SelectedFolder.identificador || this.SelectedFolder.carpeta_identificador,
+          carpetaId: this.SelectedFolder.id || this.SelectedFolder.carpeta_id
+        };
+
+        this.listService.createList(payload).subscribe({
+          next: (resp) => {
+            const listIdent = resp?.identificador || identificador;
+            const tmplId = raw.templateId;
+            if (tmplId) {
+              this.templatesService.setListTemplate(listIdent, tmplId);
+            }
+            this.activeModal.close(resp);
+          },
+          error: (err) => {
+            console.error('Error creando la lista', err);
+            // Aun en error, persistimos el mapeo localmente para continuidad offline
+            const tmplId = raw.templateId;
+            if (tmplId) {
+              this.templatesService.setListTemplate(identificador, tmplId);
+            }
+            // Devuelve payload para que el caller pueda manejarlo
+            this.activeModal.close(payload);
+          }
+        });
+      }
+    } else {
+      Object.keys(this.listForm.controls).forEach(k => this.listForm.get(k)?.markAsTouched());
+    }
+  }
+
+  onCancel() { this.activeModal.dismiss(); }
+
+  hasError(fieldName: string, errorType?: string): boolean {
+    const field = this.listForm.get(fieldName);
+    if (errorType) {
+      return field ? field.hasError(errorType) && field.touched : false;
+    }
+    return field ? field.invalid && field.touched : false;
+  }
+}
+

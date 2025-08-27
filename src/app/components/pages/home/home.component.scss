@@ -1,0 +1,17 @@
+.content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  padding-top: var(--header-height);
+
+  app-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background-color: var(--sidebar-bg);
+  }
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--background-color);
+  }
+}

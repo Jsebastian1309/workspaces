@@ -1,1 +1,32 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+  --header-height: 46px;
+  --background-color: #f5f5f5;
+  --text-color: #222;
+  --nav-bg: #185775;
+  --nav-color: #fff;
+  --sidebar-bg: #fcfcfc;
+  --sidebar-color: #333;
+  --bot-bg: #185775;
+  --select-bg: #e0e7ff;
+}
+
+.dark-theme {
+  --background-color: #181818;
+  --text-color: #f5f5f5;
+  --nav-bg: #222222;
+  --nav-color: #fff;
+  --sidebar-bg: #222222;
+  --sidebar-color: #fff;
+  --bot-bg: #185775;
+  --select-bg: #333c57;
+}
+
+body {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
