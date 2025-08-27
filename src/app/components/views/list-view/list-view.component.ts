@@ -1,9 +1,9 @@
 import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { TaskService } from 'src/app/service/features/task/Task.service';
-import { TemplatesService } from 'src/app/service/features/templates/Templates.service';
-import { AuthService } from 'src/app/service/core/auth/Auth.service';
+import { TaskService } from 'src/app/service/features/task/task.service';
+import { AuthService } from 'src/app/service/core/auth/auth.service';
+import { TeamService } from 'src/app/service/features/team/team.service';
 import { Task } from 'src/app/models/task.model';
+import { TemplatesService } from 'src/app/service/features/templates/Templates.service';
 
 @Component({
   selector: 'app-list-view',
@@ -31,12 +31,16 @@ export class ListViewComponent implements OnChanges {
   editing: Record<string, boolean> = {};
   backups: Record<string, Task> = {};
   priorities = ['Low', 'Medium', 'High'];
+  teams: { identificador: string; nombres: string }[] = [];
 
   constructor(
     private taskService: TaskService,
     private templates: TemplatesService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private teamService: TeamService
+  ) {
+    this.loadTeams();
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     const listChanged = !!changes['list'];
@@ -45,12 +49,35 @@ export class ListViewComponent implements OnChanges {
     if (listChanged || tasksChanged) this.groupTasksFromInput();
   }
 
+  private loadTeams(): void {
+    this.teamService.listTeam().subscribe({
+      next: (res) => {
+        this.teams = res.map((team) => ({
+          identificador: team.identificador,
+          nombres: team.nombres,
+        }));
+      },
+      error: (err) => {
+        console.error('Error al cargar equipos:', err);
+      },
+    });
+  }
+
   private groupTasksFromInput() {
     this.loading = false;
     this.error = undefined;
     const byStatus: { [k: string]: Task[] } = {};
     const safe = Array.isArray(this.tasks) ? this.tasks : [];
-    for (const t of safe) {
+
+    // Filtrar tareas por espacio de trabajo y lista
+    const filteredTasks = safe.filter((t) => {
+      return (
+        t.espacioTrabajoIdentificador === this.espacioTrabajoIdentificador &&
+        t.listaIdentificador === this.list?.identificador
+      );
+    });
+
+    for (const t of filteredTasks) {
       const label = (t.estado || t.estadoLabel || 'OPEN').toString().toUpperCase();
       (t as any).estadoLabel = label;
       byStatus[label] = byStatus[label] || [];
@@ -71,6 +98,7 @@ export class ListViewComponent implements OnChanges {
         { key: 'PENDING', label: 'PENDING', color: '#FFB020' },
         { key: 'BLOCKED', label: 'BLOCKED', color: '#6A4CFF' },
         { key: 'DONE', label: 'COMPLETADA', color: '#38B87C' },
+        { key: 'LIKE', label: 'LIKE', color: '#9f851eff' },
       ];
     }
   }
@@ -117,7 +145,7 @@ export class ListViewComponent implements OnChanges {
   }
 
   getGroupedKeys(): string[] {
-    return Object.keys(this.grouped).filter(key => this.grouped[key] && this.grouped[key].length > 0);
+    return Object.keys(this.grouped);
   }
 
   // Método para debugging - mostrar información del estado actual
@@ -165,7 +193,8 @@ export class ListViewComponent implements OnChanges {
     // Preparar datos para enviar al backend con la estructura exacta requerida
     const currentUser = this.authService.getCurrentUser();
     const fechaActual = new Date().toISOString().slice(0, 10);
-    
+    const folderIdentificador =this.carpetaIdentificador;
+    console.log("WOG",folderIdentificador)
     const taskData = {
       identificador: this.draft.identificador || this.generateTaskId(),
       estado: this.draft.estado || 'OPEN',
@@ -174,7 +203,7 @@ export class ListViewComponent implements OnChanges {
       fechaInicio: this.draft.fechaVencimiento || fechaActual,
       fechaFin: this.draft.fechaVencimiento || fechaActual,
       duracionHoras: 0,
-      tareaPadreIdentificador: '',
+
       responsableIdentificador: this.draft.asignadoA || '',
       descripcion: this.draft.descripcion || '',
       comentarios: '',
@@ -184,31 +213,31 @@ export class ListViewComponent implements OnChanges {
       facturable: false,
       organizacionId: currentUser?.organizacionId || '',
       clienteId: currentUser?.clienteId || '',
-      carpeta_identificador: this.carpetaIdentificador || this.list?.carpeta_identificador || '',
-      lista_identificador: this.list?.identificador || '',
+      carpetaIdentificador: folderIdentificador,
+      listaIdentificador: this.list.identificador,
       tipoTarea: 'TASK',
-      etiqueta: '',
+      etiqueta: 'sda',
       prioridad: this.draft.prioridad || 'Medium'
     };
 
     console.log('Datos de tarea enviados al backend:', taskData);
 
-  this.taskService.crearTarea(taskData).subscribe({
-      next: (response) => {
-        console.log('Tarea creada exitosamente:', response);
-        this.info = 'Tarea creada exitosamente';
-        this.cancelAdd();
-    this.refresh.emit(); // Pedir al padre que recargue tareas
-        setTimeout(() => this.info = undefined, 3000);
-      },
-      error: (error) => {
-        console.error('Error al crear tarea:', error);
-        this.error = 'Error al crear la tarea. Intenta nuevamente.';
-        this.loading = false;
-        setTimeout(() => this.error = undefined, 5000);
-      }
-    });
-  }
+  // this.taskService.crearTarea(taskData).subscribe({
+  //     next: (response) => {
+  //       console.log('Tarea creada exitosamente:', response);
+  //       this.info = 'Tarea creada exitosamente';
+  //       this.cancelAdd();
+  //   this.refresh.emit(); // Pedir al padre que recargue tareas
+  //       setTimeout(() => this.info = undefined, 3000);
+  //     },
+  //     error: (error) => {
+  //       console.error('Error al crear tarea:', error);
+  //       this.error = 'Error al crear la tarea. Intenta nuevamente.';
+  //       this.loading = false;
+  //       setTimeout(() => this.error = undefined, 5000);
+  //     }
+  //   });
+   }
 
   // Métodos para editar tareas
   startEdit(t: Task) {
@@ -229,11 +258,37 @@ export class ListViewComponent implements OnChanges {
   }
 
   saveEdit(t: Task) {
-    // TODO: Implementar llamada al servicio para actualizar tarea
-    delete this.backups[t.identificador];
-    delete this.editing[t.identificador];
-    this.info = 'Tarea actualizada (solo local por ahora)';
-    setTimeout(() => this.info = undefined, 3000);
+    this.loading = true;
+    this.error = undefined;
+
+    // Preparar datos para enviar al backend con la estructura exacta requerida
+    const updatedTask = {
+      identificador: t.identificador,
+      nombre: t.nombre,
+      descripcion: t.descripcion,
+      estado: t.estado,
+      prioridad: t.prioridad,
+      fechaVencimiento: t.fechaVencimiento,
+      asignadoA: t.asignadoA,
+      listaIdentificador: t.listaIdentificador,
+      espacioTrabajoIdentificador: t.espacioTrabajoIdentificador,
+    };
+
+    this.taskService.actualizarTarea(updatedTask).subscribe({
+      next: () => {
+        this.info = 'Tarea actualizada exitosamente';
+        delete this.editing[t.identificador];
+        setTimeout(() => (this.info = undefined), 3000);
+      },
+      error: (err) => {
+        console.error('Error al actualizar tarea:', err);
+        this.error = 'Error al actualizar la tarea. Intenta nuevamente.';
+        setTimeout(() => (this.error = undefined), 5000);
+      },
+      complete: () => {
+        this.loading = false;
+      },
+    });
   }
 
   deleteTask(t: Task) {

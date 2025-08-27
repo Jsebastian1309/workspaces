@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from 'src/app/service/core/auth/Auth.service';
+import { AuthService } from 'src/app/service/core/auth/auth.service';
 
 @Component({
   selector: 'app-modal-workspace',

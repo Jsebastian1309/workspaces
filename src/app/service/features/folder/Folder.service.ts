@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { AuthService } from '../../core/auth/Auth.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 import { UniqueIdService } from '../../core/utils/uniqueId.service';

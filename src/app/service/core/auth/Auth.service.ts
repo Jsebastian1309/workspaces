@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, timer, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { KeycloakService } from '../security/Keycloak.service';
+import { KeycloakService } from '../security/keycloak.service';
 import { HttpHeaders } from '@angular/common/http';
 export interface User {
   username: string;

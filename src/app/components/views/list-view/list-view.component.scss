@@ -388,3 +388,66 @@
         min-width: 120px;
     }
 }
+
+// Dark theme overrides for Bootstrap accordion to remove white backgrounds
+.accordion {
+  background: transparent;
+  .accordion-item {
+    background: transparent;
+    border: none;
+    margin-bottom: 12px;
+  }
+
+  .accordion-header {
+    margin: 0;
+    padding: 0;
+  }
+
+  .accordion-button {
+    background: transparent; /* inline background-color is set from template via style */
+    color: #071018; /* dark text for colored headers */
+    font-weight: 600;
+    padding: 18px 20px;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .accordion-button.collapsed {
+    /* ensure collapsed state still shows colored background when inline style applied */
+    color: #071018;
+  }
+
+  .accordion-collapse {
+    background: transparent;
+  }
+
+  .accordion-body {
+    background: var(--background-color);
+    color: var(--text-color);
+    padding: 12px 20px 20px 20px;
+    border: 1px solid #1e2430;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+  }
+}
+
+/* Make table headers darker to match the design inside accordion */
+.table thead th {
+  background: #0f1112; /* near black */
+  color: var(--text-color);
+  border-bottom: 1px solid #1e2430;
+}
+
+/* Make action icons stand out on dark rows */
+.btn-link i.bi {
+  font-size: 16px;
+}
+
+/* small spacing fix to remove white gaps between accordion sections */
+.list-view .accordion + .accordion {
+  margin-top: 0;
+}

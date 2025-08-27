@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { WorkspaceService } from 'src/app/service/features/workspace/Workspace.service';
+import { WorkspaceService } from 'src/app/service/features/workspace/workspace.service';
 
 @Component({
   selector: 'app-home',

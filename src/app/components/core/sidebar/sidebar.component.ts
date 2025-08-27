@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalWorkspaceComponent } from '../../modals/modal-workspace/modal-workspace.component';
-import { WorkspaceService } from 'src/app/service/features/workspace/Workspace.service';
+import { WorkspaceService } from 'src/app/service/features/workspace/workspace.service';
 import { ModalInfoComponent } from '../../modals/modal-info/modal-info.component';
 import { ModalDeleteComponent } from '../../modals/modal-delete/modal-delete.component';
 import { TranslateService } from '@ngx-translate/core';
