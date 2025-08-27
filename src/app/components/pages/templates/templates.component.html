@@ -1,0 +1,64 @@
+<div class="templates-page">
+	<div class="sidebar">
+		<div class="header">
+			<h3>Templates</h3>
+			<button class="btn btn-primary" (click)="createTemplate()">New template</button>
+		</div>
+		<!-- Category selector -->
+		<div class="mb-3 d-flex align-items-center gap-2">
+			<div class="flex-grow-1">
+				<label class="form-label">Category</label>
+				<select class="form-select" [(ngModel)]="selectedCategory" (ngModelChange)="changeCategory($event)">
+					<option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+				</select>
+			</div>
+			<button class="btn btn-outline-secondary mt-4" (click)="addCategoryUI()">+ Add category</button>
+		</div>
+		<ul class="list">
+			<li *ngFor="let t of templatesBySelectedCategory()" [class.active]="selected?.id === t.id" (click)="select(t)">
+				<div class="name">{{ t.name }}</div>
+				<div class="meta">{{ t.tipo }} · {{ t.statuses.length }} statuses</div>
+			</li>
+		</ul>
+	</div>
+
+	<div class="editor" *ngIf="selected; else emptyState">
+		<div class="editor-header">
+			<input class="title" [(ngModel)]="draftName" placeholder="Template name" />
+			<select class="form-select ms-2" style="max-width:220px" [(ngModel)]="selected!.tipo">
+				<option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+			</select>
+			<div class="actions">
+				<button class="btn btn-outline-danger" (click)="deleteTemplate()">Delete</button>
+				<button class="btn btn-success" (click)="saveTemplate()">Save</button>
+			</div>
+		</div>
+
+		<div class="statuses">
+			<div class="statuses-header">
+				<h4>Statuses</h4>
+				<button class="btn btn-secondary" (click)="addStatus()">Add status</button>
+			</div>
+			<div class="status-row" *ngFor="let s of selected?.statuses; let i = index">
+				<button class="icon" title="Move up" (click)="moveStatus(i, -1)" [disabled]="i===0">▲</button>
+				<button class="icon" title="Move down" (click)="moveStatus(i, 1)" [disabled]="i===selected!.statuses.length-1">▼</button>
+				<input class="status-name" [(ngModel)]="s.name" />
+				<input class="status-color" type="color" [(ngModel)]="s.color" />
+				<select class="status-type" [(ngModel)]="s.type">
+					<option value="todo">To Do</option>
+					<option value="in-progress">In Progress</option>
+					<option value="done">Done</option>
+					<option value="blocked">Blocked</option>
+					<option value="custom">Custom</option>
+				</select>
+				<button class="btn btn-link text-danger" (click)="removeStatus(i)">Remove</button>
+			</div>
+		</div>
+	</div>
+
+	<ng-template #emptyState>
+		<div class="empty">
+			<p>Select or create a template to begin.</p>
+		</div>
+	</ng-template>
+</div>

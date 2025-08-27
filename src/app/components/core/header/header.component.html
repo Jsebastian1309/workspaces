@@ -1,0 +1,50 @@
+<header>
+  <nav class="color-nav fixed-top d-flex align-items-center">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col-3 col-md-3 text-white">
+          <i class="bi bi-grid-fill me-2"></i>
+          <span class="logo-text" translate>Company</span>
+        </div>
+        <!-- Barra de búsqueda -->
+        <div class="col-6 col-md-6">
+          <form class="search-form d-flex">
+            <input type="text"class="form-control me-2"placeholder="{{ 'Search' | translate }}"aria-label="Search"/>
+            <button class="btn-icon" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </form>
+        </div>
+        <!-- Boton de Tema y Lenguje -->
+        <div class="col-3 col-md-3 text-end p-0">
+            <app-theme-button></app-theme-button>
+          <div ngbDropdown class="d-inline-block me-2">
+            <app-language-button></app-language-button>
+          </div>
+
+          <!-- Perfil -->
+          <div ngbDropdown class="d-inline-block">
+            <button type="button" class="btn btn-icon" id="dropdownUser" ngbDropdownToggle>
+              <i class="bi bi-person-fill"></i>
+            </button>
+            <div ngbDropdownMenu aria-labelledby="dropdownUser">
+              <div class="dropdown-header">
+                <i class="bi bi-person-circle"> {{ currentUser?.username }}</i>
+              </div>
+              <div class="dropdown-divider"></div>
+              <button translate ngbDropdownItem (click)="onProfile()">
+                <i class="bi bi-gear-fill me-2"></i>
+                Profile
+              </button>
+              <div class="dropdown-divider"></div>
+              <button translate ngbDropdownItem (click)="onLogout()" class="text-danger">
+                <i class="bi bi-box-arrow-right me-2"></i>
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

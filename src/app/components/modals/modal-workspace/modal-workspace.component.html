@@ -1,0 +1,128 @@
+<div class="modal-header">
+    <h4 class="modal-title">
+        <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square' : 'bi-plus-circle'" aria-hidden="true"></i>
+        {{ title }}
+    </h4>
+    <button type="button" class="btn btn-icon" aria-label="Cerrar" (click)="onCancel()">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+    </button>
+</div>
+
+<div class="modal-body">
+    <!-- Información del Workspace -->
+    <div class="alert alert-info" *ngIf="isEditMode" translate>
+        <i class="bi bi-info-circle me-2"></i>
+        You are editing the workspace: <strong>{{ workspaceData?.nombre }}</strong>
+    </div>
+    <form [formGroup]="workspaceForm" (ngSubmit)="onSubmit()">
+        <!-- Nombre del Workspace -->
+        <div class="mb-3">
+            <label for="nombre" class="form-label" translate>Workspace Name *</label>
+                <input type="text" id="nombre" class="form-control" formControlName="nombre" [class.is-invalid]="hasError('nombre')" />
+            <div class="invalid-feedback" translate *ngIf="hasError('nombre', 'required')">
+                The name is required
+            </div>
+            <div class="invalid-feedback" translate *ngIf="hasError('nombre', 'minlength')">
+                The name must be at least 3 characters long
+            </div>
+        </div>
+
+        <!-- Categoría -->
+        <div class="mb-3">
+            <label for="categoria" class="form-label" translate>Category *</label>
+            <select id="categoria" class="form-select" formControlName="categoria" [class.is-invalid]="hasError('categoria')" aria-placeholder="Select a category|translate">
+                <option value disabled selected translate>Select a category</option>
+                <option value="Personal" translate>Personal</option>
+                <option value="Trabajo" translate>Work</option>
+                <option value="Educación" translate>School</option>
+            </select>
+        </div>
+
+        <!-- Organización y Cliente derivados del token (solo lectura) -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Organization</label>
+                    <div class="form-control bg-light" style="opacity: .85;">{{
+                        workspaceForm.get('organizacionId')?.value }}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Client</label>
+                    <div class="form-control bg-light" style="opacity: .85;">{{
+                        workspaceForm.get('clienteId')?.value}}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row para Color e Icono -->
+        <div class="row  mb-3">
+            <div class="col-md-6">
+                <app-color-picker formControlName="color"
+                    label="Color"></app-color-picker>
+            </div>
+            <div class="col-md-6">
+                <app-icon-picker formControlName="icono"
+                    label="Icon"></app-icon-picker>
+            </div>
+        </div>
+
+        <!-- Vista previa del avatar -->
+        <div class="mb-3">
+            <label class="form-label" translate>Preview</label>
+            <div class="d-flex align-items-center">
+                <div class="avatar-preview me-3"
+                    [style.background-color]="workspaceForm.get('color')?.value">
+                    <ng-container
+                        *ngIf="workspaceForm.get('icono')?.value as bi; else initialW">
+                        <i class="bi" [ngClass]="bi"></i>
+                    </ng-container>
+                    <ng-template #initialW>{{
+                        (workspaceForm.get('nombre')?.value).charAt(0)
+                        }}</ng-template>
+                </div>
+                <div>
+                    <strong>
+                        {{ (workspaceForm.get('nombre')?.value ||
+                        'Workspace Name') | translate }}
+                    </strong>
+                    <br>
+                    <span class="form-text m-0">
+                        {{ (workspaceForm.get('categoria')?.value || 'Category')
+                        | translate }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Público -->
+        <div class="mb-3">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="publico"
+                    formControlName="publico" />
+                <label class="form-check-label" for="publico">
+                    Public Workspace
+                </label>
+                <div class="form-text">Public workspaces can be viewed by other
+                    users</div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary"
+        (click)="onCancel()">Cancel</button>
+    <button
+        type="button"
+        class="btn btn-primary"
+        (click)="onSubmit()"
+        [disabled]="workspaceForm.invalid">
+        <i class="bi" [ngClass]="isEditMode ? 'bi-check-circle' : 'bi-plus-circle'" aria-hidden="true"></i>
+        {{ isEditMode ? 'Update Workspace' : 'Create Workspace' }}
+    </button>
+</div>

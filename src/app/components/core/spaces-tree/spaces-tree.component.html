@@ -1,0 +1,128 @@
+<div class="spaces-tree-container">
+  <div class="tree-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <span translate>Spaces</span>
+      <button mat-icon-button class="btn" (click)="openCreateSpaceModal()"
+        title="Add Space" *ngIf="SelectedWorkspace">
+        <i class="bi bi-plus"></i></button>
+    </div>
+  </div>
+  <hr>
+  <div class="loading-spaces" *ngIf="SelectedWorkspace && isLoading">
+    <mat-icon class="loading-icon">refresh</mat-icon>
+    <p translate>Loading spaces...</p>
+  </div>
+
+  <ng-container *ngIf="SelectedWorkspace && !isLoading">
+    <div class="simple-list">
+      <ng-container *ngFor="let space of dataSource.data; trackBy: trackBySpace">
+        <div class="row-item" [class.is-selected]="selectedKey === getKey(space)" (click)="onNodeClick(space)">
+          <div class="left">
+            <button class="btn" 
+              (click)=" toggleSpace(space)"
+              [title]="isExpanded(space) ? 'Collapse' : 'Expand'">
+              <i class="bi" [ngClass]="isExpanded(space) ? 'bi-caret-down-fill' : 'bi-caret-right-fill'"></i>
+            </button>
+            <div class="space-avatar" [style.background-color]="space.color">
+              <i *ngIf="isBootstrapIcon(space.icono)" class="bi" [ngClass]="space.icono" aria-hidden="true"></i>
+              <span *ngIf="!isBootstrapIcon(space.icono)">{{ space.icono }}</span>
+            </div>
+            <span class="label">{{ space.nombre }}</span>
+          </div>
+          <div class="right" (click)="$event.stopPropagation()">
+            <button class="btn" (click)="onAddFolder(space)" title="Add folder">
+              <i class="bi bi-plus-lg"></i>
+            </button>
+            <div ngbDropdown class="overflow-dropdown" display="dynamic">
+              <button  class="btn" ngbDropdownToggle title="More options">
+                <i class="bi bi-three-dots"></i>
+              </button>
+              <div ngbDropdownMenu class="dropdown-menu">
+                <button ngbDropdownItem (click)="openEditSpaceModal(space)"><i class="bi bi-pencil-square"></i><span>Edit</span></button>
+                <button ngbDropdownItem class="danger" (click)="onDeleteNode(space)"><i class="bi bi-trash-fill"></i><span>Delete</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Folders under space -->
+        <div *ngIf="isExpanded(space)" class="folders">
+          <ng-container *ngFor="let folder of space.folders; trackBy: trackByFolder">
+            <div class="row-item folder" [class.is-selected]="selectedKey === getKey(folder)" (click)="onNodeClick(folder)">
+              <div class="left">
+                <button class="btn"
+                  (click)="$event.stopPropagation(); toggleFolder(folder)"
+                  [title]="isFolderExpanded(folder) ? 'Collapse' : 'Expand'">
+                  <i class="bi" [ngClass]="isFolderExpanded(folder) ? 'bi-caret-down-fill' : 'bi-caret-right-fill'"></i>
+                </button>
+                <i class="bi bi-folder-fill"></i>
+                <span class="label">{{ folder.nombre }}</span>
+              </div>
+              <div class="right" (click)="$event.stopPropagation()">
+                <button class="btn" (click)="onAddList(folder)" title="Add list">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+                <div ngbDropdown class="overflow-dropdown" display="dynamic">
+                  <button class="btn" ngbDropdownToggle title="More options">
+                    <i class="bi bi-three-dots"></i>
+                  </button>
+                  <div ngbDropdownMenu class="dropdown-menu">
+                    <button ngbDropdownItem (click)="onEditFolder(folder)"><i class="bi bi-pencil-square"></i><span>Edit</span></button>
+                    <button ngbDropdownItem class="danger" (click)="onDeleteNode(folder)"><i class="bi bi-trash-fill"></i><span>Delete</span></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lists under folder -->
+            <div *ngIf="isFolderExpanded(folder)" class="lists">
+              <ng-container *ngIf="folder.lists?.length; else emptyLists">
+                <div class="row-item list" *ngFor="let list of folder.lists; trackBy: trackByList"
+                     (click)="onNodeClick(list)"
+                     [class.is-selected]="selectedKey === getKey(list)">
+                  <div class="left">
+                    <i class="bi bi-list-ul"></i>
+                    <span class="label">{{ list.nombre }}</span>
+                  </div>
+                                <div class="right" (click)="$event.stopPropagation()">
+                <button class="btn" (click)="onAddList(folder)" title="Add list">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+                <div ngbDropdown class="overflow-dropdown" display="dynamic">
+                  <button class="btn" ngbDropdownToggle title="More options">
+                    <i class="bi bi-three-dots"></i>
+                  </button>
+                  <div ngbDropdownMenu class="dropdown-menu">
+                    <button ngbDropdownItem (click)="onEditFolder(folder)"><i class="bi bi-pencil-square"></i><span>Edit</span></button>
+                    <button ngbDropdownItem class="danger" (click)="deleteList(list)"><i class="bi bi-trash-fill"></i><span>Delete</span></button>
+                  </div>
+                </div>
+              </div>
+                </div>
+              </ng-container>
+            </div>
+          </ng-container>
+          <ng-template #emptyLists>
+          </ng-template>
+        </div>
+      </ng-container>
+
+      <div class="row-item create" (click)="openCreateSpaceModal()">
+        <div class="left">
+          <i class="bi bi-plus-lg"></i>
+          <span class="label" translate>Create Space</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-spaces" *ngIf="dataSource.data.length === 0">
+      <mat-icon class="empty-icon">folder_open</mat-icon>
+      <p>No spaces yet</p>
+      <button mat-raised-button color="primary"
+        (click)="openCreateSpaceModal()">
+        <mat-icon>add</mat-icon>
+        Create your first space
+      </button>
+    </div>
+  </ng-container>
+</div>

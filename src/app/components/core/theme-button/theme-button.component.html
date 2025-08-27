@@ -1,0 +1,3 @@
+<button (click)="toggleTheme()" class="btn btn-icon" [attr.aria-label]="isDarkTheme ? 'Light mode' : 'Dark mode'">
+  <i [ngClass]="isDarkTheme ? 'bi bi-moon-fill' : 'bi bi-brightness-high-fill'"></i>
+</button>

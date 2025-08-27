@@ -1,0 +1,83 @@
+<div class="container">
+    <div class="card login-card">
+        <div class="logo-section">
+            <div class="d-flex align-items-center mb-3 px-2 gap-2">
+                <div ngbDropdown class="d-inline-block">
+                    <app-language-button></app-language-button>
+                </div>
+                <app-theme-button class="ms-auto"></app-theme-button>
+            </div>
+            <div class="logo" translate>Company</div>
+        </div>
+        <form (ngSubmit)="onLogin()" #loginForm="ngForm" class="login-form">
+            <div class="input-container">
+                <label translate>Email or Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    [(ngModel)]="username"
+                    required
+                    class="input-field"
+                    placeholder="{{ 'Enter your username or email address' | translate }}*">
+                <div class="input-line"></div>
+            </div>
+            <div class="input-container">
+                <label translate>Password</label>
+                <div class="password-wrapper">
+                    <input
+                        [type]="showPassword ? 'text' : 'password'"
+                        id="password"
+                        name="password"
+                        [(ngModel)]="password"
+                        required
+                        class="input-field"
+                        placeholder="{{ 'Enter your password' | translate }}*">
+                    <button
+                        type="button"
+                        class="eye-button"
+                        (click)="togglePassword()">
+                        <svg *ngIf="!showPassword" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg *ngIf="showPassword" width="20" height="20"
+                            viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-line"></div>
+            </div>
+            <div class="options-row">
+                <label class="checkbox-container">
+                    <input type="checkbox" [(ngModel)]="rememberMe"
+                        name="rememberMe">
+                    <span class="checkmark"></span>
+                    <span class="checkbox-text">{{ 'Remember Me' | translate
+                        }}</span>
+                </label>
+                <a href="#" class="forgot-link">{{ 'Forgot Password' | translate
+                    }}</a>
+            </div>
+            <div class="error-alert" *ngIf="errorMessage">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>{{ errorMessage | translate }}</span>
+            </div>
+            <button
+                type="submit"
+                class="login-button"
+                [disabled]="!loginForm.form.valid || isLoading">
+                <span *ngIf="isLoading">{{ 'LoggingIn' | translate }}</span>
+                <span *ngIf="!isLoading">{{ 'Login' | translate }}</span>
+            </button>
+        </form>
+    </div>
+</div>

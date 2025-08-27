@@ -1,0 +1,37 @@
+<div class="modal-header">
+	<h4 class="modal-title">{{ title }}</h4>
+	<button type="button" class="btn btn-icon" aria-label="Close" (click)="onCancel()">
+		<i class="bi bi-x-lg" aria-hidden="true"></i>
+	</button>
+	</div>
+
+<div class="modal-body">
+	<form [formGroup]="folderForm" (ngSubmit)="onSubmit()">
+		<div class="mb-3">
+			<label for="nombre" class="form-label">Folder name *</label>
+			<input id="nombre" type="text" class="form-control" formControlName="nombre"
+						 [class.is-invalid]="hasError('nombre')" placeholder="Ej: Assets" />
+			<div class="invalid-feedback" *ngIf="hasError('nombre', 'required')">Required</div>
+			<div class="invalid-feedback" *ngIf="hasError('nombre', 'minlength')">Min 3 characters</div>
+		</div>
+
+		<div class="mb-3">
+			<label for="descripcion" class="form-label">Description</label>
+			<textarea id="descripcion" rows="3" class="form-control" formControlName="descripcion"
+								placeholder="Brief description..."></textarea>
+		</div>
+
+		<div class="mb-3 form-check">
+			<input id="publico" type="checkbox" class="form-check-input" formControlName="publico" />
+			<label for="publico" class="form-check-label">Public folder</label>
+		</div>
+	</form>
+</div>
+
+<div class="modal-footer">
+	<button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+	<button type="button" class="btn btn-primary" [disabled]="folderForm.invalid" (click)="onSubmit()">
+		<i class="bi bi-folder-plus me-2"></i>
+		Create Folder
+	</button>
+</div>

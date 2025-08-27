@@ -1,0 +1,29 @@
+
+.modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: var(--background-color);
+	color: var(--text-color);
+}
+
+.btn.btn-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 50%;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	border: 0;
+}
+
+.modal-body {
+	background-color: var(--background-color);
+	color: var(--text-color);
+}
+
+.modal-footer {
+	background-color: var(--background-color);
+}

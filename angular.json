@@ -30,7 +30,9 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+              "node_modules/ng2-tree/styles.css"
             ],
             "scripts": []
           },
@@ -100,5 +102,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "e67b7d15-64a2-4663-8d3c-f06ac630357b"
   }
 }
