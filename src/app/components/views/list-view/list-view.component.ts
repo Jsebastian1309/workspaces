@@ -355,44 +355,134 @@ export class ListViewComponent implements OnChanges {
     }
   }
 
-  selectTemplate(template: any): void {
-    this.selectedTemplate = template;
-    this.applyTemplate(template.identificador);
+  selectTemplate(templateId: string): void {
+    if (!templateId) return;
+    this.loading = true;
+    this.error = undefined;
+    // Buscar el template en la lista cargada primero
+    const found = this.templates.find(t => t.identificador === templateId);
+    if (found) {
+      this.selectedTemplate = found;
+      this.applyTemplate(templateId);
+      return;
+    }
+    // Si no está en memoria, solicitar al servicio de templates (si existe)
+    const tpl = this.templatesService.getTemplateById(templateId as any);
+    if (tpl) {
+      this.selectedTemplate = tpl;
+      this.applyTemplate(templateId);
+    } else {
+      // Fallback: intentar cargar detalles directamente
+      this.applyTemplate(templateId);
+    }
   }
 
   applyTemplate(templateId: string): void {
     this.loading = true;
+    this.error = undefined;
     this.templateTaskdetailService.listTemplateTaskDetails(templateId).subscribe({
       next: (details) => {
-        const newTasks = details.map(detail => ({
-          nombre: detail.nombre,
-          descripcion: detail.descripcion,
-          estado: detail.estado,
-          prioridad: detail.prioridad,
-          fechaInicio: null,
-          fechaFin: null,
-          fechaVencimiento: null,
-          duracionHoras: null,
-          asignadoA: null,
-          // Add other required fields as needed
-        }));
-        // Add new tasks to the list (assuming you have a way to create them via TaskService)
-        newTasks.forEach(task => {
-          this.taskService.Createtask(task).subscribe({
-            next: (createdTask) => {
+        if (!Array.isArray(details) || details.length === 0) {
+          this.error = 'Template no contiene tareas';
+          this.loading = false;
+          return;
+        }
+
+        const currentUser = this.authService.getCurrentUser();
+        const fechaActual = new Date().toISOString().slice(0, 10);
+
+        let created = 0;
+        let failed = 0;
+        let processed = 0;
+
+        const checkFinalize = () => {
+          if (processed !== details.length) return;
+          this.loading = false;
+          if (failed === 0) {
+            this.info = `Template aplicado: ${created} tareas creadas`;
+          } else if (created > 0) {
+            this.info = `Template parcialmente aplicado: ${created} creadas, ${failed} fallidas`;
+          } else {
+            this.error = `No se pudieron crear las tareas del template`;
+          }
+          setTimeout(() => {
+            this.info = undefined;
+            this.error = undefined;
+          }, 4000);
+          this.showTemplateSelector = false;
+          this.refresh.emit();
+          // ensure local grouping is updated
+          this.groupTasksFromInput();
+        };
+        console.log('Detalles del template:', details);
+
+        details.forEach((detail) => {
+          // Map only the allowed fields plus minimal metadata
+          const payload: any = {
+            identificador: this.generateTaskId(),
+            nombre: detail.nombre,
+            duracionHoras: detail.duracionHoras ,
+            etiqueta: detail.etiqueta,
+            prioridad: detail.prioridad,
+            descripcion: detail.descripcion,
+            comentarios: detail.comentarios,
+            estado: 'OPEN',
+            fechaCreacionTarea: fechaActual,
+            fechaInicio: fechaActual,
+            fechaFin: fechaActual,
+            fechaTerminada: fechaActual,
+            fechaCerrada: fechaActual,
+            progreso: 0,
+            facturable: false,
+            responsableIdentificador: detail.responsableIdentificador,
+            organizacionId: currentUser?.organizacionId,
+            clienteId: currentUser?.clienteId,
+            carpetaIdentificador: this.carpetaIdentificador,
+            listaIdentificador: this.list?.identificador,
+            espacioTrabajoIdentificador: this.espacioTrabajoIdentificador,
+            tipoTarea : detail.etiqueta
+          };
+
+          console.log('Creating task from template', payload);
+
+          const svc: any = this.taskService as any;
+          const create$ = svc.crearTarea ? svc.crearTarea(payload) : (svc.Createtask ? svc.Createtask(payload) : null);
+
+          if (!create$ || !create$.subscribe) {
+            // Fallback: push locally
+            try {
+              this.tasks.push(payload as Task);
+              created++;
+            } catch (e) {
+              failed++;
+            } finally {
+              processed++;
+              checkFinalize();
+            }
+            return;
+          }
+
+          create$.subscribe({
+            next: (createdTask: any) => {
+              // Add to local list and regroup
               this.tasks.push(createdTask);
-              this.groupTasksFromInput();
+              created++;
             },
-            error: (err) => {
-              this.error = 'Error creating task from template';
+            error: (err: any) => {
+              console.error('Error creando tarea desde template', err, payload);
+              failed++;
+            },
+            complete: () => {
+              processed++;
+              // update grouping after each create to reflect changes quickly
+              this.groupTasksFromInput();
+              checkFinalize();
             }
           });
         });
-        this.loading = false;
-        this.info = 'Template applied successfully';
-        this.showTemplateSelector = false;
       },
       error: (err) => {
+        console.error('Error cargando detalles del template', err);
         this.error = 'Error loading template details';
         this.loading = false;
       }

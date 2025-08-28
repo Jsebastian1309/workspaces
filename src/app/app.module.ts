@@ -42,6 +42,7 @@ import { GantViewComponent } from './components/views/gant-view/gant-view.compon
 import { TaskComponent } from './components/pages/task/task.component';
 import { ModalInfoComponent } from './components/modals/modal-info/modal-info.component';
 import { ModalDeleteComponent } from './components/modals/modal-delete/modal-delete.component';
+import { ModalPersonComponent } from './components/modals/modal-person/modal-person.component';
 import { TeamComponent } from './components/pages/team/team.component';
 import { StatusTemplateComponent } from './components/pages/status-template/status-template.component';
 import { TaskTemplateComponent } from './components/pages/task-template/task-template.component';
@@ -74,7 +75,8 @@ import { TaskTemplateComponent } from './components/pages/task-template/task-tem
     ModalDeleteComponent,
     TeamComponent,
     StatusTemplateComponent,
-    TaskTemplateComponent
+    TaskTemplateComponent,
+    ModalPersonComponent
   ],
   imports: [
     BrowserModule,
