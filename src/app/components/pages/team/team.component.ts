@@ -4,7 +4,8 @@ import { TeamService } from '../../../service/features/team/team.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalDeleteComponent } from '../../modals/modal-delete/modal-delete.component';
-import { ModalWorkspaceComponent } from '../../modals/modal-workspace/modal-workspace.component';
+import { ModalPersonComponent } from '../../modals/modal-person/modal-person.component';
+// import { ModalWorkspaceComponent } from '../../modals/modal-workspace/modal-workspace.component';
 
 type Team = {
   identificador?: string;
@@ -24,7 +25,6 @@ type Team = {
   styleUrls: ['./team.component.scss']
 })
 export class TeamComponent implements OnInit {
-  // UI state
   loading = false;
   errorMsg = '';
   successMsg = '';
@@ -78,22 +78,12 @@ export class TeamComponent implements OnInit {
 
   // Create
   startCreate(): void {
-    this.isEditing = false;
-    this.selected = null;
-    this.form.reset({ estado: true });
-    this.isFormOpen = true;
-    this.successMsg = '';
-    this.errorMsg = '';
+  this.openPersonModal();
   }
 
   // Edit
   startEdit(row: Team): void {
-    this.isEditing = true;
-    this.selected = row;
-    this.form.reset({ ...row });
-    this.isFormOpen = true;
-    this.successMsg = '';
-    this.errorMsg = '';
+  this.openPersonModal(row);
   }
 
   cancelForm(): void {
@@ -129,7 +119,7 @@ export class TeamComponent implements OnInit {
           this.errorMsg = err?.error?.message || 'No se pudo actualizar.';
         },
       });
-      this.loadTeams();
+  // removed immediate reload: wait for server response inside subscribe
     } else {
       this.teamService.CreateTeam(payload).subscribe({
         next: () => {
@@ -143,7 +133,7 @@ export class TeamComponent implements OnInit {
           this.errorMsg = err?.error?.message || 'No se pudo crear.';
         },
       });
-      this.loadTeams();
+  // removed immediate reload: wait for server response inside subscribe
     }
   }
 
@@ -173,29 +163,26 @@ export class TeamComponent implements OnInit {
   }
 
   openCreateWorkspaceModal(team?: Team): void {
-    const modalRef = this.modalService.open(ModalWorkspaceComponent, {
+    // kept for backward compatibility but not used by default
+  }
+
+  openPersonModal(team?: Team): void {
+    const modalRef = this.modalService.open(ModalPersonComponent, {
       centered: true,
       backdrop: 'static',
       size: 'lg',
     });
 
-    modalRef.componentInstance.title = team
-      ? this.translate.instant('Edit Person')
-      : this.translate.instant('Create New Person');
+    modalRef.componentInstance.title = team ? this.translate.instant('Edit Person') : this.translate.instant('Create New Person');
     modalRef.componentInstance.isEditMode = !!team;
     modalRef.componentInstance.team = team || null;
 
-    modalRef.result
-      .then((teamData: Team) => {
-        if (teamData) {
-          if (team) {
-            this.updateTeam(teamData);
-          } else {
-            this.createTeam(teamData);
-          }
-        }
-      })
-      .catch(() => {});
+    modalRef.result.then((teamData: Team) => {
+      if (teamData) {
+        if (team) this.updateTeam(teamData);
+        else this.createTeam(teamData);
+      }
+    }).catch(() => {});
   }
 
   createTeam(team: Team): void {
@@ -206,6 +193,7 @@ export class TeamComponent implements OnInit {
         this.loadTeams();
       },
       error: (err) => {
+        this.loading = false;
         this.errorMsg = err?.error?.message || 'No se pudo crear.';
       },
       complete: () => {
@@ -222,6 +210,7 @@ export class TeamComponent implements OnInit {
         this.loadTeams();
       },
       error: (err) => {
+        this.loading = false;
         this.errorMsg = err?.error?.message || 'No se pudo actualizar.';
       },
       complete: () => {

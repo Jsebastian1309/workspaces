@@ -10,7 +10,7 @@
       </button>
       <!-- Template Selector -->
       <div *ngIf="showTemplateSelector" class="mt-2">
-        <select class="form-select" (change)="selectTemplate($event)">
+  <select #templateSelect class="form-select" (change)="selectTemplate(templateSelect.value)">
           <option value="">Select a Template</option>
           <option *ngFor="let template of templates" [value]="template.identificador">{{ template.nombre }}</option>
         </select>

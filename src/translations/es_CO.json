@@ -32,6 +32,27 @@
 	"Inbox": "Bandeja de entrada",
 	"Templates": "Plantillas",
 	"Dashboards": "Tableros",
+	"Status template": "Plantilla de estado",
+	"Task template": "Plantilla de tarea",
+
+
+
+	"Team": "Equipo",
+	"Hourly Rate": "Tarifa por hora",
+	"Full name": "Nombre completo",
+	"First name *": "Nombre *",
+	"Last name": "Apellido",
+	"Email": "Correo electrónico",
+	"Phone": "Teléfono",
+	"Hourly rate": "Tarifa por hora",
+	"Active": "Activo",
+	"Organization": "Organización",
+	"Client": "Cliente",
+
+
+
+
+
 	"More": "Más",
 	"Favorites": "Favoritos",
 	"Spaces": "Espacios",

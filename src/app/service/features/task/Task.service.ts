@@ -4,6 +4,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Task } from '../../../models/task.model';
+import { UniqueIdService } from '../../core/utils/uniqueId.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class TaskService {
     private apiUrl = environment.Backend;
     private baseUrl = '/proyTarea';
 
-    constructor(private http: HttpClient, private authService: AuthService) { }
+    constructor(private http: HttpClient, private authService: AuthService, private uniqueIdService: UniqueIdService) { }
 
 
     searchtaskFiltered(taskData: any): Observable<any[]> {
@@ -108,39 +109,49 @@ export class TaskService {
         } as Task;
     }
     /**
-     * Crear un nuevo espacio de trabajo
+     * Crear una Tarea
      */
     Createtask(worktask: any): Observable<any> {
         const headers =this.authService.createHeaders();
-        // Obtener información del usuario logueado
         const currentUser = this.authService.getCurrentUser();
-        
-        // Generar un identificador único para el worktask
-        const identificador = this.generateWorktaskId(worktask.nombre);
-        
-        // Preparar el objeto con la información del usuario y organizacion
-        // Mapear los nombres de los campos al formato que espera el backend
-        const worktaskData = {
+        const identificador = this.uniqueIdService.generateId(worktask.nombre);
+        const worktaskData = {  
+            espacioTrabajoIdentificador: worktask.espacioTrabajoIdentificador,
+            carpetaIdentificador: worktask.carpetaIdentificador,
+            listaIdentificador: worktask.listaIdentificador,
             identificador: identificador,
             nombre: worktask.nombre,
             categoria: worktask.categoria,
+            duracionHoras: worktask.duracionHoras,
+            etiqueta: worktask.etiqueta,
+            prioridad: worktask.prioridad,
+            descripcion: worktask.descripcion,
+            comentarios: worktask.comentarios,
             organizacionId: currentUser?.organizacionId,
             clienteId: currentUser?.clienteId,
+            fechaCreacionTarea: worktask.fechaCreacionTarea,
+            fechaInicio: worktask.fechaInicio,
+            fechaFin: worktask.fechaFin,
+            fechaTerminada: worktask.fechaTerminada,
+            fechaCerrada: worktask.fechaCerrada,
+            progreso: worktask.progreso,
+            facturable: worktask.facturable,
             color: worktask.color,
             icono: worktask.icono,
             publico: worktask.publico,
             estado: worktask.estado,
-            usuario_creacion: currentUser?.username,
-            // Identificadores del worktask padre
-            espacioTrabajoId:"10",
-            espacioTrabajoIdentificador: worktask.espacioTrabajoIdentificador,
+            tipoTarea: "djisf",
+            // usuario_creacion: currentUser?.username,
+            
         };
+
+
         
         console.log('Enviando datos al backend:', worktaskData);
         
         return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, worktaskData, { 
             headers,
-            observe: 'response' // Para obtener la respuesta completa con status
+            observe: 'response'
         }).pipe(
             map((response: any) => {
                 console.log('Respuesta completa del backend:', response);
@@ -166,15 +177,4 @@ export class TaskService {
         return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, tarea, { headers });
     }
 
-    /**
-     * Generar un identificador único para el worktask basado en el nombre
-     */
-    private generateWorktaskId(nombre: string): string {
-        const timestamp = Date.now();
-        const nombreLimpio = nombre.toLowerCase()
-            .replace(/[^a-z0-9]/g, '_')
-            .replace(/_+/g, '_')
-            .replace(/^_|_$/g, '');
-        return `ws_${nombreLimpio}_${timestamp}`;
-    }
 }
