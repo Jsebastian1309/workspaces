@@ -9,13 +9,10 @@ import { Task } from '../../../models/task.model';
   providedIn: 'root'
 })
 export class TaskService {
-  private apiUrl = environment.Backend;
+    private apiUrl = environment.Backend;
     private baseUrl = '/proyTarea';
 
     constructor(private http: HttpClient, private authService: AuthService) { }
-
-
-
 
 
     searchtaskFiltered(taskData: any): Observable<any[]> {
@@ -39,12 +36,10 @@ export class TaskService {
         prioridad?: string;
         categoria?: string;
         estado?: string;
-        fechaInicio?: string; // YYYY-MM-DD
-        fechaFin?: string;    // YYYY-MM-DD
+        fechaInicio?: string; 
+        fechaFin?: string;    
     }): Observable<Task[]> {
         const headers = this.authService.createHeaders();
-
-        // Limpiar parámetros - solo incluir los que tienen valores válidos
         const body: any = {};
         Object.entries(params).forEach(([key, value]) => {
             if (value !== undefined && value !== null && value !== '') {

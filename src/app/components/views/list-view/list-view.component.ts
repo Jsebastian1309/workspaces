@@ -4,6 +4,8 @@ import { AuthService } from 'src/app/service/core/auth/auth.service';
 import { TeamService } from 'src/app/service/features/team/team.service';
 import { Task } from 'src/app/models/task.model';
 import { TemplatesService } from 'src/app/service/features/templates/Templates.service';
+import { TemplateTaskService } from 'src/app/service/features/templates/task/template-task.service';
+import { TemplateTaskdetailService } from 'src/app/service/features/templates/task/template-taskdetail.service';
 
 @Component({
   selector: 'app-list-view',
@@ -33,20 +35,25 @@ export class ListViewComponent implements OnChanges {
   priorities = ['Low', 'Medium', 'High'];
   teams: { identificador: string; nombres: string }[] = [];
 
+    // Template integration
+  templates: any[] = [];
+  selectedTemplate: any = null;
+  showTemplateSelector = false;
+
   constructor(
     private taskService: TaskService,
-    private templates: TemplatesService,
+    private templatesService: TemplatesService,
+    private templateTaskService: TemplateTaskService,
+    private templateTaskdetailService: TemplateTaskdetailService,
     private authService: AuthService,
     private teamService: TeamService
-  ) {
-    this.loadTeams();
-  }
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    const listChanged = !!changes['list'];
-    const tasksChanged = !!changes['tasks'];
-    if (listChanged) this.setupStatusesFromTemplate();
-    if (listChanged || tasksChanged) this.groupTasksFromInput();
+    if (changes['tasks'] || changes['list']) {
+      this.groupTasksFromInput();
+      this.setupStatusesFromTemplate();
+    }
   }
 
   private loadTeams(): void {
@@ -88,8 +95,8 @@ export class ListViewComponent implements OnChanges {
 
   private setupStatusesFromTemplate() {
     const listId = this.list?.identificador;
-    const tplId = this.templates.getListTemplate(listId);
-    const tpl = this.templates.getTemplateById(tplId || undefined);
+    const tplId = this.templatesService.getListTemplate(listId);
+    const tpl = this.templatesService.getTemplateById(tplId || undefined);
     if (tpl) {
       this.statuses = tpl.statuses.map(s => ({ key: s.name.toUpperCase(), label: s.name, color: s.color }));
     } else {
@@ -328,4 +335,68 @@ export class ListViewComponent implements OnChanges {
     const random = Math.random().toString(36).substr(2, 5);
     return `task_${timestamp}_${random}`;
   }
+
+   // Template methods
+  loadTemplates(): void {
+    this.templateTaskService.listTemplateTasks().subscribe({
+      next: (data) => {
+        this.templates = data;
+      },
+      error: (err) => {
+        this.error = 'Error loading templates';
+      }
+    });
+  }
+
+  toggleTemplateSelector(): void {
+    this.showTemplateSelector = !this.showTemplateSelector;
+    if (this.showTemplateSelector && this.templates.length === 0) {
+      this.loadTemplates();
+    }
+  }
+
+  selectTemplate(template: any): void {
+    this.selectedTemplate = template;
+    this.applyTemplate(template.identificador);
+  }
+
+  applyTemplate(templateId: string): void {
+    this.loading = true;
+    this.templateTaskdetailService.listTemplateTaskDetails(templateId).subscribe({
+      next: (details) => {
+        const newTasks = details.map(detail => ({
+          nombre: detail.nombre,
+          descripcion: detail.descripcion,
+          estado: detail.estado,
+          prioridad: detail.prioridad,
+          fechaInicio: null,
+          fechaFin: null,
+          fechaVencimiento: null,
+          duracionHoras: null,
+          asignadoA: null,
+          // Add other required fields as needed
+        }));
+        // Add new tasks to the list (assuming you have a way to create them via TaskService)
+        newTasks.forEach(task => {
+          this.taskService.Createtask(task).subscribe({
+            next: (createdTask) => {
+              this.tasks.push(createdTask);
+              this.groupTasksFromInput();
+            },
+            error: (err) => {
+              this.error = 'Error creating task from template';
+            }
+          });
+        });
+        this.loading = false;
+        this.info = 'Template applied successfully';
+        this.showTemplateSelector = false;
+      },
+      error: (err) => {
+        this.error = 'Error loading template details';
+        this.loading = false;
+      }
+    });
+  }
+
 }

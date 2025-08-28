@@ -4,6 +4,17 @@
     <div class="list-info">
       <h2 class="title">{{ list.nombre }}</h2>
       <p class="desc" *ngIf="list.descripcion">{{ list.descripcion }}</p>
+      <!-- Template Button -->
+      <button class="btn btn-secondary btn-sm ms-3" (click)="toggleTemplateSelector()">
+        <i class="bi bi-file-earmark-plus"></i> Apply Template
+      </button>
+      <!-- Template Selector -->
+      <div *ngIf="showTemplateSelector" class="mt-2">
+        <select class="form-select" (change)="selectTemplate($event)">
+          <option value="">Select a Template</option>
+          <option *ngFor="let template of templates" [value]="template.identificador">{{ template.nombre }}</option>
+        </select>
+      </div>
     </div>
   </div>
 
