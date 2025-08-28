@@ -1,1 +1,98 @@
-<p>task-template works!</p>
+<div class="container mt-4">
+  <h2 class="mb-4">Task Templates</h2>
+  
+  <div *ngIf="loading" class="d-flex justify-content-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+  
+  <!-- Create New Template Button -->
+  <button class="btn btn-primary mb-3" (click)="toggleCreateForm()">
+    <i class="bi bi-plus-lg"></i> Create New Template
+  </button>
+  
+  <!-- Create Form -->
+  <div *ngIf="showCreateForm" class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">New Template</h5>
+      <form (ngSubmit)="createTemplate()">
+        <div class="mb-3">
+          <label for="newNombre" class="form-label">Name</label>
+          <input type="text" class="form-control" id="newNombre" [(ngModel)]="newTemplate.nombre" name="nombre" required>
+        </div>
+        <div class="mb-3">
+          <label for="newEstado" class="form-label">Status</label>
+          <select class="form-select" id="newEstado" [(ngModel)]="newTemplate.estado" name="estado">
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-success">Create</button>
+        <button type="button" class="btn btn-secondary ms-2" (click)="toggleCreateForm()">Cancel</button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-12">
+      <h3>Select a Template</h3>
+    </div>
+    <div *ngFor="let template of templates" class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <!-- Edit Mode -->
+          <div *ngIf="editingTemplate === template.identificador; else viewMode">
+            <form (ngSubmit)="saveEdit(template)">
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" [(ngModel)]="editTemplate.nombre" name="editNombre" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" [(ngModel)]="editTemplate.estado" name="editEstado">
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-success btn-sm">Save</button>
+              <button type="button" class="btn btn-secondary btn-sm ms-2" (click)="cancelEdit()">Cancel</button>
+            </form>
+          </div>
+          <!-- View Mode -->
+          <ng-template #viewMode>
+            <h5 class="card-title">{{ template.nombre }}</h5>
+            <p class="card-text">Status: {{ template.estado }}</p>
+            <button class="btn btn-info btn-sm me-2" (click)="selectTemplate(template)">View Details</button>
+            <button class="btn btn-warning btn-sm me-2" (click)="startEdit(template)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="deleteTemplate(template)">Delete</button>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="selectedTemplate" class="mt-5">
+    <h3>Details for: {{ selectedTemplate.nombre }}</h3>
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>Task Name</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let detail of templateDetails">
+          <td>{{ detail.nombre }}</td>
+          <td>{{ detail.descripcion }}</td>
+          <td>{{ detail.estado }}</td>
+          <td>{{ detail.prioridad }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
