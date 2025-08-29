@@ -100,13 +100,17 @@
         <label class="form-label">Estado</label>
         <select class="form-select" [(ngModel)]="filterStatus" (ngModelChange)="fetchTasks()">
           <option value="">Todos</option>
-          <option value="OPEN">Open</option>
-          <option value="PENDING">Pending</option>
-          <option value="BLOCKED">Blocked</option>
-          <option value="DONE">Done</option>
+          <option *ngFor="let s of statuses" [value]="s.label">{{ s.label }}</option>
         </select>
       </div>
-      <div class="col-12 col-md-3 col-lg-2 d-flex gap-2 justify-content-start justify-content-md-end">
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label">Asignado a</label>
+        <select class="form-select" [(ngModel)]="filterAssignee" (ngModelChange)="fetchTasks()">
+          <option value="">Todos</option>
+          <option *ngFor="let t of teams" [value]="t.identificador">{{ t.nombres }}</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-3 col-lg-2 d-flex gap-2 justify-content-start justify-content-md-end mt-2 mt-md-0">
         <button class="btn btn-outline-secondary" (click)="clearFilters()">Limpiar</button>
       </div>
     </div>
@@ -140,6 +144,13 @@
       <div class="placeholder-content">
         <span class="placeholder-icon">�</span>
         <h3>Vista Gantt</h3>
+        <p>Esta vista estará disponible próximamente</p>
+      </div>
+    </div>
+        <div *ngIf="currentView === 'gantt'" class="view-placeholder">
+      <div class="placeholder-content">
+        <span class="placeholder-icon">�</span>
+        <h3>Vista Canlendario</h3>
         <p>Esta vista estará disponible próximamente</p>
       </div>
     </div>

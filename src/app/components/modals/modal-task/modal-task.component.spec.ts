@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TemplatesComponent } from './templates.component';
+import { ModalTaskComponent } from './modal-task.component';
 
-describe('TemplatesComponent', () => {
-  let component: TemplatesComponent;
-  let fixture: ComponentFixture<TemplatesComponent>;
+describe('ModalTaskComponent', () => {
+  let component: ModalTaskComponent;
+  let fixture: ComponentFixture<ModalTaskComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TemplatesComponent]
+      declarations: [ModalTaskComponent]
     });
-    fixture = TestBed.createComponent(TemplatesComponent);
+    fixture = TestBed.createComponent(ModalTaskComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

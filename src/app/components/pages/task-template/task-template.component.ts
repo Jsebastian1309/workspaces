@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { TemplateTaskService } from 'src/app/service/features/templates/task/template-task.service';
-import { TemplateTaskdetailService } from 'src/app/service/features/templates/task/template-taskdetail.service';
+import { TemplateTaskService } from 'src/app/service/features/template/task/template-task.service';
+import { TemplateTaskdetailService } from 'src/app/service/features/template/task/template-taskdetail.service';
 @Component({
   selector: 'app-task-template',
   templateUrl: './task-template.component.html',

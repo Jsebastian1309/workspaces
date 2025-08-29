@@ -37,6 +37,7 @@ export class TaskService {
         prioridad?: string;
         categoria?: string;
         estado?: string;
+        responsableIdentificador?: string;
         fechaInicio?: string; 
         fechaFin?: string;    
     }): Observable<Task[]> {
@@ -175,6 +176,15 @@ export class TaskService {
     actualizarTarea(tarea: any): Observable<any> {
         const headers = this.authService.createHeaders();
         return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, tarea, { headers });
+    }
+
+    /**
+     * Eliminar una tarea
+     */
+    eliminarTarea(tarea: any): Observable<any> {
+        const headers = this.authService.createHeaders();
+        // En otros servicios se usa DELETE con body
+        return this.http.delete<any>(`${this.apiUrl}${this.baseUrl}/eliminar`, { headers, body: tarea });
     }
 
 }

@@ -21,20 +21,14 @@
 								placeholder="Brief description..."></textarea>
 		</div>
 
-			<!-- Tipo de template selector -->
+			<!-- Selector de Template de Estados (desde backend) -->
 			<div class="mb-3">
-				<label for="templateType" class="form-label">Tipo de template</label>
-				<select id="templateType" class="form-select" [(ngModel)]="selectedTemplateType" name="templateType" (ngModelChange)="filtrarTemplatesPorTipo()">
-					<option *ngFor="let tipo of templateTypes" [value]="tipo">{{ tipo }}</option>
+				<label for="templateEstadoIdentificador" class="form-label">Template de Estados *</label>
+				<select id="templateEstadoIdentificador" class="form-select" formControlName="templateEstadoIdentificador">
+					<option [ngValue]="null">Seleccione...</option>
+					<option *ngFor="let t of templates" [ngValue]="t.identificador">{{ t.nombre }}</option>
 				</select>
-				<div class="form-text">Primero selecciona el tipo de template (ej: Desarrollo, Marketing, etc).</div>
-			</div>
-			<!-- Template selector filtrado por tipo -->
-			<div class="mb-3">
-				<label for="templateId" class="form-label">Template</label>
-				<select id="templateId" class="form-select" formControlName="templateId">
-					<option *ngFor="let t of templatesFiltered" [ngValue]="t.id">{{ t.name }} ({{ t.statuses.length }} estados)</option>
-				</select>
+				<div class="invalid-feedback d-block" *ngIf="hasError('templateEstadoIdentificador', 'required')">Requerido</div>
 				<div class="form-text">Elige un template para que las tareas de la lista usen esos estados.</div>
 			</div>
 
