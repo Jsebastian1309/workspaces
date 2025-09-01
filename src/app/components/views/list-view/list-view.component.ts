@@ -44,6 +44,9 @@ export class ListViewComponent implements OnChanges {
   selectedTemplate: any = null;
   showTemplateSelector = false;
 
+  // Collapse state per status key
+  private collapsed: Record<string, boolean> = {};
+
   constructor(
   private taskService: TaskService,
   private templateStatusDetailService: TemplateStatusDetailService,
@@ -67,10 +70,12 @@ export class ListViewComponent implements OnChanges {
     }
   }
 
-  // Compute only statuses that currently have tasks
+  // Compute only statuses that currently have tasks (or the one being added)
   getVisibleStatuses(): { key: string; label: string; color: string }[] {
-    if (!this.statuses || this.statuses.length === 0) return [];
-    return this.statuses.filter(s => (this.grouped[s.key] || []).length > 0 || this.addingFor === s.key);
+    const statusList = this.statuses || [];
+    return statusList.filter(
+      (s) => (this.grouped[s.key] || []).length > 0 || this.addingFor === s.key
+    );
   }
 
   // --- Task Template integration ---
@@ -161,7 +166,15 @@ export class ListViewComponent implements OnChanges {
     });
 
     for (const t of filteredTasks) {
-      const label = (t.estado || t.estadoLabel || 'OPEN').toString().toUpperCase();
+      const raw = (t as any).estado;
+      let label: string;
+      if (raw && String(raw).trim() !== '') {
+        label = String(raw).toUpperCase();
+      } else {
+        // Marcar tareas sin estado para moverlas luego al primer estado del template
+        (t as any).__noEstado = true;
+        label = '__NO_STATUS__';
+      }
       (t as any).estadoLabel = label;
       // Normalizar asignado: si viene responsableIdentificador pero no asignadoA, usarlo para UI
       if (!(t as any).asignadoA && (t as any).responsableIdentificador) {
@@ -183,6 +196,10 @@ export class ListViewComponent implements OnChanges {
           .map(d => ({ key: String(d.nombre || '').toUpperCase(), label: d.nombre, color: d.color || '#9AA0A6' }));
   // Asegurar que las tareas se muestren en el primer estado si su estado no pertenece al template
   this.reconcileGroupsWithStatuses();
+  // Inicializar estado de colapso (abierto por defecto)
+  for (const s of this.statuses) {
+    if (this.collapsed[s.key] === undefined) this.collapsed[s.key] = false;
+  }
       },
   error: (e: any) => {
         console.error('Error cargando estados del template', e);
@@ -197,27 +214,29 @@ export class ListViewComponent implements OnChanges {
     });
   }
 
-  // Mueve tareas con estados desconocidos al primer estado (por secuencia)
+  // Mueve únicamente tareas SIN estado al primer estado del template; conserva las que sí tienen estado
   private reconcileGroupsWithStatuses(): void {
     if (!this.statuses || this.statuses.length === 0) return;
-    const valid = new Set(this.statuses.map(s => s.key));
     const firstKey = this.getFirstStatusKey();
+    const valid = new Set(this.statuses.map(s => s.key));
     const newGrouped: { [k: string]: Task[] } = {};
-    // Inicializa grupos válidos preservando tareas existentes
+
+    // Inicializa todos los grupos del template vacíos
     for (const s of this.statuses) {
-      newGrouped[s.key] = this.grouped[s.key] ? [...this.grouped[s.key]] : [];
+      newGrouped[s.key] = [];
     }
-    // Reubicar tareas de grupos inválidos al primer estado
-    for (const [k, arr] of Object.entries(this.grouped)) {
-      if (!valid.has(k)) {
-        for (const t of arr) {
-          (t as any).estadoLabel = firstKey;
-          (t as any).estado = firstKey;
-          newGrouped[firstKey] = newGrouped[firstKey] || [];
-          newGrouped[firstKey].push(t);
-        }
+
+    // Reubicar tareas: las sin estado o con estado no válido al primer estado; las válidas se mantienen
+    const entries = Object.entries(this.grouped || {});
+    for (const [key, arr] of entries) {
+      for (const t of arr || []) {
+        const k = (t as any).__noEstado ? '__NO_STATUS__' : String((t as any).estadoLabel || (t as any).estado || '').toUpperCase();
+        const target = valid.has(k) ? k : firstKey;
+        (t as any).estadoLabel = target;
+        newGrouped[target].push(t);
       }
     }
+
     this.grouped = newGrouped;
   }
 
@@ -227,25 +246,26 @@ export class ListViewComponent implements OnChanges {
   }
 
   getStatusColor(status?: string): string {
-    const statusMeta = this.getStatusMeta(status || 'OPEN');
+  const statusMeta = this.getStatusMeta(status);
     return statusMeta.color;
   }
 
   getStatusLabel(status?: string): string {
-    const statusMeta = this.getStatusMeta(status || 'OPEN');
+  const statusMeta = this.getStatusMeta(status);
     return statusMeta.label;
   }
 
   getStatusMeta(key?: string) {
-    const s = (key || 'OPEN').toString().toUpperCase();
-    const found = this.statuses.find(x => x.key === s);
+  const defaultKey = this.getFirstStatusKey();
+  const s = (key || defaultKey).toString().toUpperCase();
+  const found = (this.statuses || []).find(x => x.key === s);
     if (found) return found;
     let color = '#9AA0A6';
     if (/(COMPLET|DONE|CERRAD|TERMINAD)/.test(s)) color = '#38B87C';
     else if (/(PEND)/.test(s)) color = '#FFB020';
     else if (/(BLOCK|BLOQUE)/.test(s)) color = '#6A4CFF';
-    else if (/(OPEN|ABIERT)/.test(s)) color = '#9AA0A6';
-    return { key: s, label: key || 'OPEN', color };
+  else if (/(OPEN|ABIERT)/.test(s)) color = '#9AA0A6';
+  return { key: s, label: key || defaultKey, color };
   }
 
   assigneeLabel(a: any): string {
@@ -480,7 +500,7 @@ export class ListViewComponent implements OnChanges {
     const del$ = svc.eliminarTarea ? svc.eliminarTarea(payload) : null;
     if (!del$ || !del$.subscribe) {
       // fallback local removal
-      const status = (t.estado || 'OPEN').toUpperCase();
+  const status = (((t as any).estadoLabel) || t.estado || this.getFirstStatusKey()).toString().toUpperCase();
       if (this.grouped[status]) {
         this.grouped[status] = this.grouped[status].filter(task => task.identificador !== t.identificador);
       }
@@ -491,7 +511,7 @@ export class ListViewComponent implements OnChanges {
     }
     del$.subscribe({
       next: () => {
-        const status = (t.estado || 'OPEN').toUpperCase();
+  const status = (((t as any).estadoLabel) || t.estado || this.getFirstStatusKey()).toString().toUpperCase();
         if (this.grouped[status]) {
           this.grouped[status] = this.grouped[status].filter(task => task.identificador !== t.identificador);
         }
@@ -527,6 +547,14 @@ export class ListViewComponent implements OnChanges {
 
   private ensureGroup(k: string) { 
     this.grouped[k] = this.grouped[k] || []; 
+  }
+
+  // Collapse helpers
+  isCollapsed(key: string): boolean {
+    return !!this.collapsed[key];
+  }
+  toggleCollapse(key: string): void {
+    this.collapsed[key] = !this.isCollapsed(key);
   }
 
   private generateTaskId(): string {

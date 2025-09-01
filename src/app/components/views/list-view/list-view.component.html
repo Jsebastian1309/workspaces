@@ -30,15 +30,11 @@
     <ng-container *ngFor="let status of getVisibleStatuses(); let i = index">
       <div class="accordion-item">
         <h2 class="accordion-header" id="heading{{ i }}">
-          <button
-            class="accordion-button"
-            type="button"
-            data-bs-toggle="collapse"
-            [attr.data-bs-target]="'#collapse' + i"
-            aria-expanded="true"
-            [attr.aria-controls]="'collapse' + i"
-            [style.background-color]="getStatusColor(status.key)"
-          >
+          <button class="accordion-button" type="button"
+                  [attr.aria-expanded]="!isCollapsed(status.key)"
+                  [attr.aria-controls]="'collapse' + i"
+                  [style.background-color]="getStatusColor(status.key)"
+                  (click)="toggleCollapse(status.key)">
             {{ status.label }}
           </button>
           <!-- Add task button (outside collapse button to avoid toggling) -->
@@ -48,9 +44,10 @@
         </h2>
         <div
           id="collapse{{ i }}"
-          class="accordion-collapse collapse show"
+          class="accordion-collapse collapse"
           [attr.aria-labelledby]="'heading' + i"
           data-bs-parent="#tasksAccordion"
+          [class.show]="!isCollapsed(status.key)"
         >
           <div class="accordion-body">
             <div class="table-h-scroll">

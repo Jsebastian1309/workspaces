@@ -1,15 +1,20 @@
-<ngx-gantt [items]="items" [groups]="groups" (barClick)="onBarClick($event)">
-	<ngx-gantt-table>
-		<ngx-gantt-column name="Task" width="260">
-			<ng-template #cell let-item>
-				{{ item.title }}
-			</ng-template>
-		</ngx-gantt-column>
-		<ngx-gantt-column name="Estado" width="120">
-			<ng-template #cell let-item>
-				{{ item.group_id }}
-			</ng-template>
-		</ngx-gantt-column>
-	</ngx-gantt-table>
-
-</ngx-gantt>
+<div class="gantt-wrapper" style="height: 420px;">
+	<ngx-gantt [items]="items"
+						 [groups]="groups"
+						 [start]="start"
+						 [end]="end"
+						 (barClick)="onBarClick($event)">
+		<ngx-gantt-table>
+					<ngx-gantt-column name="Task" width="260">
+						<ng-template #cell let-item>
+							{{ item.title }}
+						</ng-template>
+					</ngx-gantt-column>
+					<ngx-gantt-column name="Estado" width="140">
+						<ng-template #cell let-item>
+							{{ item.group_id }}
+						</ng-template>
+					</ngx-gantt-column>
+		</ngx-gantt-table>
+	</ngx-gantt>
+</div>
