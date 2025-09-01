@@ -135,13 +135,14 @@
       </div>
     </div>
 
-    <!-- Vista de Gantt (placeholder por ahora) -->
-    <div *ngIf="currentView === 'gantt'" class="view-placeholder">
-      <div class="placeholder-content">
-        <span class="placeholder-icon">�</span>
-        <h3>Vista Gantt</h3>
-        <p>Esta vista estará disponible próximamente</p>
-      </div>
+    <!-- Vista de Gantt -->
+    <div *ngIf="currentView === 'gantt'">
+      <app-gant-view [tasks]="tasks"></app-gant-view>
+    </div>
+
+    <!-- Vista de Calendario -->
+    <div *ngIf="currentView === 'calendar'">
+      <app-calendar-view [tasks]="tasks"></app-calendar-view>
     </div>
   </div>
 </div>
