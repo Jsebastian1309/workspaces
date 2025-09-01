@@ -32,14 +32,10 @@
             "styles": [
               "src/styles.scss",
               "node_modules/angular-calendar/css/angular-calendar.css",
-              "node_modules/@worktile/gantt/styles/ngx-gantt.css",
-              "node_modules/@worktile/gantt/styles/ngx-gantt-theme.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "node_modules/ng2-tree/styles.css"
             ],
-            "scripts": [
-              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -102,9 +98,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
-            ]
+            "scripts": []
           }
         }
       }
