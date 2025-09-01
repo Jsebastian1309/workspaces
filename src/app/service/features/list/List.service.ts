@@ -41,7 +41,8 @@ export class ListService {
       organizacionId: currentUser?.organizacionId,
       clienteId: currentUser?.clienteId,
       carpetaIdentificador: list.carpetaIdentificador,
-      publico: list.publico
+      templateEstadoIdentificador: list.templateEstadoIdentificador,
+      publico: list.publico,
     };
     return this.http.post<any>(`${this.apiUrl}${this.baseUrl}/crear`, listData, { headers });
   }
@@ -61,7 +62,8 @@ export class ListService {
       organizacionId: list.organizacionId,
       clienteId: list.clienteId,
       carpetaIdentificador: list.carpetaIdentificador,
-      publico: list.publico
+      publico: list.publico,
+      templateEstadoIdentificador: list.templateEstadoIdentificador
       // usuarioActualizacion: username
     };
     return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, listData, { headers });
@@ -70,5 +72,14 @@ export class ListService {
   deleteList(list: any): Observable<any> {
     const headers = this.authService.createHeaders();
     return this.http.delete<any>(`${this.apiUrl}${this.baseUrl}/eliminar`, { headers, body: list });
+  }
+
+  /**
+   * Aplicar un template de tareas a una lista (el backend crea las tareas)
+   */
+  applyTemplateToList(listaIdentificador: string, templateIdentificador: string): Observable<string> {
+    const headers = this.authService.createHeaders();
+    const url = `${this.apiUrl}${this.baseUrl}/aplicarTemplate/${encodeURIComponent(listaIdentificador)}/${encodeURIComponent(templateIdentificador)}`;
+    return this.http.post(url, {}, { headers, responseType: 'text' }) as Observable<string>;
   }
 }

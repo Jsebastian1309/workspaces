@@ -24,6 +24,7 @@ interface SpaceNode {
   espacioTrabajoIdentificador?: string;
   espacioIdentificador?: string;
   carpetaIdentificador?: string;
+  templateEstadoIdentificador?: string;
   // display helper names
   espacioTrabajoNombre?: string;
   espacioNombre?: string;
@@ -133,24 +134,28 @@ export class SpacesTreeComponent implements OnInit {
             next: (pairs) => {
               for (const { folderNode, lists } of pairs) {
                 const parentSpace = baseNodes.find(space => space.folders?.some(folder => folder.identificador === folderNode.identificador));
+
                 const listNodes: SpaceNode[] = (lists || []).map((l: any) => ({
                   id: l.id,
                   identificador: l.identificador,
                   nombre: l.nombre,
+                  templateEstadoIdentificador: l.templateEstadoIdentificador,
                   tipo: 'list' as const,
                   descripcion: l.descripcion,
                   expandable: true,
                   espacioTrabajoIdentificador: folderNode.espacioTrabajoIdentificador || parentSpace?.espacioTrabajoIdentificador,
                   espacioIdentificador: parentSpace?.identificador,
                   carpetaIdentificador: folderNode.identificador,
-                  // names for breadcrumb/display
+
                   espacioTrabajoNombre: this.SelectedWorkspace?.nombre,
                   espacioNombre: parentSpace?.nombre,
                   carpetaNombre: folderNode.nombre,
                   raw: l
                 }));
                 folderNode.lists = listNodes;
+
               }
+
               this.dataSource.data = baseNodes; this.isLoading = false; this._restoreExpansion(baseNodes);
             },
             error: () => { this.dataSource.data = baseNodes; this.isLoading = false; this._restoreExpansion(baseNodes); }
@@ -241,42 +246,42 @@ export class SpacesTreeComponent implements OnInit {
   }
 
   deleteSpace(node: SpaceNode) {
-      this.openDelete('Delete space', `Are you sure you want to delete the space "${node.nombre}"?`)
-        .then((confirmed) => {
-          if (!confirmed) return;
-          const payload = node.raw || node;
-          const success = () => {
-            this.openInfo('Space deleted', `El espacio "${node.nombre}" se eliminó correctamente.`);
-            this.loadSpaces();
-          };
-          this.SpaceService.deleteSpace(payload).subscribe({
-            next: success,
-            error: (err) => {
-              console.error('Error deleting space', err);
-              if (err?.status === 200) success();
-              else this.openInfo('Error', 'Error al eliminar el espacio.');
-            }
-          });
+    this.openDelete('Delete space', `Are you sure you want to delete the space "${node.nombre}"?`)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        const payload = node.raw || node;
+        const success = () => {
+          this.openInfo('Space deleted', `El espacio "${node.nombre}" se eliminó correctamente.`);
+          this.loadSpaces();
+        };
+        this.SpaceService.deleteSpace(payload).subscribe({
+          next: success,
+          error: (err) => {
+            console.error('Error deleting space', err);
+            if (err?.status === 200) success();
+            else this.openInfo('Error', 'Error al eliminar el espacio.');
+          }
         });
+      });
   }
 
   deleteList(list: SpaceNode) {
-      this.openDelete('Delete list', `Are you sure you want to delete the list "${list.nombre}"?`)
-        .then((confirmed) => {
-          if (!confirmed) return;
-          const success = () => {
-            this.openInfo('List deleted', `La lista "${list.nombre}" se eliminó correctamente.`);
-            this.loadSpaces();
-          };
-          this.listService.deleteList(list).subscribe({
-            next: success,
-            error: (err) => {
-              console.error('Error deleting list', err);
-              if (err?.status === 200) success();
-              else this.openInfo('Error', 'Error al eliminar la lista.');
-            }
-          });
+    this.openDelete('Delete list', `Are you sure you want to delete the list "${list.nombre}"?`)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        const success = () => {
+          this.openInfo('List deleted', `La lista "${list.nombre}" se eliminó correctamente.`);
+          this.loadSpaces();
+        };
+        this.listService.deleteList(list).subscribe({
+          next: success,
+          error: (err) => {
+            console.error('Error deleting list', err);
+            if (err?.status === 200) success();
+            else this.openInfo('Error', 'Error al eliminar la lista.');
+          }
         });
+      });
   }
 
   // Los spaces siempre usan el template expandible para mantener el diseño correcto
