@@ -4,6 +4,17 @@
     <div class="list-info">
       <h2 class="title">{{ list.nombre }}</h2>
       <p class="desc" *ngIf="list.descripcion">{{ list.descripcion }}</p>
+      <!-- Template Button -->
+      <button class="btn btn-secondary btn-sm ms-3" (click)="toggleTemplateSelector()">
+        <i class="bi bi-file-earmark-plus"></i> Apply Template
+      </button>
+      <!-- Template Selector -->
+      <div *ngIf="showTemplateSelector" class="mt-2">
+        <select #templateSelect class="form-select" (change)="selectTemplate(templateSelect.value)">
+          <option value="">Select a Template</option>
+          <option *ngFor="let template of templates" [value]="template.identificador">{{ template.nombre }}</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -16,8 +27,8 @@
 
   <!-- Tablas agrupadas por estado con funcionalidad de colapsar -->
   <div class="accordion" id="tasksAccordion">
-    <ng-container *ngFor="let status of statuses; let i = index">
-      <div class="accordion-item" *ngIf="grouped[status.key] && grouped[status.key].length > 0">
+    <ng-container *ngFor="let status of getVisibleStatuses(); let i = index">
+      <div class="accordion-item">
         <h2 class="accordion-header" id="heading{{ i }}">
           <button
             class="accordion-button"
@@ -42,16 +53,26 @@
           data-bs-parent="#tasksAccordion"
         >
           <div class="accordion-body">
-            <table class="table">
+            <div class="table-h-scroll">
+            <table class="table wide-table sticky-header">
               <thead>
                 <tr>
                   <th>Nombre</th>
+                  <th>Descripción</th>
                   <th>Estado</th>
+                  <th>Progreso</th>
                   <th>Prioridad</th>
                   <th>Fecha Inicio</th>
                   <th>Fecha Fin</th>
                   <th>Fecha Vencimiento</th>
                   <th>Duración Horas</th>
+                  <th>Fecha Creación</th>
+                  <th>Fecha Cerrada</th>
+                  <th>Fecha Terminada</th>
+                  <th>Asignado A</th>
+                  <th>Facturable</th>
+                  <th>Comentarios</th>
+                  <th>Etiqueta</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -59,31 +80,61 @@
                 <!-- Add-row: visible when adding for this status -->
                 <tr *ngIf="addingFor === status.key" class="add-row">
                   <td>
-                    <input class="input" placeholder="Nombre de la tarea" [(ngModel)]="draft.nombre" />
-                    <div style="margin-top:6px"><input class="input" placeholder="Descripción" [(ngModel)]="draft.descripcion" /></div>
+                    <input class="input" placeholder="Nombre de la tarea" [value]="draft.nombre || ''" (input)="draft.nombre = $any($event.target).value" />
                   </td>
                   <td>
-                    <select class="select" [(ngModel)]="draft.prioridad">
+                    <input class="input" placeholder="Descripción" [value]="draft.descripcion || ''" (input)="draft.descripcion = $any($event.target).value" />
+                  </td>
+                  <td>
+                    <!-- Estado desde template de estados -->
+                    <select class="select" [value]="draft.estado || status.key" (change)="draft.estado = $any($event.target).value">
+                      <option *ngFor="let s of statuses" [value]="s.key">{{ s.label }}</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input class="input" type="number" min="0" max="100" [value]="draft.progreso || 0" (input)="draft.progreso = ($any($event.target).valueAsNumber ?? 0)" />
+                  </td>
+                  <td>
+                    <select class="select" [value]="draft.prioridad || 'Medium'" (change)="draft.prioridad = $any($event.target).value">
                       <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
                     </select>
                   </td>
                   <td>
-                    <input class="input" type="date" [(ngModel)]="draft.fechaInicio" />
+                    <input class="input" type="date" [value]="draft.fechaInicio || ''" (input)="draft.fechaInicio = $any($event.target).value" />
                   </td>
                   <td>
-                    <input class="input" type="date" [(ngModel)]="draft.fechaFin" />
+                    <input class="input" type="date" [value]="draft.fechaFin || ''" (input)="draft.fechaFin = $any($event.target).value" />
                   </td>
                   <td>
-                    <input class="input" type="date" [(ngModel)]="draft.fechaVencimiento" />
+                    <input class="input" type="date" [value]="draft.fechaVencimiento || ''" (input)="draft.fechaVencimiento = $any($event.target).value" />
                   </td>
                   <td>
-                    <input class="input" type="number" [(ngModel)]="draft.duracionHoras" />
+                    <input class="input" type="number" min="0" [value]="draft.duracionHoras || 0" (input)="draft.duracionHoras = ($any($event.target).valueAsNumber ?? 0)" />
                   </td>
                   <td>
-                    <select class="select" [(ngModel)]="draft.asignadoA">
+                    <input class="input" type="date" [value]="draft.fechaCreacionTarea || ''" (input)="draft.fechaCreacionTarea = $any($event.target).value" />
+                  </td>
+                  <td>
+                    <input class="input" type="date" [value]="draft.fechaCerrada || ''" (input)="draft.fechaCerrada = $any($event.target).value" />
+                  </td>
+                  <td>
+                    <input class="input" type="date" [value]="draft.fechaTerminada || ''" (input)="draft.fechaTerminada = $any($event.target).value" />
+                  </td>
+                  <td>
+                    <!-- Asignado A desde TeamService -->
+                    <select class="select" name="assignee" [(ngModel)]="draft.asignadoA" [ngModelOptions]="{standalone: true}">
                       <option value="">Sin asignar</option>
                       <option *ngFor="let t of teams" [value]="t.identificador">{{ t.nombres }}</option>
                     </select>
+                  </td>
+                  <td>
+                    <input class="form-check-input" type="checkbox" [checked]="draft.facturable" (change)="draft.facturable = $any($event.target).checked" />
+                  </td>
+                  <td>
+                    <input class="input" placeholder="Comentarios" [value]="draft.comentarios || ''" (input)="draft.comentarios = $any($event.target).value" />
+                  </td>
+                  <td>
+                    <input class="input" placeholder="Etiqueta" [value]="draft.etiqueta || ''" (input)="draft.etiqueta = $any($event.target).value" />
                   </td>
                   <td class="actions">
                     <button class="btn-save" (click)="saveAdd()" [disabled]="!draft.nombre">Guardar</button>
@@ -91,24 +142,92 @@
                   </td>
                 </tr>
                 <tr *ngFor="let task of grouped[status.key]">
-                  <td>{{ task.nombre }}</td>
-                  <td>{{ task.estado }}</td>
-                  <td>{{ task.prioridad }}</td>
-                  <td>{{ task.fechaInicio }}</td>
-                  <td>{{ task.fechaFin }}</td>
-                  <td>{{ task.fechaVencimiento }}</td>
-                  <td>{{ task.duracionHoras }}</td>
-                  <td>
-                    <button class="btn btn-outline-primary btn-sm">
-                      <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-outline-danger btn-sm">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </td>
+                  <ng-container *ngIf="!editing[task.identificador]; else editRow">
+                    <td>{{ task.nombre }}</td>
+                    <td>{{ task.descripcion }}</td>
+                    <td>
+                      {{ getStatusLabel(task.estado) }}
+                    </td>
+                    <td>{{ task.progreso || 0 }}%</td>
+                    <td>{{ task.prioridad }}</td>
+                    <td>{{ task.fechaInicio }}</td>
+                    <td>{{ task.fechaFin }}</td>
+                    <td>{{ task.fechaVencimiento }}</td>
+                    <td>{{ task.duracionHoras }}</td>
+                    <td>{{ $any(task).fechaCreacionTarea }}</td>
+                    <td>{{ $any(task).fechaCerrada }}</td>
+                    <td>{{ $any(task).fechaTerminada }}</td>
+                    <td>{{ assigneeLabel(task.asignadoA || $any(task).responsableIdentificador) }}</td>
+                    <td>
+                      <span class="badge bg-light text-dark" *ngIf="$any(task).facturable">Sí</span>
+                      <span class="badge bg-light text-dark" *ngIf="!$any(task).facturable">No</span>
+                    </td>
+                    <td>{{ task.comentarios }}</td>
+                    <td>{{ task.etiqueta }}</td>
+                    <td>
+                      <button class="btn btn-outline-primary btn-sm" (click)="startEdit(task)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button class="btn btn-outline-danger btn-sm" (click)="deleteTask(task)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </ng-container>
+                  <ng-template #editRow>
+                    <td>
+                      <input class="input" [value]="task.nombre" (input)="task.nombre = $any($event.target).value" />
+                    </td>
+                    <td>
+                      <input class="input" [value]="task.descripcion || ''" (input)="task.descripcion = $any($event.target).value" />
+                    </td>
+                    <td>
+                      <select class="select" [value]="task.estado" (change)="onStatusChange(task, $any($event.target).value)">
+                        <option *ngFor="let s of statuses" [value]="s.key">{{ s.label }}</option>
+                      </select>
+                    </td>
+                    <td>
+                      <input class="input" type="number" min="0" max="100" [value]="task.progreso || 0" (input)="task.progreso = ($any($event.target).valueAsNumber ?? 0)" />
+                    </td>
+                    <td>
+                      <select class="select" [value]="task.prioridad" (change)="task.prioridad = $any($event.target).value">
+                        <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+                      </select>
+                    </td>
+                    <td><input class="input" type="date" [value]="task.fechaInicio || ''" (input)="task.fechaInicio = $any($event.target).value" /></td>
+                    <td><input class="input" type="date" [value]="task.fechaFin || ''" (input)="task.fechaFin = $any($event.target).value" /></td>
+                    <td><input class="input" type="date" [value]="task.fechaVencimiento || ''" (input)="task.fechaVencimiento = $any($event.target).value" /></td>
+                    <td><input class="input" type="number" min="0" [value]="task.duracionHoras || 0" (input)="task.duracionHoras = ($any($event.target).valueAsNumber ?? 0)" /></td>
+                    <td><input class="input" type="date" [value]="$any(task).fechaCreacionTarea || ''" (input)="$any(task).fechaCreacionTarea = $any($event.target).value" /></td>
+                    <td><input class="input" type="date" [value]="$any(task).fechaCerrada || ''" (input)="$any(task).fechaCerrada = $any($event.target).value" /></td>
+                    <td><input class="input" type="date" [value]="$any(task).fechaTerminada || ''" (input)="$any(task).fechaTerminada = $any($event.target).value" /></td>
+                    <td>
+                      <select class="select" [value]="task.asignadoA || $any(task).responsableIdentificador || ''" (change)="task.asignadoA = $any($event.target).value; $any(task).responsableIdentificador = $any($event.target).value">
+                        <option value="">Sin asignar</option>
+                        <option *ngFor="let t of teams" [value]="t.identificador">{{ t.nombres }}</option>
+                      </select>
+                    </td>
+                    <td>
+                      <input class="form-check-input" type="checkbox" [checked]="$any(task).facturable" (change)="$any(task).facturable = $any($event.target).checked" />
+                    </td>
+                    <td>
+                      <input class="input" [value]="task.comentarios || ''" (input)="task.comentarios = $any($event.target).value" />
+                    </td>
+                    <td>
+                      <input class="input" [value]="task.etiqueta || ''" (input)="task.etiqueta = $any($event.target).value" />
+                    </td>
+                    <td>
+                      <button class="btn btn-success btn-sm" (click)="saveEdit(task)" [disabled]="loading">
+                        <i class="bi bi-check"></i>
+                      </button>
+                      <button class="btn btn-secondary btn-sm" (click)="cancelEdit(task)">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </td>
+                  </ng-template>
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>

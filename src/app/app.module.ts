@@ -36,15 +36,19 @@ import { ListViewComponent } from './components/views/list-view/list-view.compon
 import { ModalSpaceComponent } from './components/modals/modal-space/modal-space.component';
 import { ModalWorkspaceComponent } from './components/modals/modal-workspace/modal-workspace.component';
 import { ModalListComponent } from './components/modals/modal-list/modal-list.component';
-import { TemplatesComponent } from './components/pages/templates/templates.component';
 import { CalendarViewComponent } from './components/views/calendar-view/calendar-view.component';
 import { GantViewComponent } from './components/views/gant-view/gant-view.component';
 import { TaskComponent } from './components/pages/task/task.component';
 import { ModalInfoComponent } from './components/modals/modal-info/modal-info.component';
 import { ModalDeleteComponent } from './components/modals/modal-delete/modal-delete.component';
+import { ModalPersonComponent } from './components/modals/modal-person/modal-person.component';
 import { TeamComponent } from './components/pages/team/team.component';
 import { StatusTemplateComponent } from './components/pages/status-template/status-template.component';
 import { TaskTemplateComponent } from './components/pages/task-template/task-template.component';
+
+import { ModalStatusComponent } from './components/modals/modal-status/modal-status.component';
+import { ModalTaskComponent } from './components/modals/modal-task/modal-task.component';
+
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { GANTT_GLOBAL_CONFIG, NgxGanttModule } from '@worktile/gantt';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
@@ -71,7 +75,6 @@ import { es } from 'date-fns/locale';
     ModalSpaceComponent,
     ModalWorkspaceComponent,
     ModalListComponent,
-    TemplatesComponent,
     CalendarViewComponent,
     GantViewComponent,
     TaskComponent,
@@ -79,7 +82,10 @@ import { es } from 'date-fns/locale';
     ModalDeleteComponent,
     TeamComponent,
     StatusTemplateComponent,
-    TaskTemplateComponent
+    TaskTemplateComponent,
+    ModalPersonComponent,
+    ModalStatusComponent,
+    ModalTaskComponent
   ],
   imports: [
     BrowserModule,
