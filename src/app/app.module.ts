@@ -45,8 +45,15 @@ import { ModalPersonComponent } from './components/modals/modal-person/modal-per
 import { TeamComponent } from './components/pages/team/team.component';
 import { StatusTemplateComponent } from './components/pages/status-template/status-template.component';
 import { TaskTemplateComponent } from './components/pages/task-template/task-template.component';
+
 import { ModalStatusComponent } from './components/modals/modal-status/modal-status.component';
 import { ModalTaskComponent } from './components/modals/modal-task/modal-task.component';
+
+import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { GANTT_GLOBAL_CONFIG, NgxGanttModule } from '@worktile/gantt';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { es } from 'date-fns/locale';
+
 
 @NgModule({
   declarations: [
@@ -97,8 +104,25 @@ import { ModalTaskComponent } from './components/modals/modal-task/modal-task.co
     MatTooltipModule,
     MatTabsModule,
     NgbDropdownModule,
+  CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
+  NgxGanttModule,
   ],
-  providers: [I18nService],
+  providers: [I18nService,
+    {
+      provide: GANTT_GLOBAL_CONFIG,
+      useValue: {
+        dateFormat: {
+          yearQuarter: `QQQ 'de' yyyy`,
+          month: 'LLLL',
+          yearMonth: `LLLL yyyy'(semana' w ')'`,
+          week: 'w',
+          day: 'dd',
+          year : 'yyyy',
+        },
+        locale: es 
+      }
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

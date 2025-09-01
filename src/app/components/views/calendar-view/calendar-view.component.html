@@ -1,1 +1,30 @@
-<p>calendar-view works!</p>
+<div class="calendar-toolbar d-flex align-items-center gap-2 mb-2">
+	<button class="btn btn-outline-secondary btn-sm" (click)="prev()">Prev</button>
+	<button class="btn btn-outline-secondary btn-sm" (click)="today()">Today</button>
+	<button class="btn btn-outline-secondary btn-sm" (click)="next()">Next</button>
+
+	<div class="ms-auto btn-group btn-group-sm">
+		<button class="btn btn-primary" [class.active]="view === CalendarView.Month" (click)="setView(CalendarView.Month)">Month</button>
+		<button class="btn btn-primary" [class.active]="view === CalendarView.Week" (click)="setView(CalendarView.Week)">Week</button>
+		<button class="btn btn-primary" [class.active]="view === CalendarView.Day" (click)="setView(CalendarView.Day)">Day</button>
+	</div>
+</div>
+
+<mwl-calendar-month-view
+	*ngIf="view === CalendarView.Month"
+	[viewDate]="viewDate"
+	[events]="events"
+	(dayClicked)="dayClicked($event.day.date)">
+</mwl-calendar-month-view>
+
+<mwl-calendar-week-view
+	*ngIf="view === CalendarView.Week"
+	[viewDate]="viewDate"
+	[events]="events">
+</mwl-calendar-week-view>
+
+<mwl-calendar-day-view
+	*ngIf="view === CalendarView.Day"
+	[viewDate]="viewDate"
+	[events]="events">
+</mwl-calendar-day-view>
