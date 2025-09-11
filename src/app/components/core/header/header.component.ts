@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/service/core/auth/auth.service';
-import { I18nService } from 'src/app/service/core/i18n/i18n.service';
 import { User } from 'src/app/service/core/auth/auth.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalInfopersonComponent } from '../../modals/modal-infoperson/modal-infoperson.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-header',
@@ -10,38 +12,31 @@ import { User } from 'src/app/service/core/auth/auth.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
-  public currentLanguage: string = '';
   public currentUser: User | null = null;
-  public isDarkTheme: boolean = false;
 
 
   constructor(
-    private i18nService: I18nService,
     private authService: AuthService,
+    private modalService: NgbModal, 
+    private translate: TranslateService,
     private router: Router
   ) { }
   ngOnInit() {
-    this.currentLanguage = this.i18nService.language;
     this.currentUser = this.authService.getCurrentUser();
   }
 
-  changeLanguage(langCode: string) {
-    this.currentLanguage = langCode;
-    this.i18nService.language = langCode;
-  }
-
+  //modal Profile
   onProfile() {
-    this.router.navigate(['/profile']);
+    const modalRef = this.modalService.open(ModalInfopersonComponent, { size: 'lg' });
+    modalRef.componentInstance.title = this.translate.instant('Profile Information');
+    console.log('Current User in Header:', this.currentUser);
+    modalRef.componentInstance.currentUser = this.currentUser;
+
   }
 
   onLogout() {
     this.authService.logout();
     this.router.navigate(['/login']);
-  }
-  
-  toggleTheme() {
-    this.isDarkTheme = !this.isDarkTheme;
-    document.body.classList.toggle('dark-theme', this.isDarkTheme);
   }
 
 }

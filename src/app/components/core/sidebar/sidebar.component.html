@@ -5,10 +5,11 @@
         ngbDropdownToggle>
         <div class="avatar" [style.background-color]="selectedspace?.color">
           <ng-container *ngIf="selectedspace?.icono; else selectedInitial">
-            <i class="bi" [ngClass]="selectedspace.icono"aria-hidden="true"></i>
+            <i class="bi" [ngClass]="selectedspace.icono"
+              aria-hidden="true"></i>
           </ng-container>
-          <ng-template #selectedInitial>{{(selectedspace?.nombre)
-            }}</ng-template>
+          <ng-template
+            #selectedInitial>{{(selectedspace?.nombre)}}</ng-template>
         </div>
         <span class="workspace-name">{{ selectedspace?.nombre}}</span>
       </button>
@@ -56,19 +57,24 @@
     </div>
   </div>
   <ul class="sidebar-menu">
-    <li translate [class.active]="activeView === 'start'" (click)="navigateTo('start')">
-      <i class="bi bi-house-door" ></i> Home
+    <li translate [class.active]="activeView === 'start'"
+      (click)="navigateTo('start')">
+      <i class="bi bi-house-door"></i> Home
     </li>
-    <li translate [class.active]="activeView === 'inbox'" (click)="navigateTo('inbox')">
-      <i class="bi bi-inbox" ></i> Inbox
+    <li translate [class.active]="activeView === 'inbox'"
+      (click)="navigateTo('inbox')">
+      <i class="bi bi-inbox"></i> Inbox
     </li>
-    <li translate [class.active]="activeView === 'status-templates'" (click)="navigateTo('status-templates')">
-      <i class="bi bi-caret-down-fill"></i> Status template
+    <li translate [class.active]="activeView === 'status-templates'"
+      (click)="navigateTo('status-templates')">
+      <i class="bi bi-toggles2"></i> Status template
     </li>
-    <li translate [class.active]="activeView === 'task-templates'" (click)="navigateTo('task-templates')">
+    <li translate [class.active]="activeView === 'task-templates'"
+      (click)="navigateTo('task-templates')">
       <i class="bi bi-list-task"></i>Task template
     </li>
-    <li translate [class.active]="activeView === 'team'" (click)="navigateTo('team')">
+    <li translate [class.active]="activeView === 'team'"
+      (click)="navigateTo('team')">
       <i class="bi bi-people-fill"></i>Team
     </li>
     <!-- <li translate><i class="bi bi-kanban"></i> Dashboards</li>

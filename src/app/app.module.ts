@@ -53,6 +53,9 @@ import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { GANTT_GLOBAL_CONFIG, NgxGanttModule } from '@worktile/gantt';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { es } from 'date-fns/locale';
+import { WizardStatesComponent } from './components/Wizard/wizard-states/wizard-states.component';
+import { WizardTaskComponent } from './components/Wizard/wizard-task/wizard-task.component';
+import { ModalInfopersonComponent } from './components/modals/modal-infoperson/modal-infoperson.component';
 
 
 @NgModule({
@@ -85,7 +88,10 @@ import { es } from 'date-fns/locale';
     TaskTemplateComponent,
     ModalPersonComponent,
     ModalStatusComponent,
-    ModalTaskComponent
+    ModalTaskComponent,
+    WizardStatesComponent,
+    WizardTaskComponent,
+    ModalInfopersonComponent
   ],
   imports: [
     BrowserModule,

@@ -1,117 +1,184 @@
 <div class="task-container">
   <div class="main-header">
+    <!-- Breadcrumb navigation -->
     <div class="breadcrumb-section">
       <div class="breadcrumb">
         <span class="breadcrumb-item">
-          <span class="icon"></span>
+          <i class="me-1" [ngClass]="getWorkspaceIcon()"></i>
           {{ getEspacioTrabajoName() }}
         </span>
         <span class="breadcrumb-separator">/</span>
         <span class="breadcrumb-item" *ngIf="getEspacioName()">
-          <span class="icon"></span>
+          <i class="me-1" [ngClass]="getSpaceIcon()"></i>
           {{ getEspacioName() }}
         </span>
         <span class="breadcrumb-separator" *ngIf="getCarpetaName()">/</span>
         <span class="breadcrumb-item" *ngIf="getCarpetaName()">
-          <span class="icon"></span>
+          <i class="me-1" [ngClass]="getFolderIcon()"></i>
           {{ getCarpetaName() }}
         </span>
         <span class="breadcrumb-separator">/</span>
         <span class="breadcrumb-item current">
-          <span class="icon"></span>
+          <i class="me-1" [ngClass]="getListIcon()"></i>
           {{ list?.nombre }}
         </span>
       </div>
     </div>
     <hr>
-
-  <!-- Controles principales -->
+    <!-- Control view -->
     <div class="header-controls">
       <div class="view-selector">
-        <button 
-          [class]="'view-btn ' + (currentView === 'board' ? 'active' : '')"
+        <button
+          [ngClass]="{ 'view-btn': true, 'active': currentView === 'board' }"
           (click)="switchView('board')">
           <i class="bi bi-clipboard-fill"></i>
-          <span class="view-label">Board</span>
+          <span translate class="view-label">Board</span>
         </button>
-        <button 
-          [class]="'view-btn ' + (currentView === 'list' ? 'active' : '')"
+        <button
+          [ngClass]="{ 'view-btn': true, 'active': currentView === 'list' }"
           (click)="switchView('list')">
           <i class="bi bi-list"></i>
-          <span class="view-label">List</span>
+          <span translate class="view-label">List</span>
         </button>
-        <button 
-          [class]="'view-btn ' + (currentView === 'gantt' ? 'active' : '')"
+        <button
+          [ngClass]="{ 'view-btn': true, 'active': currentView === 'gantt' }"
           (click)="switchView('gantt')">
           <i class="bi bi-kanban"></i>
-          <span class="view-label">Gantt</span>
+          <span translate class="view-label">Gantt</span>
         </button>
-        <button 
-          [class]="'view-btn ' + (currentView === 'calendar' ? 'active' : '')"
+        <button
+          [ngClass]="{ 'view-btn': true, 'active': currentView === 'calendar' }"
           (click)="switchView('calendar')">
           <i class="bi bi-calendar"></i>
-          <span class="view-label">Calendar</span>
+          <span translate class="view-label">Calendar</span>
         </button>
       </div>
 
-      <!-- Botones adicionales -->
+      <!-- Buttons additional -->
       <div class="action-buttons">
         <button class="btn-search" title="Search">
-<i class="bi bi-search"></i>        </button>
+          <i class="bi bi-search"></i> </button>
         <button class="btn-filter" title="Filter">
-<i class="bi bi-filter"></i>
+          <i class="bi bi-filter"></i>
         </button>
         <button class="btn-customize" title="Customize">
           <i class="bi bi-gear"></i>
         </button>
-        <button class="btn-add-task" (click)="addNewTask()">
+        <button translate class="btn-add-task" (click)="addNewTask()">
           <span class="icon">+</span>
           Add Task
         </button>
       </div>
     </div>
   </div>
-
-  <!-- Sección de filtros (Bootstrap row) -->
+  <hr>
+  <!-- Sections Filters -->
   <div class="container-fluid filters-section">
-    <div class="row g-2 align-items-end">
-      <div class="col-12 col-sm-6 col-md-3 col-lg-2">
-        <label class="form-label">Categoría</label>
-        <input class="form-control" placeholder="Categoría" [(ngModel)]="filterCategory" (ngModelChange)="fetchTasks()" />
+    <div class="row filters-bar g-2 align-items-end">
+      <div class="col-4 col-sm-2">
+        <label translate class="form-label">Category</label>
+        <div class="input-icon">
+          <i class="bi bi-tag"></i>
+          <input class="form-control form-control" [(ngModel)]="filterCategory" placeholder="" />
+        </div>
       </div>
-      <div class="col-6 col-md-3 col-lg-2">
-        <label class="form-label">Desde</label>
-        <input class="form-control" type="date" [(ngModel)]="filterStartDate" (ngModelChange)="fetchTasks()" />
+      <div class="col-auto col-date">
+        <label translate class="form-label">From</label>
+        <div class="input-icon">
+          <input class="form-control form-control-sm" type="date" [(ngModel)]="filterStartDate" />
+        </div>
       </div>
-      <div class="col-6 col-md-3 col-lg-2">
-        <label class="form-label">Hasta</label>
-        <input class="form-control" type="date" [(ngModel)]="filterEndDate" (ngModelChange)="fetchTasks()" />
+      <div class="col-auto col-date">
+        <label translate class="form-label">To</label>
+        <div class="input-icon">
+          <input class="form-control form-control-sm" type="date" [(ngModel)]="filterEndDate" />
+        </div>
       </div>
-      <div class="col-6 col-md-3 col-lg-2">
-        <label class="form-label">Prioridad</label>
-        <select class="form-select" [(ngModel)]="filterPriority" (ngModelChange)="fetchTasks()">
-          <option value="">Todas</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
+      <div class="col-auto col-priority">
+        <label translate class="form-label">Priority</label>
+        <div ngbDropdown class="dropdown-select">
+          <button class="btn btn-select btn-sm dropdown-toggle" ngbDropdownToggle type="button">
+            <i class="bi bi-flag-fill me-2" [ngStyle]="{ color: getPriorityColor() }"></i>
+            <span class="selected-label">{{ getPriorityLabel() }}</span>
+          </button>
+          <div ngbDropdownMenu>
+            <button ngbDropdownItem type="button" (click)="setPriority('')">
+              <i class="bi bi-flag me-2 text-muted"></i>
+              <span translate>All</span>
+              <i class="bi bi-check ms-auto" *ngIf="!filterPriority"></i>
+            </button>
+            <button ngbDropdownItem type="button" (click)="setPriority('urgente')">
+              <i class="bi bi-flag-fill me-2" style="color:#e53935"></i>
+              <span translate>Urgent</span>
+              <i class="bi bi-check ms-auto" *ngIf="isPriority('urgente')"></i>
+            </button>
+            <button ngbDropdownItem type="button" (click)="setPriority('alta')">
+              <i class="bi bi-flag-fill me-2" style="color:#f6c343"></i>
+              <span translate>High</span>
+              <i class="bi bi-check ms-auto" *ngIf="isPriority('alta')"></i>
+            </button>
+            <button ngbDropdownItem type="button" (click)="setPriority('normal')">
+              <i class="bi bi-flag-fill me-2" style="color:#4f75ff"></i>
+              <span translate>Normal</span>
+              <i class="bi bi-check ms-auto" *ngIf="isPriority('normal')"></i>
+            </button>
+            <button ngbDropdownItem type="button" (click)="setPriority('baja')">
+              <i class="bi bi-flag-fill me-2" style="color:#9e9e9e"></i>
+              <span translate>Low</span>
+              <i class="bi bi-check ms-auto" *ngIf="isPriority('baja')"></i>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="col-6 col-md-3 col-lg-2">
-        <label class="form-label">Estado</label>
-        <select class="form-select" [(ngModel)]="filterStatus" (ngModelChange)="fetchTasks()">
-          <option value="">Todos</option>
-          <option *ngFor="let s of statuses" [value]="s.label">{{ s.label }}</option>
-        </select>
+      <div class="col-auto col-state">
+        <label translate class="form-label">State</label>
+        <div ngbDropdown class="dropdown-select">
+          <button class="btn btn-select btn-sm dropdown-toggle" ngbDropdownToggle type="button">
+            <span class="color-dot me-2" [ngStyle]="{ backgroundColor: getSelectedStatusColor() }"></span>
+            <span class="selected-label">{{ getSelectedStatusLabel() }}</span>
+          </button>
+          <div ngbDropdownMenu>
+            <button ngbDropdownItem type="button" (click)="setStatus('')">
+              <span class="color-dot me-2" style="background-color:#9aa0a6"></span>
+              <span translate>All</span>
+              <i class="bi bi-check ms-auto" *ngIf="!filterStatus"></i>
+            </button>
+            <button ngbDropdownItem type="button" *ngFor="let s of statuses" (click)="setStatus(s.label)">
+              <span class="color-dot me-2" [ngStyle]="{ backgroundColor: s.color }"></span>
+              <span>{{ s.label }}</span>
+              <i class="bi bi-check ms-auto" *ngIf="isStatus(s.label)"></i>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="col-6 col-md-3 col-lg-2">
-        <label class="form-label">Asignado a</label>
-        <select class="form-select" [(ngModel)]="filterAssignee" (ngModelChange)="fetchTasks()">
-          <option value="">Todos</option>
-          <option *ngFor="let t of teams" [value]="t.identificador">{{ t.nombres }}</option>
-        </select>
+      <div class="col-auto col-assignee">
+        <label translate class="form-label">Assigned to</label>
+        <div ngbDropdown class="dropdown-select">
+          <button class="btn btn-select btn-sm dropdown-toggle" ngbDropdownToggle type="button">
+            <i class="me-2" [ngClass]="getAssigneeIcon()"></i>
+            <span class="selected-label">{{ getAssigneeLabel() | translate }}</span>
+          </button>
+          <div ngbDropdownMenu>
+            <button ngbDropdownItem type="button" (click)="setAssignee('')">
+              <i class="bi bi-people me-2"></i>
+              <span translate>All</span>
+              <i class="bi bi-check ms-auto" *ngIf="!filterAssignee"></i>
+            </button>
+            <button ngbDropdownItem type="button" *ngFor="let t of teams" (click)="setAssignee(t.identificador)">
+              <i class="bi bi-person me-2"></i>
+              <span>{{ t.nombres }}</span>
+              <i class="bi bi-check ms-auto" *ngIf="filterAssignee === t.identificador"></i>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="col-12 col-md-3 col-lg-2 d-flex gap-2 justify-content-start justify-content-md-end mt-2 mt-md-0">
-        <button class="btn btn-outline-secondary" (click)="clearFilters()">Limpiar</button>
+      <div class="col-auto ms-auto d-flex gap-2 align-items-end mt-2 mt-md-0">
+        <button class="btn btn-primary btn-sm btn-icon" (click)="fetchTasks()" title="Search">
+          <i class="bi bi-search"></i>
+        </button>
+        <button class="btn btn-ghost btn-sm btn-icon" (click)="clearFilters()" title="Clear filters">
+          <i class="bi bi-x-circle"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -119,10 +186,11 @@
   <!-- Contenido de las vistas -->
   <div class="view-content">
     <!-- Vista de Lista -->
-    <app-list-view 
+    <app-list-view
       #listView
       *ngIf="currentView === 'list'"
       [list]="list"
+      [statuses]="statuses"
       [espacioTrabajoIdentificador]="espacioTrabajoIdentificador"
       [espacioIdentificador]="espacioIdentificador"
       [carpetaIdentificador]="carpetaIdentificador"
@@ -148,7 +216,7 @@
     <div *ngIf="currentView === 'calendar'">
       <app-calendar-view [tasks]="tasks"></app-calendar-view>
     </div>
-        <div *ngIf="currentView === 'gantt'" class="view-placeholder">
+    <div *ngIf="currentView === 'gantt'" class="view-placeholder">
       <div class="placeholder-content">
         <span class="placeholder-icon">�</span>
         <h3>Vista Canlendario</h3>

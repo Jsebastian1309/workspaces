@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/service/core/auth/auth.service';
 import { TeamService } from 'src/app/service/features/team/team.service';
 import { Task } from 'src/app/models/task.model';
 import { TemplateStatusDetailService } from 'src/app/service/features/template/status/template-statusdetail.service';
+import { TemplateStatusService } from 'src/app/service/features/template/status/template-status.service';
 import { TemplateTaskService } from 'src/app/service/features/template/task/template-task.service';
 import { ListService } from 'src/app/service/features/list/list.service';
 
@@ -15,10 +16,11 @@ import { ListService } from 'src/app/service/features/list/list.service';
 })
 export class ListViewComponent implements OnChanges {
   @Input() list: any;
+  @Input() tasks: Task[] = [];
+  @Input() statuses: { id?: string; key: string; label: string; color: string }[] = [];
   @Input() espacioTrabajoIdentificador?: string;
   @Input() espacioIdentificador?: string;
   @Input() carpetaIdentificador?: string;
-  @Input() tasks: Task[] = [];
   @Output() refresh = new EventEmitter<void>();
 
   loading = false;
@@ -26,17 +28,13 @@ export class ListViewComponent implements OnChanges {
   info?: string;
   grouped: { [status: string]: Task[] } = {};
 
-  statuses: { key: string; label: string; color: string }[] = [];
-
-  // UI state for inline create/edit
+  // statuses may come from parent; if empty we will load from backend
   addingFor: string | null = null;
   draft: any = {};
   editing: Record<string, boolean> = {};
   backups: Record<string, Task> = {};
   priorities = ['Low', 'Medium', 'High'];
   teams: { identificador: string; nombres: string }[] = [];
-
-  // Template de estados (backend)
   private loadingStatuses = false;
 
   // Task Templates (apply to create tasks)
@@ -48,10 +46,11 @@ export class ListViewComponent implements OnChanges {
   private collapsed: Record<string, boolean> = {};
 
   constructor(
-  private taskService: TaskService,
-  private templateStatusDetailService: TemplateStatusDetailService,
+    private taskService: TaskService,
+    private templateStatusDetailService: TemplateStatusDetailService,
+    private templateStatusService: TemplateStatusService,
     private templateTaskService: TemplateTaskService,
-  private listService: ListService,
+    private listService: ListService,
     private authService: AuthService,
     private teamService: TeamService
   ) {}
@@ -59,13 +58,18 @@ export class ListViewComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['tasks'] || changes['list']) {
       this.groupTasksFromInput();
-      this.loadStatusesFromBackend();
-      // Si ya hay estados cargados, conciliar grupos para asegurar visibilidad
-      if (this.statuses && this.statuses.length > 0) {
+      if (!this.statuses || this.statuses.length === 0) {
+        this.loadStatusesFromBackend();
+      } else {
         this.reconcileGroupsWithStatuses();
       }
       if (!this.teams || this.teams.length === 0) {
         this.loadTeams();
+      }
+    }
+    if (changes['statuses']) {
+      if (this.statuses && this.statuses.length > 0) {
+        this.reconcileGroupsWithStatuses();
       }
     }
   }
@@ -73,9 +77,15 @@ export class ListViewComponent implements OnChanges {
   // Compute only statuses that currently have tasks (or the one being added)
   getVisibleStatuses(): { key: string; label: string; color: string }[] {
     const statusList = this.statuses || [];
-    return statusList.filter(
-      (s) => (this.grouped[s.key] || []).length > 0 || this.addingFor === s.key
-    );
+    if (statusList.length > 0) {
+      // Show only template statuses that currently have tasks (or the one being added)
+      return statusList.filter(s => (this.grouped[s.key] || []).length > 0 || this.addingFor === s.key);
+    }
+    // Fallback: derive groups from current grouped keys when statuses are not loaded yet
+    const keys = Object.keys(this.grouped || {});
+    return keys
+      .filter(k => (this.grouped[k] || []).length > 0 || this.addingFor === k)
+      .map(k => ({ key: k, label: this.getStatusLabel(k), color: this.getStatusColor(k) }));
   }
 
   // --- Task Template integration ---
@@ -156,7 +166,10 @@ export class ListViewComponent implements OnChanges {
 
     // Filtrar tareas: prioriza coincidencia por lista; el espacio de trabajo es opcional
     const filteredTasks = safe.filter((t) => {
-      const matchesList = t.listaIdentificador === this.list?.identificador;
+      const listId = this.getTaskListIdentifier(t as any);
+      const matchesList = listId && this.list?.identificador
+        ? listId === this.list.identificador
+        : false;
       if (matchesList) return true;
       const matchesWorkspace = this.espacioTrabajoIdentificador
         ? t.espacioTrabajoIdentificador === this.espacioTrabajoIdentificador
@@ -166,16 +179,23 @@ export class ListViewComponent implements OnChanges {
     });
 
     for (const t of filteredTasks) {
-      const raw = (t as any).estado;
+      // Usar el label original del backend si está disponible, para alinear con nombres del template
+      const originalLabel = (t as any).estadoLabel ?? (t as any).estado;
       let label: string;
-      if (raw && String(raw).trim() !== '') {
-        label = String(raw).toUpperCase();
+      if (originalLabel && String(originalLabel).trim() !== '') {
+        label = String(originalLabel).toUpperCase();
+        // Si no tiene estadoLabel, establecerlo una sola vez para no perder el original
+        if ((t as any).estadoLabel == null) {
+          (t as any).estadoLabel = String(originalLabel);
+        }
       } else {
         // Marcar tareas sin estado para moverlas luego al primer estado del template
         (t as any).__noEstado = true;
         label = '__NO_STATUS__';
+        if ((t as any).estadoLabel == null) {
+          (t as any).estadoLabel = '';
+        }
       }
-      (t as any).estadoLabel = label;
       // Normalizar asignado: si viene responsableIdentificador pero no asignadoA, usarlo para UI
       if (!(t as any).asignadoA && (t as any).responsableIdentificador) {
         (t as any).asignadoA = (t as any).responsableIdentificador;
@@ -186,32 +206,116 @@ export class ListViewComponent implements OnChanges {
     this.grouped = byStatus;
   }
 
+  // Robustly get list identifier from various possible shapes returned by backend
+  private getTaskListIdentifier(t: any): string | undefined {
+    if (!t) return undefined;
+    return (
+      t.listaIdentificador ||
+      t.lista?.identificador ||
+      t.listIdentifier ||
+      t.listId ||
+      t.lista_id ||
+      t.list?.id ||
+      undefined
+    );
+  }
+
   private loadStatusesFromBackend() {
-    const templateStatusId = this.list?.templateEstadoIdentificador;
+    const templateStatusId = this.extractTemplateEstadoIdentificador(this.list);
+    if (templateStatusId) {
+      this.fetchStatusDetails(templateStatusId);
+      return;
+    }
+    // Intentar resolver por nombre del template si está presente
+    const templateName = this.extractTemplateEstadoNombre(this.list);
+    if (templateName) {
+      this.templateStatusService.listTemplateStatus().subscribe({
+        next: (all: any) => {
+          const arr = Array.isArray(all) ? all : [];
+          const lower = String(templateName).toLowerCase();
+          const found = arr.find((t: any) =>
+            (t?.identificador && String(t.identificador).toLowerCase() === lower) ||
+            (t?.nombre && String(t.nombre).toLowerCase() === lower)
+          );
+          if (found?.identificador) {
+            this.fetchStatusDetails(found.identificador);
+          } else {
+            this.statuses = this.deriveStatusesFromTasks();
+            this.reconcileGroupsWithStatuses();
+          }
+        },
+        error: () => {
+          this.statuses = this.deriveStatusesFromTasks();
+          this.reconcileGroupsWithStatuses();
+        }
+      });
+      return;
+    }
+    // Fallback: derivar a partir de las tareas existentes
+    this.statuses = this.deriveStatusesFromTasks();
+    this.reconcileGroupsWithStatuses();
+  }
+
+  private fetchStatusDetails(templateStatusId: string) {
+    if (!templateStatusId) { this.statuses = []; return; }
     this.templateStatusDetailService.listTemplateStatusDetails(templateStatusId).subscribe({
       next: (details) => {
         const arr = Array.isArray(details) ? details : [];
-  this.statuses = arr
+        this.statuses = arr
           .sort((a, b) => (a.secuencia ?? 0) - (b.secuencia ?? 0))
-          .map(d => ({ key: String(d.nombre || '').toUpperCase(), label: d.nombre, color: d.color || '#9AA0A6' }));
-  // Asegurar que las tareas se muestren en el primer estado si su estado no pertenece al template
-  this.reconcileGroupsWithStatuses();
-  // Inicializar estado de colapso (abierto por defecto)
-  for (const s of this.statuses) {
-    if (this.collapsed[s.key] === undefined) this.collapsed[s.key] = false;
-  }
+          .map(d => ({ id: d.identificador, key: String(d.nombre || '').toUpperCase(), label: d.nombre, color: d.color || '#9AA0A6' }));
+        // Asegurar conciliación
+        this.reconcileGroupsWithStatuses();
+        // Inicializar estado de colapso (abierto por defecto)
+        for (const s of this.statuses) {
+          if (this.collapsed[s.key] === undefined) this.collapsed[s.key] = false;
+        }
       },
-  error: (e: any) => {
+      error: (e: any) => {
         console.error('Error cargando estados del template', e);
-        this.statuses = [
-          { key: 'OPEN', label: 'OPEN', color: '#9AA0A6' },
-          { key: 'PENDING', label: 'PENDING', color: '#FFB020' },
-          { key: 'BLOCKED', label: 'BLOCKED', color: '#6A4CFF' },
-          { key: 'DONE', label: 'COMPLETADA', color: '#38B87C' },
-        ];
-  },
+        this.statuses = this.deriveStatusesFromTasks();
+        this.reconcileGroupsWithStatuses();
+      },
       complete: () => { this.loadingStatuses = false; }
     });
+  }
+
+  private extractTemplateEstadoIdentificador(list: any): string | undefined {
+    if (!list) return undefined;
+    const direct = list.templateEstadoIdentificador
+      || list.template_estado_identificador
+      || list.estadoTemplateIdentificador
+      || list.templateEstadoId
+      || (list.templateEstado && list.templateEstado.identificador);
+    if (direct) return direct;
+    const raw = list.raw || list.data || list.lista || {};
+    return raw.templateEstadoIdentificador
+      || raw.template_estado_identificador
+      || raw.estadoTemplateIdentificador
+      || raw.templateEstadoId
+      || (raw.templateEstado && raw.templateEstado.identificador);
+  }
+
+  private extractTemplateEstadoNombre(list: any): string | undefined {
+    if (!list) return undefined;
+    const direct = list.templateEstadoNombre || (list.templateEstado && list.templateEstado.nombre);
+    if (direct) return direct;
+    const raw = (list.raw || list.data || list.lista || {});
+    return raw.templateEstadoNombre || (raw.templateEstado && raw.templateEstado.nombre);
+  }
+
+  private deriveStatusesFromTasks(): { key: string; label: string; color: string }[] {
+    const map = new Map<string, { key: string; label: string; color: string }>();
+    const entries = Object.entries(this.grouped || {});
+    for (const [k, arr] of entries) {
+      if (!k || k === '__NO_STATUS__') continue;
+      const label = (arr && arr[0] && (arr[0] as any).estadoLabel) ? String((arr[0] as any).estadoLabel) : k;
+      const up = String(label).toUpperCase();
+      if (!map.has(up)) {
+        map.set(up, { key: up, label: String(label), color: '#9AA0A6' });
+      }
+    }
+    return Array.from(map.values());
   }
 
   // Mueve únicamente tareas SIN estado al primer estado del template; conserva las que sí tienen estado

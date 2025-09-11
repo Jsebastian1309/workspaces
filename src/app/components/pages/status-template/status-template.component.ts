@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { WizardTaskComponent } from '../../Wizard/wizard-task/wizard-task.component';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { TemplateStatusService } from 'src/app/service/features/template/status/template-status.service';
 import { TemplateStatusDetailService } from 'src/app/service/features/template/status/template-statusdetail.service';
 import { AuthService } from 'src/app/service/core/auth/auth.service';
 import { UniqueIdService } from 'src/app/service/core/utils/uniqueId.service';
+import { WizardStatesComponent } from '../../Wizard/wizard-states/wizard-states.component';
 
 @Component({
   selector: 'app-status-template',
@@ -45,7 +48,8 @@ export class StatusTemplateComponent implements OnInit {
     private templateStatusService: TemplateStatusService,
     private templateStatusDetailService: TemplateStatusDetailService,
     private authService: AuthService,
-    private uniqueId: UniqueIdService
+  private uniqueId: UniqueIdService,
+  private modalService: NgbModal
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
@@ -127,19 +131,31 @@ export class StatusTemplateComponent implements OnInit {
     });
   }
 
-  // UI actions mirroring Task Template page
+
   toggleCreateForm(): void {
-    this.showCreateForm = !this.showCreateForm;
-    if (this.showCreateForm) {
-      this.form.reset();
-      this.detalles.clear();
-      this.addDetalle();
-      this.saveMessage = 'idle';
-    }
+    const ref = this.modalService.open(WizardStatesComponent, { size: 'lg', backdrop: 'static', keyboard: false });
+    ref.result
+      .then((res) => {
+        if (res === 'completed') {
+          this.loadTemplates();
+        }
+      })
+      .catch(() => {});
   }
 
   createTemplate(): void {
+    // Kept for backward compatibility; now handled by wizard
     this.submit();
+  }
+
+  // Wizard event handlers
+  onWizardCompleted(): void {
+  // Not used in modal mode, kept for compatibility
+  this.loadTemplates();
+  }
+
+  onWizardCancelled(): void {
+  // Not used in modal mode, kept for compatibility
   }
 
   private onSaveSuccess(selectIdent?: string): void {

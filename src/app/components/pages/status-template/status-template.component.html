@@ -1,80 +1,18 @@
 <div class="container justify-content-center mt-4">
     <h3 translate class="text-center">Status Templates</h3>
-    <div *ngIf="templatesLoading" class="d-flex justify-content-center">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-
-    <div *ngIf="showCreateForm" class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">New Status Template</h5>
-            <form [formGroup]="form" (ngSubmit)="createTemplate()">
-                <div class="mb-3">
-                    <label class="form-label">Name</label>
-                    <input type="text" class="form-control"
-                        formControlName="nombre" required />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Statuses</label>
-                    <div formArrayName="detalles">
-                        <div class="border rounded p-2 mb-2"
-                            *ngFor="let d of detalles.controls; let i = index"
-                            [formGroupName]="i">
-                            <div class="row g-2 align-items-end">
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label">Name</label>
-                                    <input class="form-control"
-                                        placeholder="e.g. In progress"
-                                        formControlName="nombre" />
-                                </div>
-                                <div class="col-6 col-md-2">
-                                    <label class="form-label">Order</label>
-                                    <input type="number" class="form-control"
-                                        formControlName="secuencia" />
-                                </div>
-                                <div class="col-6 col-md-4">
-                                    <label class="form-label">Color</label>
-                                    <input type="color" class="form-control form-control-color"
-                                           formControlName="color" />
-                                </div>
-                                <div class="col-12 col-md-2 text-end">
-                                    <button type="button"
-                                        class="btn btn-outline-danger"
-                                        (click)="removeDetalle(i)"
-                                        [disabled]="detalles.length === 1">Remove</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-primary"
-                        (click)="addDetalle()">+ Add status</button>
-                </div>
-                <button type="submit" class="btn btn-success"
-                    [disabled]="saving">Create</button>
-                <button type="button" class="btn btn-secondary ms-2"
-                    (click)="toggleCreateForm()">Cancel</button>
-                <div *ngIf="saveMessage === 'success'"
-                    class="text-success ms-3 d-inline-block">Saved</div>
-                <div *ngIf="saveMessage === 'error'"
-                    class="text-danger ms-3 d-inline-block">Save failed</div>
-            </form>
-        </div>
-    </div>
-
     <div class="row">
         <div class="col-8">
-            <h4>Select a Template</h4>
+            <h4 translate>Select a Template</h4>
         </div>
         <div class="col-8">
-            <button class="btn btn-primary mb-3" (click)="toggleCreateForm()">
-                <i class="bi bi-plus-lg"></i> Create New Status
+            <button translate class="btn btn-primary mb-3" (click)="toggleCreateForm()">
+                <i class="bi bi-plus-lg"></i> Create States Template
             </button>
         </div>
         <hr>
 
-        <div *ngFor="let template of templates" class="col-md-4 mb-3">
-            <div class="card h-100">
+        <div *ngFor="let template of templates" class="col-md-3 mb-3">
+            <div class="card">
                 <div class="card-body">
                     <div
                         *ngIf="editingTemplate === template.identificador; else viewTpl">
@@ -97,12 +35,11 @@
                     <ng-template #viewTpl>
                         <h5 class="card-title">{{ template.nombre }}</h5>
                         <button class="btn btn-info btn-sm me-2"
-                            (click)="selectTemplate(template)">View
-                            Details</button>
+                            (click)="selectTemplate(template)"><i class="bi bi-card-list"></i></button>
                         <button class="btn btn-warning btn-sm me-2"
-                            (click)="startEdit(template)">Edit</button>
+                            (click)="startEdit(template)"><i class="bi bi-pencil-fill"></i></button>
                         <button class="btn btn-danger btn-sm"
-                            (click)="deleteTemplate(template)">Delete</button>
+                            (click)="deleteTemplate(template)"><i class="bi bi-trash3-fill"></i></button>
                     </ng-template>
                 </div>
             </div>
@@ -191,8 +128,8 @@
                             <button class="btn btn-secondary btn-sm ms-1" (click)="cancelEditDetail()">Cancel</button>
                         </ng-container>
                         <ng-template #actionsView>
-                            <button class="btn btn-outline-secondary btn-sm" (click)="startEditDetail(detail)" title="Edit"><i class="bi bi-pencil-square"></i></button>
-                            <button class="btn btn-outline-danger btn-sm ms-1" (click)="deleteDetail(detail)" title="Delete"><i class="bi bi-trash"></i></button>
+                            <button class="btn btn-secondary btn-sm" (click)="startEditDetail(detail)" title="Edit"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-danger btn-sm ms-1" (click)="deleteDetail(detail)" title="Delete"><i class="bi bi-trash"></i></button>
                         </ng-template>
                     </td>
                 </tr>

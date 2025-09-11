@@ -17,17 +17,15 @@ export class TaskComponent implements OnInit, OnChanges {
   @Input() espacioTrabajoIdentificador?: string;
   @Input() espacioIdentificador?: string;
   @Input() carpetaIdentificador?: string;
-
   @ViewChild(ListViewComponent) listViewComponent?: ListViewComponent;
-
   currentView: ViewType = 'list';
   loading = false;
   error?: string;
   tasks: Task[] = [];
-  statuses: { key: string; label: string; color: string }[] = [];
+  statuses: { id?: string; key: string; label: string; color: string }[] = [];
   teams: { identificador: string; nombres: string }[] = [];
   filterCategory: string = '';
-  filterStartDate: string = ''; // YYYY-MM-DD
+  filterStartDate: string = ''; 
   filterEndDate: string = '';
   filterPriority: string = '';
   filterStatus: string = '';
@@ -80,38 +78,53 @@ export class TaskComponent implements OnInit, OnChanges {
     this.taskService.searchTasksFiltered(params)
       .pipe(finalize(() => { this.loading = false; }))
       .subscribe({
-        next: (items) => { this.tasks = Array.isArray(items) ? items : []; },
+        next: (items) => {
+          this.tasks = Array.isArray(items) ? items : [];
+          if (!this.statuses || this.statuses.length === 0) {
+            this.statuses = this.deriveStatusesFromTasks(this.tasks);
+          }
+        },
         error: (e) => { this.error = e?.message; }
       });
   }
 
   private loadStatuses() {
-    const templateStatusId = this.extractTemplateEstadoIdentificador(this.list);
+    const templateStatusId = this.list?.templateEstadoIdentificador;
+    if (templateStatusId) {
+      this.fetchStatusDetails(templateStatusId);
+    } else {
+      // Derivar de tareas cuando no hay template
+      this.statuses = this.deriveStatusesFromTasks(this.tasks);
+    }
+  }
+
+  private fetchStatusDetails(templateStatusId: string) {
+    if (!templateStatusId) { this.statuses = []; return; }
     this.templateStatusDetailService.listTemplateStatusDetails(templateStatusId).subscribe({
       next: (details) => {
         const arr = Array.isArray(details) ? details : [];
         this.statuses = arr
           .sort((a, b) => (a.secuencia ?? 0) - (b.secuencia ?? 0))
-          .map(detail => ({ key: String(detail.nombre || '').toUpperCase(), label: detail.nombre, color: detail.color }));
+          .map(detail => ({ id: detail.identificador, key: String(detail.nombre || '').toUpperCase(), label: detail.nombre, color: detail.color }));
       },
+      error: () => { this.statuses = []; }
     });
   }
 
-  private extractTemplateEstadoIdentificador(list: any): string | undefined {
-    if (!list) return undefined;
-    const direct = list.templateEstadoIdentificador
-      || list.template_estado_identificador
-      || list.estadoTemplateIdentificador
-      || list.templateEstadoId
-      || (list.templateEstado && list.templateEstado.identificador);
-    if (direct) return direct;
-    const raw = list.raw || list.data || list.lista || {};
-    return raw.templateEstadoIdentificador
-      || raw.template_estado_identificador
-      || raw.estadoTemplateIdentificador
-      || raw.templateEstadoId
-      || (raw.templateEstado && raw.templateEstado.identificador);
+  private deriveStatusesFromTasks(tasks: Task[]): { id?: string; key: string; label: string; color: string }[] {
+    const map = new Map<string, { key: string; label: string; color: string }>();
+    (tasks || []).forEach(t => {
+      const label = (t as any)?.estado || '';
+      if (!label) return;
+      const key = String(label).toUpperCase();
+      if (!map.has(key)) {
+        map.set(key, { key, label: String(label), color: '#6c757d' });
+      }
+    });
+    return Array.from(map.values());
   }
+
+  // Eliminadas resoluciones alternativas; se usa solo templateEstadoIdentificador cuando exista
 
   private loadTeams() {
     this.teamService.listTeam().subscribe({
@@ -127,16 +140,15 @@ export class TaskComponent implements OnInit, OnChanges {
   }
 
   getCarpetaName(): string {
-    // Obtener el nombre de la carpeta desde los datos
-    return this.list?.carpetaNombre || 'Carpeta';
+    return this.list?.carpetaNombre;
   }
 
   getEspacioTrabajoName(): string {
-    return this.list?.espacioTrabajoNombre || 'Workspace';
+    return this.list?.espacioTrabajoNombre;
   }
 
   getEspacioName(): string {
-    return this.list?.espacioNombre || 'Space';
+    return this.list?.espacioNombre;
   }
 
   addNewTask(): void {
@@ -163,4 +175,72 @@ export class TaskComponent implements OnInit, OnChanges {
     this.filterAssignee = '';
     this.fetchTasks();
   }
+
+  getWorkspaceIcon(): string {
+    const icon = (this.list as any)?.espacioTrabajoIcono;
+    return typeof icon === 'string' ? icon : '';
+  }
+  getSpaceIcon(): string {
+    const icon = (this.list as any)?.espacioIcono;
+    return typeof icon === 'string' ? icon : '';
+  }
+  getFolderIcon(): string {
+    const icon = (this.list as any)?.carpetaIcono;
+    return typeof icon === 'string' ? icon : '';
+  }
+  getListIcon(): string {
+    const icon = (this.list as any)?.listaIcono;
+    return typeof icon === 'string' ? icon : '';
+  }
+
+  getPriorityColor(): string {
+    const val = (this.filterPriority).toLowerCase();
+    if (!val) return '#9aa0a6';
+    if (val === 'urgente') return '#e53935'; 
+    if (val === 'alta') return '#f6c343';
+    if (val === 'normal') return '#4f75ff';
+    if (val === 'baja') return '#9e9e9e';
+    return '#9aa0a6';
+  }
+
+  getSelectedStatusColor(): string {
+    const label = this.filterStatus || '';
+    if (!label) return '#9aa0a6';
+    const found = (this.statuses || []).find(s => (s.label || '').toLowerCase() === label.toLowerCase());
+    return found?.color || '#9aa0a6';
+  }
+
+
+  getPriorityLabel(): string {
+    const val = (this.filterPriority || '').toLowerCase();
+    if (!val) return 'All';
+    if (val === 'urgente') return 'Urgent';
+    if (val === 'alta') return 'High';
+    if (val === 'normal') return 'Normal';
+    if (val === 'baja') return 'Low';
+    return this.filterPriority;
+  }
+  setPriority(v: string) { this.filterPriority = v; }
+  isPriority(v: string) { return (this.filterPriority || '').toLowerCase() === v.toLowerCase(); }
+
+  // Status helpers for custom dropdown
+  getSelectedStatusLabel(): string {
+    const label = this.filterStatus || '';
+    if (!label) return 'All';
+    return label;
+  }
+  setStatus(v: string) { this.filterStatus = v; }
+  isStatus(v: string) { return (this.filterStatus || '').toLowerCase() === (v || '').toLowerCase(); }
+
+  // Assignee helpers for custom dropdown
+  getAssigneeIcon(): string {
+    // Group icon when 'All' (no filter); person icon when a specific assignee is selected
+    return this.filterAssignee ? 'bi bi-person' : 'bi bi-people';
+  }
+  getAssigneeLabel(): string {
+    if (!this.filterAssignee) return 'All';
+    const found = (this.teams || []).find(t => t.identificador === this.filterAssignee);
+    return found?.nombres || 'All';
+  }
+  setAssignee(v: string) { this.filterAssignee = v; }
 }

@@ -1,7 +1,7 @@
 <div class="calendar-toolbar d-flex align-items-center gap-2 mb-2">
-	<button class="btn btn-outline-secondary btn-sm" (click)="prev()">Prev</button>
-	<button class="btn btn-outline-secondary btn-sm" (click)="today()">Today</button>
-	<button class="btn btn-outline-secondary btn-sm" (click)="next()">Next</button>
+	<button class="btn btn-primary" (click)="prev()">Prev</button>
+	<button class="btn btn-primary" (click)="today()">Today</button>
+	<button class="btn btn-primary" (click)="next()">Next</button>
 
 	<div class="ms-auto btn-group btn-group-sm">
 		<button class="btn btn-primary" [class.active]="view === CalendarView.Month" (click)="setView(CalendarView.Month)">Month</button>

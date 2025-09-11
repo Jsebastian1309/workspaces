@@ -7,6 +7,13 @@
   color: var(--sidebar-color);
   overflow-y: auto;
   overflow-x: hidden;
+  /* Slim, theme-aware scrollbar */
+  &::-webkit-scrollbar { width: 4px; height: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background-color: var(--nav-color); border-radius: 8px; opacity: 0.5; }
+  &::-webkit-scrollbar-thumb:hover { background-color: var(--nav-color); opacity: 0.8; }
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--nav-color) transparent;
   .sidebar-header {
     display: flex;
     align-items: center;
@@ -133,24 +140,13 @@
   .sidebar-footer button:hover {
     color: #4f46e5;
   }
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--sidebar-hover-bg);
-    border-radius: 3px;
-    opacity: 0.5;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: var(--sidebar-color);
-    opacity: 0.8;
-  }
+  /* Ensure dark theme keeps slim nav-colored scrollbar */
+  &::-webkit-scrollbar { width: 4px; height: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background-color: var(--nav-color); border-radius: 8px; opacity: 0.5; }
+  &::-webkit-scrollbar-thumb:hover { background-color: var(--nav-color); opacity: 0.8; }
   scrollbar-width: thin;
-  scrollbar-color: var(--sidebar-hover-bg) transparent;
+  scrollbar-color: var(--nav-color) transparent;
 }
 
 .tree-node {

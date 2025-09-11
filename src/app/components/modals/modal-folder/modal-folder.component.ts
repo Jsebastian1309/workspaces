@@ -59,7 +59,7 @@ export class ModalFolderComponent {
           descripcion: raw.descripcion,
           organizacionId: this.SelectedFolder.organizacionId || currentUser?.organizacionId,
           clienteId: this.SelectedFolder.clienteId || currentUser?.clienteId,
-          espacioTrabajoIdentificador: this.SelectedWorkspace.identificador || this.SelectedWorkspace.espacio_trabajo_identificador,
+          workspaceIdentifier: this.SelectedWorkspace.identificador || this.SelectedWorkspace.espacio_trabajo_identificador,
           espacioIdentificador: this.SelectedSpace.identificador || this.SelectedSpace.espacio_identificador,
           publico: !!raw.publico
         };
@@ -75,7 +75,7 @@ export class ModalFolderComponent {
           descripcion: raw.descripcion,
           organizacionId: currentUser?.organizacionId,
           clienteId: currentUser?.clienteId,
-          espacioTrabajoIdentificador: this.SelectedWorkspace.identificador || this.SelectedWorkspace.espacio_trabajo_identificador,
+          workspaceIdentifier: this.SelectedWorkspace.identificador || this.SelectedWorkspace.espacio_trabajo_identificador,
           espacioIdentificador: this.SelectedSpace.identificador || this.SelectedSpace.espacio_identificador,
           publico: !!raw.publico
         };

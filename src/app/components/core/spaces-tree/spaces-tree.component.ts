@@ -321,14 +321,24 @@ export class SpacesTreeComponent implements OnInit {
     this.selectedKey = this.getKey(node);
 
     if (node.tipo === 'list') {
-      console.log('Lista seleccionada con datos completos:', {
-        identificador: node.identificador,
-        nombre: node.nombre,
-        espacioTrabajoIdentificador: node.espacioTrabajoIdentificador,
-        espacioIdentificador: node.espacioIdentificador,
-        carpetaIdentificador: node.carpetaIdentificador
-      });
-      this.listSelected.emit(node);
+      // Resolver carpeta y espacio para enriquecer con íconos y nombres
+      const parentFolder = this.getParentFolderOfList(node);
+      const parentSpace = parentFolder ? this.getParentSpaceOfFolder(parentFolder) : undefined;
+      const extras: any = {
+        workspaceIdentifier: (node as any).workspaceIdentifier || (node as any).espacioTrabajoIdentificador,
+        // nombres de apoyo (si no vienen ya en el nodo)
+        espacioTrabajoNombre: (node as any).espacioTrabajoNombre || (parentSpace as any)?.espacioTrabajoNombre || this.SelectedWorkspace?.nombre,
+        espacioNombre: (node as any).espacioNombre || parentSpace?.nombre,
+        carpetaNombre: (node as any).carpetaNombre || parentFolder?.nombre,
+        // íconos dinámicos para breadcrumb
+        espacioTrabajoIcono: this.SelectedWorkspace?.icono || (node as any).espacioTrabajoIcono,
+        espacioIcono: parentSpace?.icono,
+        carpetaIcono: parentFolder?.icono,
+        listaIcono: (node as any).icono
+      };
+      const payload: any = { ...node, ...extras };
+      console.log('Lista seleccionada enriquecida:', payload);
+      this.listSelected.emit(payload);
     }
   }
 

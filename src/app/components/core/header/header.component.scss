@@ -14,19 +14,33 @@
 .search-form {
   display: flex;
   align-items: center;
+  border: none;
+
 
   input {
-    flex: 1;
     border-radius: 8px;
     background-color: var(--nav-color);
-    color: var(--text-color);
+    color: var(--nav-color);
     border: none;
+  }
+
+  .form-control {
+    background-color: var(--input-bg);
+    color: var(--nav-color);
+    max-height: 25px;
+    box-shadow: none;
   }
 
   button {
     border: none;
     border-radius: 4px;
   }
+
+}
+
+.search-form .form-control::placeholder {
+  color: var(--nav-color);
+  opacity: 1;
 }
 
 .btn-icon {
@@ -38,6 +52,10 @@
 .dropdown-menu {
   background: var(--sidebar-bg);
   color: var(--text-color);
+  border-radius: 8px;
+  padding: 4px 0;
+  min-width: 100px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
 }
 
 .dropdown-item {
@@ -56,5 +74,5 @@
 
 :host-context(.dark-theme) .dropdown-menu {
   border: 1px var(--sidebar-bg);
-  box-shadow: 0 6px 20px rgba(0,0,0,.55);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .55);
 }

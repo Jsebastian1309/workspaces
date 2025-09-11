@@ -10,6 +10,10 @@
 	"Login": "Iniciar sesión",
 	"Remember Me": "Recuérdame",
 	"Forgot Password": "¿Olvidaste tu contraseña?",
+	"Invalid Credentials": "Credenciales inválidas",
+
+
+
 	"Logout": "Cerrar sesión",
 	"Loading workspaces": "Cargando espacios de trabajo",
 	"Welcome To Worki": "Bienvenido a Worki,{{ currentUser?.name }}.",
@@ -36,7 +40,7 @@
 	"Task template": "Plantilla de tarea",
 
 
-	"Status Templates": "Plantillas de Estado",
+	
 	"Template States": "Estados de la plantilla ",
 	"Create New Status Template":"Crear Nuevo Estado de Plantilla",
 	"Task Templates": "Plantillas de Tarea",
@@ -99,6 +103,43 @@
 	"Public Workspace": "Workspace público",
 	"Public workspaces can be viewed by other users": "Los workspaces públicos pueden ser vistos por otros usuarios",
 	"Cancel": "Cancelar",
+
+
+
+
+	"Status Templates": "Plantillas de Estado",
+	"Select a Template": "Seleccione una plantilla",
+	"Create States Template": "Crear plantilla de estados",
+	"Header": "Encabezado",
+	"Details": "Detalles",
+	"Template name": "Nombre de la plantilla",
+	"Name is required.": "El nombre es obligatorio.",
+	"Eg: Status flow for tasks": "Ej: Flujo de estados para tareas",
+	"keep": "Guardar",
+	"Saving…": "Guardando…",
+	"Return": "Regresar",
+	"Add State": "Agregar estado",
+
+
+
+
+	"Board": "Tablero",
+	"List": "Lista",
+	"Gantt": "Gantt",
+	"Calendar": "Calendario",
+	"Add Task": "Agregar Tarea",
+	"From": "Desde",
+	"To": "Hasta",
+	"Priority": "Prioridad",
+	"All": "Todos",
+	"Low": "Baja",
+	"Medium": "Media",
+	"High": "Alta",
+	"Urgent": "Urgente",
+	"State": "Estado",
+
+
+
 
 
 

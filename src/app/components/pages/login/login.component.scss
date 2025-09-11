@@ -17,14 +17,14 @@
   background: var(--sidebar-bg);
 }
   
-.logo-section {
+.Header-section {
   background: var(--nav-bg);
   padding: 30px 0;
   text-align: center;
   border-radius: 5px 5px 0 0;
 }
 
-.logo {
+.Name-section {
   color: white;
   font-size: 3rem;
   font-weight: bold;
@@ -50,7 +50,6 @@
   font-size: 16px;
   color: var(--text-color);
   outline: none;
-
   &::placeholder {
     color: var(--text-color);
     font-size: 16px;
@@ -59,11 +58,8 @@
 
 .input-line {
   height: 1px;
-  background-color: #ddd;
+  background-color: var(--text-color);
   transition: background-color 0.3s ease;
-  .input-field:focus+& {
-    background-color: #2b216a;
-  }
 }
 
 .password-wrapper {
@@ -114,12 +110,11 @@
 .checkmark {
   width: 18px;
   height: 18px;
-  border: 2px solid #ccc;
+  border: 2px solid var(--text-color);
   border-radius: 3px;
   margin-right: 8px;
   position: relative;
   transition: all 0.3s ease;
-
   &::after {
     content: '';
     position: absolute;
@@ -137,7 +132,6 @@
   input:checked~& {
     background-color: #014bab;
     border-color: #014bab;
-
     &::after {
       opacity: 1;
     }
@@ -156,14 +150,14 @@
 }
 
 .error-alert {
-  background: #fdf2f2;
-  border: 1px solid #fca5a5;
-  color: #dc2626;
   padding: 12px;
   border-radius: 6px;
   margin-bottom: 20px;
   text-align: center;
   font-size: 14px;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
 }
 
 .login-button {
@@ -177,7 +171,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -200,20 +193,8 @@
   }
 }
 
-.language-dropdown {
-  margin-top: 0.5rem;
-}
-
 label{
   color: var(--text-color);
 }
-button {
-    background: var(--nav-bg);
-    color: #fff;
-  }
 
 
-.btn-icon {
-  background: var(--nav-bg);
-  color: var(--nav-color);
-}

@@ -1,15 +1,20 @@
+<!-- Splash load -->
 <app-splash-screen *ngIf="isLoading"></app-splash-screen>
 <div *ngIf="!isLoading">
+  <!-- Header -->
   <header>
     <app-header></app-header>
   </header>
+  <!-- Content -->
   <div class="content">
+    <!-- Sidebar -->
     <app-sidebar [workspaces]="workspaces"
       [selectedWorkspace]="selectedWorkspace"
       [activeView]="currentView"
       (viewChange)="onViewChange($event)"
       (listSelected)="onListSelected($event)"></app-sidebar>
     <div class="main-content">
+      <!-- Main Views -->
       <app-start *ngIf="currentView === 'start'"></app-start>
       <app-team *ngIf="currentView === 'team'"></app-team>
       <app-task-template *ngIf="currentView === 'task-templates'"></app-task-template>

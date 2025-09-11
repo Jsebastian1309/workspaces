@@ -1,0 +1,13 @@
+.container{
+    background-color:var(--background-color);
+    color:var(--text-color);
+}
+
+.rounded{
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+.card{
+    background-color: var(--background-color);
+    color: var(--text-color);
+}

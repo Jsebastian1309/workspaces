@@ -5,12 +5,17 @@
   --header-height: 46px;
   --background-color: #f5f5f5;
   --text-color: #222;
-  --nav-bg: #185775;
+  --nav-bg: #3e4c6a;
   --nav-color: #fff;
   --sidebar-bg: #fcfcfc;
   --sidebar-color: #333;
-  --bot-bg: #185775;
+  --bot-bg: #3e4c6a;
   --select-bg: #e0e7ff;
+  --error-bg: #eaabab ;
+  --error-border: #eaabab;
+  --error-text: #A52A2A;
+  --input-bg: #576185;
+  --input-bg-secondary: #5c636a;
 }
 
 .dark-theme {
@@ -22,7 +27,11 @@
   --sidebar-color: #fff;
   --bot-bg: #185775;
   --select-bg: #333c57;
-  --button-save:#2ECC71;
+  --error-bg: #A52A2A;
+  --error-border: #A52A2A;
+  --error-text: #ffffff;
+  --input-bg: #595959;
+  --input-bg-secondary: #595959;
 }
 
 body {

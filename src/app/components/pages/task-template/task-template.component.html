@@ -11,7 +11,7 @@
     <i class="bi bi-plus-lg"></i> Create New Template
   </button>
 
-  <!-- Create Form -->
+
   <div *ngIf="showCreateForm" class="card mb-4">
     <div class="card-body">
       <h5 translate class="card-title">New Template</h5>
@@ -43,7 +43,6 @@
     <div *ngFor="let template of templates" class="col-md-4 mb-3">
       <div class="card h-100">
         <div class="card-body">
-          <!-- Edit Mode -->
           <div
             *ngIf="editingTemplate === template.identificador; else viewMode">
             <form (ngSubmit)="saveEdit(template)">

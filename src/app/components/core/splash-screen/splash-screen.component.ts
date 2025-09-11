@@ -6,5 +6,4 @@ import { Component } from '@angular/core';
   styleUrls: ['./splash-screen.component.scss']
 })
 export class SplashScreenComponent {
-
 }
