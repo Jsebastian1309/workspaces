@@ -37,10 +37,7 @@
                   (click)="toggleCollapse(status.key)">
             {{ status.label }}
           </button>
-          <!-- Add task button (outside collapse button to avoid toggling) -->
-          <button class="btn btn-sm btn-outline-light add-btn" (click)="startAdd(status.key); $event.stopPropagation()" title="Add task">
-            <i class="bi bi-plus-lg"></i>
-          </button>
+
         </h2>
         <div
           id="collapse{{ i }}"

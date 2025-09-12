@@ -11,6 +11,7 @@ export type ViewType = 'board' | 'list' | 'gantt' | 'calendar' ;
   selector: 'app-task',
   templateUrl: './task.component.html',
   styleUrls: ['./task.component.scss']
+  
 })
 export class TaskComponent implements OnInit, OnChanges {
   @Input() list: any;
@@ -18,6 +19,7 @@ export class TaskComponent implements OnInit, OnChanges {
   @Input() espacioIdentificador?: string;
   @Input() carpetaIdentificador?: string;
   @ViewChild(ListViewComponent) listViewComponent?: ListViewComponent;
+
   currentView: ViewType = 'list';
   loading = false;
   error?: string;
@@ -25,8 +27,8 @@ export class TaskComponent implements OnInit, OnChanges {
   statuses: { id?: string; key: string; label: string; color: string }[] = [];
   teams: { identificador: string; nombres: string }[] = [];
   filterCategory: string = '';
-  filterStartDate: string = ''; 
-  filterEndDate: string = '';
+  filterStartDate: Date | null = null; 
+  filterEndDate: Date | null = null;
   filterPriority: string = '';
   filterStatus: string = '';
   filterAssignee: string = '';
@@ -71,8 +73,8 @@ export class TaskComponent implements OnInit, OnChanges {
       prioridad: this.filterPriority,
       estado: this.filterStatus,
       responsableIdentificador: this.filterAssignee,
-      fechaInicio: this.filterStartDate,
-      fechaFin: this.filterEndDate,
+      fechaInicio: this.formatDate(this.filterStartDate),
+      fechaFin: this.formatDate(this.filterEndDate),
     };
     Object.keys(params).forEach(k => (params[k] === undefined || params[k] === null || params[k] === '') && delete params[k]);
     this.taskService.searchTasksFiltered(params)
@@ -168,8 +170,8 @@ export class TaskComponent implements OnInit, OnChanges {
 
   clearFilters() {
     this.filterCategory = '';
-    this.filterStartDate = '';
-    this.filterEndDate = '';
+    this.filterStartDate = null;
+    this.filterEndDate = null;
     this.filterPriority = '';
     this.filterStatus = '';
     this.filterAssignee = '';
@@ -232,9 +234,8 @@ export class TaskComponent implements OnInit, OnChanges {
   setStatus(v: string) { this.filterStatus = v; }
   isStatus(v: string) { return (this.filterStatus || '').toLowerCase() === (v || '').toLowerCase(); }
 
-  // Assignee helpers for custom dropdown
+
   getAssigneeIcon(): string {
-    // Group icon when 'All' (no filter); person icon when a specific assignee is selected
     return this.filterAssignee ? 'bi bi-person' : 'bi bi-people';
   }
   getAssigneeLabel(): string {
@@ -243,4 +244,12 @@ export class TaskComponent implements OnInit, OnChanges {
     return found?.nombres || 'All';
   }
   setAssignee(v: string) { this.filterAssignee = v; }
+
+  private formatDate(d?: Date | null): string | undefined {
+    if (!d) return undefined;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
 }

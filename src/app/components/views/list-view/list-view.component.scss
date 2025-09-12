@@ -66,7 +66,7 @@
         align-items: center;
         justify-content: center;
         height: 200px;
-        color: #9aa0a6;
+        color: var(--text-color);
     }
 }
 
@@ -88,11 +88,11 @@
     font-size: 24px;
     font-weight: 600;
     margin: 0;
-    color: #e6e6e6;
+    color: var(--text-color);
 }
 
 .desc {
-    color: #9aa0a6;
+    color: var(--text-color);
     margin-top: 4px;
     font-size: 14px;
 }
@@ -464,8 +464,8 @@
   }
 
   .accordion-button {
-    background: transparent; /* inline background-color is set from template via style */
-    color: #071018; /* dark text for colored headers */
+    background: transparent;
+    color: var(--nav-color);
     font-weight: 600;
     padding: 18px 20px;
     border: none;
@@ -497,9 +497,8 @@
 
 /* Make table headers darker to match the design inside accordion */
 .table thead th {
-  background: #0f1112; /* near black */
+  background: var(--background-color); /* near black */
   color: var(--text-color);
-  border-bottom: 1px solid #1e2430;
 }
 
 /* Make action icons stand out on dark rows */
