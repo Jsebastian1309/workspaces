@@ -6,11 +6,13 @@
     <app-header></app-header>
   </header>
   <!-- Content -->
-  <div class="content">
+  <div class="content" [class.sidebar-collapsed]="sidebarCollapsed">
     <!-- Sidebar -->
     <app-sidebar [workspaces]="workspaces"
       [selectedWorkspace]="selectedWorkspace"
       [activeView]="currentView"
+      [collapsed]="sidebarCollapsed"
+      (collapsedChange)="onSidebarCollapsedChange($event)"
       (viewChange)="onViewChange($event)"
       (listSelected)="onListSelected($event)"></app-sidebar>
     <div class="main-content">

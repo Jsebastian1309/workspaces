@@ -1,0 +1,133 @@
+<div class="modal-header">
+	<h5 class="modal-title">{{ mode === 'apply' ? 'Apply template' : 'Save as template' }}</h5>
+	<button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('cancel')"></button>
+	</div>
+<div class="modal-body">
+	<ng-container *ngIf="mode === 'apply'; else saveTpl">
+		<div class="row g-3">
+			<div class="col-12 col-md-4">
+				<label class="form-label">Choose a template</label>
+				<select class="form-select" [(ngModel)]="selectedTemplateId" [ngModelOptions]="{standalone:true}"
+								(change)="onPickTemplate(selectedTemplateId)">
+					<option [ngValue]="null">— Select —</option>
+					<option *ngFor="let t of templates" [ngValue]="t.identificador">{{ t.nombre }}</option>
+				</select>
+				<div class="text-muted small mt-1" *ngIf="loadingTemplates">Loading templates...</div>
+				<div class="mt-2 small text-muted" *ngIf="selectedTemplateMeta">
+					{{ selectedTemplateMeta.descripcion || 'No description' }}
+				</div>
+			</div>
+			<div class="col-12 col-md-8">
+				<div class="d-flex justify-content-between align-items-center mb-2">
+					<strong>Task preview</strong>
+					<span class="badge bg-light text-dark">{{ templatePreview.length || 0 }} tasks</span>
+				</div>
+				<div class="table-responsive" style="max-height: 45vh;">
+					<table class="table table-sm table-striped align-middle">
+						<thead class="table-light">
+							<tr>
+								<th>Name</th>
+								<th>Status</th>
+								<th>Priority</th>
+								<th>Due</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let t of templatePreview">
+								<td>{{ t.nombre }}</td>
+								<td>{{ getStatusLabel(t.estado) }}</td>
+								<td>{{ t.prioridad || '—' }}</td>
+								<td>{{ t.fechaVencimiento || '—' }}</td>
+							</tr>
+							<tr *ngIf="selectedTemplateId && templatePreview?.length === 0">
+								<td colspan="4" class="text-muted">This template has no tasks.</td>
+							</tr>
+							<tr *ngIf="!selectedTemplateId">
+								<td colspan="4" class="text-muted">Pick a template to see the preview.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="form-check mt-2">
+					<input class="form-check-input" type="checkbox" id="applyKeepExisting"
+						[(ngModel)]="applyOptions.keepExistingTasks" [ngModelOptions]="{standalone:true}">
+					<label class="form-check-label" for="applyKeepExisting">
+						Keep existing tasks (do not replace)
+					</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="applyOverwriteStatus"
+						[(ngModel)]="applyOptions.overwriteStatus" [ngModelOptions]="{standalone:true}">
+					<label class="form-check-label" for="applyOverwriteStatus">
+						Overwrite status/priority if a task with the same name exists
+					</label>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+
+	<ng-template #saveTpl>
+		<div class="row g-3">
+			<div class="col-12 col-md-5">
+				<div class="mb-3">
+					<label class="form-label">Template name</label>
+					<input class="form-control" placeholder="e.g., Base Sprint" [(ngModel)]="newTemplate.nombre" [ngModelOptions]="{standalone:true}">
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Description (optional)</label>
+					<textarea class="form-control" rows="3" [(ngModel)]="newTemplate.descripcion" [ngModelOptions]="{standalone:true}"></textarea>
+				</div>
+				<div class="form-check mb-2">
+					<input class="form-check-input" type="checkbox" id="includeAssignments"
+						[(ngModel)]="newTemplateOptions.includeAssignments" [ngModelOptions]="{standalone:true}">
+					<label class="form-check-label" for="includeAssignments">Include assignments</label>
+				</div>
+				<div class="form-check mb-3">
+					<input class="form-check-input" type="checkbox" id="includeDates"
+						[(ngModel)]="newTemplateOptions.includeDates" [ngModelOptions]="{standalone:true}">
+					<label class="form-check-label" for="includeDates">Include dates</label>
+				</div>
+			</div>
+			<div class="col-12 col-md-7">
+				<div class="d-flex justify-content-between align-items-center mb-2">
+					<strong>Tasks to save</strong>
+					<div>
+						<button class="btn btn-light btn-sm me-2" (click)="toggleSelectAllCurrent(true)">Select all</button>
+						<button class="btn btn-light btn-sm" (click)="toggleSelectAllCurrent(false)">Clear</button>
+					</div>
+				</div>
+				<div class="table-responsive" style="max-height: 45vh;">
+					<table class="table table-sm table-striped align-middle">
+						<thead class="table-light">
+							<tr>
+								<th style="width:32px;"></th>
+								<th>Name</th>
+								<th>Status</th>
+								<th>Priority</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let t of currentTasksFlat">
+								<td>
+									<input type="checkbox" [(ngModel)]="selectedForTemplate[t.identificador]" [ngModelOptions]="{standalone:true}">
+								</td>
+								<td>{{ t.nombre }}</td>
+								<td>{{ getStatusLabel(t.estado) }}</td>
+								<td>{{ t.prioridad || '—' }}</td>
+							</tr>
+							<tr *ngIf="currentTasksFlat.length === 0">
+								<td colspan="4" class="text-muted">No tasks in this list.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="small text-muted">{{ selectedCount() }} selected out of {{ currentTasksFlat.length || 0 }}</div>
+			</div>
+		</div>
+	</ng-template>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-secondary" (click)="activeModal.dismiss('cancel')">Cancel</button>
+	<button class="btn btn-primary" *ngIf="mode==='apply'" [disabled]="!selectedTemplateId || loading" (click)="confirmApply()">Apply</button>
+	<button class="btn btn-primary" *ngIf="mode==='save'" [disabled]="!newTemplate.nombre || selectedCount() === 0 || loading" (click)="confirmSave()">Save</button>
+</div>

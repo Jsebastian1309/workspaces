@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TemplateTaskService } from 'src/app/service/features/template/task/template-task.service';
 import { TemplateTaskdetailService } from 'src/app/service/features/template/task/template-taskdetail.service';
+import { WizardTaskComponent } from 'src/app/components/Wizard/wizard-task/wizard-task.component';
 @Component({
   selector: 'app-task-template',
   templateUrl: './task-template.component.html',
@@ -22,7 +24,8 @@ export class TaskTemplateComponent {
 
   constructor(
     private templateTaskService: TemplateTaskService,
-    private templateTaskdetailService: TemplateTaskdetailService
+    private templateTaskdetailService: TemplateTaskdetailService,
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -62,26 +65,16 @@ export class TaskTemplateComponent {
     });
   }
 
-  // Create methods
+  // Create methods now handled via Wizard modal
   toggleCreateForm(): void {
-    this.showCreateForm = !this.showCreateForm;
-    this.newTemplate = { nombre: '', estado: 'ACTIVE' };
-  }
-
-  createTemplate(): void {
-    if (!this.newTemplate.nombre.trim()) return;
-    this.loading = true;
-    this.templateTaskService.createTemplateTask(this.newTemplate).subscribe({
-      next: () => {
-        this.success = 'Template created successfully';
-        this.showCreateForm = false;
-        this.loadTemplates();
-      },
-      error: (err) => {
-        this.error = 'Error creating template';
-        this.loading = false;
-      }
-    });
+    const ref = this.modalService.open(WizardTaskComponent, { size: 'lg', backdrop: 'static', keyboard: false });
+    ref.result
+      .then((res) => {
+        if (res?.action === 'completed') {
+          this.loadTemplates();
+        }
+      })
+      .catch(() => {});
   }
 
   // Edit methods

@@ -1,0 +1,53 @@
+.wt-modal {
+	position: fixed;
+	inset: 0;
+	background: rgba(0,0,0,0.35);
+	z-index: 1060;
+}
+.wt-modal-dialog {
+	position: relative;
+	width: 92vw;
+	max-width: 1200px;
+	margin: 4vh auto;
+}
+.wt-modal-content {
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+	display: flex;
+	flex-direction: column;
+	max-height: 92vh;
+}
+.wt-modal-header, .wt-modal-footer {
+	padding: 0.75rem 1rem;
+	border-bottom: 1px solid #eee;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.wt-modal-footer { border-top: 1px solid #eee; border-bottom: none; }
+.wt-modal-header .left { display: flex; gap: .25rem; }
+.wt-modal-header .title { font-weight: 600; flex: 1; text-align: center; }
+.btn-close { border: none; background: transparent; width: 1.5rem; height: 1.5rem; }
+.btn-nav { border: 1px solid #ddd; background: #fff; border-radius: 4px; padding: .25rem .5rem; }
+
+.wt-modal-body {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 0;
+	min-height: 50vh;
+}
+.pane.left { padding: 1rem; border-right: 1px solid #f0f0f0; }
+.pane.right { padding: 1rem; }
+.activity-header { font-weight: 600; margin-bottom: .5rem; }
+.activity-list { max-height: 60vh; overflow: auto; }
+.empty { color: #666; font-size: .9rem; }
+
+.form-group { margin-bottom: .5rem; }
+.form-group > label { font-size: .85rem; color: #444; margin-bottom: .25rem; display: block; }
+
+@media (max-width: 992px) {
+	.wt-modal-dialog { width: 96vw; }
+	.wt-modal-body { grid-template-columns: 1fr; }
+	.pane.left { border-right: none; border-bottom: 1px solid #f0f0f0; }
+}

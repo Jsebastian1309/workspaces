@@ -12,6 +12,7 @@ export class HomeComponent {
   selectedWorkspace: any = null;
   currentView = 'start';
   selectedList: any = null;
+  sidebarCollapsed = false;
 
   constructor(private workspaceService: WorkspaceService) {}
 
@@ -54,5 +55,9 @@ export class HomeComponent {
         this.isLoading = false;
       }
     });
+  }
+
+  onSidebarCollapsedChange(collapsed: boolean) {
+    this.sidebarCollapsed = collapsed;
   }
 }

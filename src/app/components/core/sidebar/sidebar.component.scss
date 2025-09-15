@@ -17,9 +17,12 @@
   .sidebar-header {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0.75rem 0.5rem 0.5rem 0.5rem;
     .workspace-dropdown {
-      width: 100%;
+      flex: 1 1 auto;
+      min-width: 0;
       .workspace-btn {
         background: none;
         border: none;
@@ -28,7 +31,7 @@
         align-items: center;
         width: 100%;
         text-align: left;
-        padding: 0;
+        padding: 0.25rem 0.5rem;
         &:focus {
           box-shadow: none;
         }
@@ -75,6 +78,37 @@
         color: #495057;
       }
     }
+  }
+  .collapsed-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 0.5rem 0.25rem 0.5rem;
+    .avatar { margin: 0 0 8px 0; }
+    .btn-top-toggle {
+      background: rgba(0,0,0,.2);
+      color: #fff;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+  }
+
+  .sidebar-header .btn-top-toggle {
+    background: rgba(0,0,0,.06);
+    border: 1px solid rgba(0,0,0,.08);
+    color: inherit;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .sidebar-menu {
@@ -123,6 +157,16 @@
       cursor: pointer;
       font-size: 0.95rem;
     }
+  }
+  .sidebar-toggle-bottom { display: none; }
+  .btn-toggle {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,.1);
+    color: inherit;
+    line-height: 1;
+    padding: 4px 6px;
+    border-radius: 6px;
+    cursor: pointer;
   }
 }
 
@@ -203,4 +247,16 @@
 .btn-icon:focus-visible {
   outline: 2px solid var(--nav-bg);
   outline-offset: 2px;
+}
+
+.sidebar.is-collapsed {
+  width: 64px;
+  .workspace-dropdown .workspace-btn {
+    justify-content: center;
+  }
+  .sidebar-menu li {
+    justify-content: center;
+  }
+  .sidebar-section { display: none; }
+  .sidebar-footer { justify-content: center; }
 }

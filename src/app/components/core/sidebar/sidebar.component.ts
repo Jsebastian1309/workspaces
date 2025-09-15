@@ -15,8 +15,10 @@ export class SidebarComponent implements OnInit {
   @Input() workspaces: any[] = [];
   @Input() selectedWorkspace: any = null;
   @Input() activeView = 'start';
+  @Input() collapsed = false;
   @Output() viewChange = new EventEmitter<string>();
   @Output() listSelected = new EventEmitter<any>();
+  @Output() collapsedChange = new EventEmitter<boolean>();
 
   spacesWork: any[] = [];
   selectedspace: any = null;
@@ -47,6 +49,12 @@ export class SidebarComponent implements OnInit {
   // Seleccionar un espacio de trabajo
   selectSpace(space: any) {
     this.selectedspace = space;
+  }
+
+  // Expandir/contraer sidebar
+  toggleSidebar() {
+    this.collapsed = !this.collapsed;
+    this.collapsedChange.emit(this.collapsed);
   }
 
   // Emitir el espacios de trabajo seleccionado

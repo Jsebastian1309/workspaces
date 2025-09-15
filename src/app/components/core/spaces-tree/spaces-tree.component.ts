@@ -43,6 +43,7 @@ interface SpaceNode {
 })
 export class SpacesTreeComponent implements OnInit {
   @Input() SelectedWorkspace: any;
+  @Input() compact = false;
   @Output() listSelected = new EventEmitter<any>();
 
   treeControl = new NestedTreeControl<SpaceNode>(node => node.folders || node.lists || []);
@@ -63,10 +64,11 @@ export class SpacesTreeComponent implements OnInit {
     this.loadSpaces();
   }
 
-  ngOnChanges() {
-    if (this.SelectedWorkspace) {
+  ngOnChanges(changes: any) {
+    if (changes?.SelectedWorkspace && this.SelectedWorkspace) {
       this.loadSpaces();
     }
+    // Nota: ignoramos cambios en `compact` para no recargar innecesariamente.
   }
 
   loadSpaces() {

@@ -7,7 +7,11 @@ import { Task } from 'src/app/models/task.model';
 import { TemplateStatusDetailService } from 'src/app/service/features/template/status/template-statusdetail.service';
 import { TemplateStatusService } from 'src/app/service/features/template/status/template-status.service';
 import { TemplateTaskService } from 'src/app/service/features/template/task/template-task.service';
+import { TemplateTaskdetailService } from 'src/app/service/features/template/task/template-taskdetail.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalTemplateTaskComponent } from '../../modals/modal-template-task/modal-template-task.component';
 import { ListService } from 'src/app/service/features/list/list.service';
+// no need to import ModalTaskComponent here; we will use its selector in the template
 
 @Component({
   selector: 'app-list-view',
@@ -42,6 +46,26 @@ export class ListViewComponent implements OnChanges {
   selectedTemplate: any = null;
   showTemplateSelector = false;
 
+  // New Template modal/apply modal state
+  showApplyModal = false;
+  showSaveModal = false;
+  selectedTemplateId: string | null = null;
+  selectedTemplateMeta: any = null;
+  templatePreview: any[] = [];
+  applyOptions = {
+    keepExistingTasks: true,
+    overwriteStatus: false,
+  };
+
+  newTemplate: { nombre: string; descripcion?: string } = { nombre: '', descripcion: '' };
+  newTemplateOptions = { includeAssignments: false, includeDates: false };
+  currentTasksFlat: any[] = [];
+  selectedForTemplate: Record<string, boolean> = {};
+
+  // Task detail modal
+  showTaskModal = false;
+  selectedTaskIndex = 0;
+
   // Collapse state per status key
   private collapsed: Record<string, boolean> = {};
 
@@ -49,10 +73,12 @@ export class ListViewComponent implements OnChanges {
     private taskService: TaskService,
     private templateStatusDetailService: TemplateStatusDetailService,
     private templateStatusService: TemplateStatusService,
-    private templateTaskService: TemplateTaskService,
+  private templateTaskService: TemplateTaskService,
+  private templateTaskdetailService: TemplateTaskdetailService,
     private listService: ListService,
     private authService: AuthService,
-    private teamService: TeamService
+    private teamService: TeamService,
+    private modalService: NgbModal
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -96,11 +122,206 @@ export class ListViewComponent implements OnChanges {
     });
   }
 
+  // Modal helpers for Apply Template
+  openApplyModal(): void {
+    // Open ng-bootstrap modal for templates
+    const ref = this.modalService.open(ModalTemplateTaskComponent, { size: 'xl', scrollable: true, backdrop: 'static' });
+    (ref.componentInstance as ModalTemplateTaskComponent).list = this.list;
+    (ref.componentInstance as ModalTemplateTaskComponent).templates = this.templates;
+    (ref.componentInstance as ModalTemplateTaskComponent).grouped = this.grouped;
+    ref.result.then((res) => {
+      if (res?.action === 'applied' || res?.action === 'saved') {
+        this.refresh.emit();
+        setTimeout(() => this.refresh.emit(), 500);
+      }
+    }).catch(() => {});
+  }
+
+  closeApplyModal(): void {
+    this.showApplyModal = false;
+  }
+
+  prepareApplyTemplate(): void {
+    this.selectedTemplateId = null;
+    this.selectedTemplateMeta = null;
+    this.templatePreview = [];
+    if (!this.templates || this.templates.length === 0) {
+      this.loadTemplates();
+    }
+  }
+
+  onTemplatePick(id: string | null): void {
+    this.templatePreview = [];
+    this.selectedTemplateMeta = (this.templates || []).find((t: any) => t.identificador === id) || null;
+    if (!id) return;
+    // Load template task details to show preview
+    this.templateTaskdetailService.listTemplateTaskDetails(id).subscribe({
+      next: (rows) => {
+        this.templatePreview = Array.isArray(rows) ? rows.map((r: any) => ({
+          nombre: r.nombre || r.titulo || r.taskNombre || '-',
+          descripcion: r.descripcion || r.detalle || '',
+          estado: (r.estado || r.status || '').toString().toUpperCase(),
+          prioridad: r.prioridad || r.priority || undefined,
+          fechaVencimiento: r.fechaVencimiento || r.dueDate || undefined,
+        })) : [];
+      },
+      error: () => { this.error = 'Error loading template preview'; }
+    });
+  }
+
+  confirmApplyTemplate(): void {
+    if (!this.selectedTemplateId || !this.list?.identificador) return;
+    this.loading = true;
+    this.error = undefined;
+    this.listService
+      .applyTemplateToList(this.list.identificador, this.selectedTemplateId)
+      .pipe(finalize(() => { this.loading = false; }))
+      .subscribe({
+        next: (textMsg: string) => {
+          this.info = textMsg || 'Template applied';
+          this.refresh.emit();
+          setTimeout(() => this.refresh.emit(), 500);
+          setTimeout(() => { this.info = undefined; }, 4000);
+          this.closeApplyModal();
+        },
+        error: (err: any) => {
+          console.error('Error applying template', err);
+          this.error = 'Failed to apply template to the list';
+          setTimeout(() => { this.error = undefined; }, 4000);
+        }
+      });
+  }
+
+  // Modal helpers for Save As Template
+  openSaveModal(): void {
+    // Same modal, different tab
+    const ref = this.modalService.open(ModalTemplateTaskComponent, { size: 'xl', scrollable: true, backdrop: 'static' });
+    const cmp = (ref.componentInstance as ModalTemplateTaskComponent);
+    cmp.list = this.list;
+    cmp.templates = this.templates;
+    cmp.grouped = this.grouped;
+    cmp.mode = 'save';
+    ref.result.then((res) => {
+      if (res?.action === 'saved') {
+        this.refresh.emit();
+        setTimeout(() => this.refresh.emit(), 500);
+      }
+    }).catch(() => {});
+  }
+
+  closeSaveModal(): void {
+    this.showSaveModal = false;
+  }
+
+  prepareSaveTemplate(): void {
+    this.newTemplate = { nombre: '', descripcion: '' };
+    this.newTemplateOptions = { includeAssignments: false, includeDates: false };
+    this.buildCurrentTasksFlat();
+    this.selectedForTemplate = {};
+    for (const t of this.currentTasksFlat) {
+      if (t?.identificador) this.selectedForTemplate[t.identificador] = true;
+    }
+  }
+
+  toggleSelectAllCurrent(value: boolean): void {
+    for (const t of this.currentTasksFlat) {
+      if (t?.identificador) this.selectedForTemplate[t.identificador] = value;
+    }
+  }
+
+  selectedCountForTemplate(): number {
+    return Object.values(this.selectedForTemplate || {}).filter(Boolean).length;
+  }
+
+  confirmSaveTemplate(): void {
+    const picked = (this.currentTasksFlat || []).filter((t: any) => this.selectedForTemplate?.[t?.identificador]);
+    if (!this.newTemplate?.nombre || picked.length === 0) return;
+
+    // First, create the template header
+    this.loading = true;
+    const header = { nombre: this.newTemplate.nombre, estado: 'ACTIVE' };
+    this.templateTaskService.createTemplateTask(header)
+      .pipe(finalize(() => { this.loading = false; }))
+      .subscribe({
+        next: (created) => {
+          const templateId = created?.identificador || created?.id || created?._id;
+          this.info = 'Template created';
+          // Optionally, create details for each picked task
+          // NOTE: Adjust payload shape to your backend expectations
+          if (templateId) {
+            picked.forEach((t: any) => {
+              const detailPayload: any = {
+                templateTareaIdentificador: templateId,
+                nombre: t.nombre,
+                descripcion: t.descripcion,
+                estado: t.estado,
+                prioridad: t.prioridad,
+                fechaVencimiento: this.newTemplateOptions.includeDates ? t.fechaVencimiento : undefined,
+                asignadoA: this.newTemplateOptions.includeAssignments ? (t.asignadoA || t.responsableIdentificador) : undefined,
+              };
+              this.templateTaskdetailService.createTemplateTaskDetail(detailPayload).subscribe({
+                error: (e) => console.warn('Failed to create template detail for task', t?.identificador, e)
+              });
+            });
+          }
+          setTimeout(() => { this.info = undefined; }, 4000);
+          this.closeSaveModal();
+        },
+        error: () => {
+          this.error = 'Failed to create template';
+          setTimeout(() => { this.error = undefined; }, 4000);
+        }
+      });
+  }
+
+  private buildCurrentTasksFlat(): void {
+    const all: any[] = [];
+    const entries = Object.entries(this.grouped || {});
+    for (const [, arr] of entries) {
+      for (const t of (arr || [])) all.push(t);
+    }
+    this.currentTasksFlat = all;
+  }
+
+  private mapTaskToTemplateTask(t: any, opts: { includeAssignments: boolean; includeDates: boolean }): any {
+    return {
+      nombre: t?.nombre,
+      descripcion: t?.descripcion,
+      estado: t?.estado,
+      prioridad: t?.prioridad,
+      fechaVencimiento: opts.includeDates ? t?.fechaVencimiento : undefined,
+      asignadoA: opts.includeAssignments ? (t?.asignadoA || t?.responsableIdentificador) : undefined,
+    };
+  }
+
   toggleTemplateSelector(): void {
     this.showTemplateSelector = !this.showTemplateSelector;
     if (this.showTemplateSelector && this.templates.length === 0) {
       this.loadTemplates();
     }
+  }
+
+  // Open task details modal
+  openTaskModalById(taskId: string): void {
+    this.buildCurrentTasksFlat();
+    const idx = this.currentTasksFlat.findIndex(t => t.identificador === taskId);
+    if (idx >= 0) {
+      this.selectedTaskIndex = idx;
+      this.showTaskModal = true;
+    }
+  }
+
+  closeTaskModal(): void {
+    this.showTaskModal = false;
+  }
+
+  onModalTaskUpdate(updated: Task) {
+    // Optional: save immediately or mark dirty; here we optimistically update
+    const idx = this.currentTasksFlat.findIndex(t => t.identificador === updated.identificador);
+    if (idx >= 0) {
+      this.currentTasksFlat[idx] = updated as any;
+    }
+    // Optionally call saveEdit(updated) or a service to persist
   }
 
   selectTemplate(templateId: string): void {

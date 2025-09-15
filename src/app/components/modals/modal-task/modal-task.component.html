@@ -1,1 +1,78 @@
-<p>modal-task works!</p>
+<div class="wt-modal" [class.show]="show" [style.display]="show ? 'block' : 'none'" (click)="onBackdropClick($event)">
+	<div class="wt-modal-dialog" role="dialog" aria-modal="true">
+		<div class="wt-modal-content" (click)="$event.stopPropagation()">
+			<div class="wt-modal-header">
+				<div class="left">
+					<button class="btn-nav" [disabled]="!hasPrev" (click)="prev()" aria-label="Previous task">
+						<i class="bi bi-chevron-left"></i>
+					</button>
+					<button class="btn-nav" [disabled]="!hasNext" (click)="next()" aria-label="Next task">
+						<i class="bi bi-chevron-right"></i>
+					</button>
+				</div>
+				<div class="title" *ngIf="task as t">{{ t.nombre || 'Untitled task' }}</div>
+				<div class="right">
+					<button class="btn-close" (click)="close.emit()" aria-label="Close"></button>
+				</div>
+			</div>
+
+			<div class="wt-modal-body">
+				<div class="pane left" *ngIf="task as t">
+					<div class="form-group">
+						<label>Name</label>
+						<input class="form-control" [value]="t.nombre || ''" (input)="onFieldChange('nombre', $any($event.target).value)" />
+					</div>
+					<div class="form-group">
+						<label>Description</label>
+						<textarea class="form-control" rows="4" [value]="t.descripcion || ''" (input)="onFieldChange('descripcion', $any($event.target).value)"></textarea>
+					</div>
+					<div class="row g-2">
+						<div class="col">
+							<label>Status</label>
+							<select class="form-select" [value]="t.estado" (change)="onFieldChange('estado', $any($event.target).value)">
+								<option *ngFor="let s of statuses" [value]="s.key">{{ s.label }}</option>
+							</select>
+						</div>
+						<div class="col">
+							<label>Priority</label>
+							<select class="form-select" [value]="t.prioridad || ''" (change)="onFieldChange('prioridad', $any($event.target).value)">
+								<option value="">None</option>
+								<option>Low</option>
+								<option>Medium</option>
+								<option>High</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="row g-2 mt-2">
+						<div class="col">
+							<label>Start</label>
+							<input class="form-control" type="date" [value]="t.fechaInicio || ''" (input)="onFieldChange('fechaInicio', $any($event.target).value)" />
+						</div>
+						<div class="col">
+							<label>Due</label>
+							<input class="form-control" type="date" [value]="t.fechaVencimiento || ''" (input)="onFieldChange('fechaVencimiento', $any($event.target).value)" />
+						</div>
+					</div>
+
+					<div class="form-group mt-2">
+						<label>Comments</label>
+						<textarea class="form-control" rows="3" placeholder="Add a comment..."></textarea>
+					</div>
+				</div>
+
+				<div class="pane right">
+					<div class="activity-header">Activity</div>
+					<div class="activity-list">
+						<div class="empty" *ngIf="!task">No task selected</div>
+						<div class="empty" *ngIf="task">No activity yet</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="wt-modal-footer">
+				<button class="btn btn-secondary" (click)="close.emit()">Close</button>
+			</div>
+		</div>
+	</div>
+</div>

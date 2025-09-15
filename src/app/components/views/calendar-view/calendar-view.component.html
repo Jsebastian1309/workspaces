@@ -1,14 +1,20 @@
 <div class="calendar-toolbar d-flex align-items-center gap-2 mb-2">
-	<button class="btn btn-primary" (click)="prev()">Prev</button>
-	<button class="btn btn-primary" (click)="today()">Today</button>
-	<button class="btn btn-primary" (click)="next()">Next</button>
 
-	<div class="ms-auto btn-group btn-group-sm">
-		<button class="btn btn-primary" [class.active]="view === CalendarView.Month" (click)="setView(CalendarView.Month)">Month</button>
-		<button class="btn btn-primary" [class.active]="view === CalendarView.Week" (click)="setView(CalendarView.Week)">Week</button>
-		<button class="btn btn-primary" [class.active]="view === CalendarView.Day" (click)="setView(CalendarView.Day)">Day</button>
-	</div>
+  <button class="btn btn-primary" (click)="prev()">Prev</button>
+  <button class="btn btn-primary" (click)="today()">Today</button>
+  <button class="btn btn-primary" (click)="next()">Next</button>
+
+  <div class="flex-grow-1 text-center fw-semibold">
+    {{ currentTitle }}
+  </div>
+
+  <div class="btn-group btn-group-sm">
+    <button class="btn btn-primary" [class.active]="view === CalendarView.Month" (click)="setView(CalendarView.Month)">Month</button>
+    <button class="btn btn-primary" [class.active]="view === CalendarView.Week" (click)="setView(CalendarView.Week)">Week</button>
+    <button class="btn btn-primary" [class.active]="view === CalendarView.Day" (click)="setView(CalendarView.Day)">Day</button>
+  </div>
 </div>
+
 
 <mwl-calendar-month-view
 	*ngIf="view === CalendarView.Month"

@@ -182,6 +182,7 @@
       </div>
     </div>
   </div>
+  <hr>
 
   <!-- Contenido de las vistas -->
   <div class="view-content">
@@ -199,22 +200,18 @@
     </app-list-view>
 
     <!-- Vista de Board (placeholder por ahora) -->
-    <div *ngIf="currentView === 'board'" class="view-placeholder">
-      <div class="placeholder-content">
-        <span class="placeholder-icon">�</span>
-        <h3>Vista Board</h3>
-        <p>Esta vista estará disponible próximamente</p>
-      </div>
+    <div *ngIf="currentView === 'board'">
+      <app-board-view [tasks]="tasks" [statuses]="statuses" [teams]="teams" (refresh)="fetchTasks()"></app-board-view>
     </div>
 
     <!-- Vista de Gantt -->
     <div *ngIf="currentView === 'gantt'">
-      <app-gant-view [tasks]="tasks"></app-gant-view>
+      <app-gant-view [tasks]="tasks" [statuses]="statuses"></app-gant-view>
     </div>
 
     <!-- Vista de Calendario -->
     <div *ngIf="currentView === 'calendar'">
-      <app-calendar-view [tasks]="tasks"></app-calendar-view>
+      <app-calendar-view [tasks]="tasks" [statuses]="statuses"></app-calendar-view>
     </div>
     <div *ngIf="currentView === 'gantt'" class="view-placeholder">
       <div class="placeholder-content">

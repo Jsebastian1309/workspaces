@@ -1,5 +1,5 @@
-<div class="container mt-4">
-  <h2 class="mb-4" translate>Task Templates</h2>
+<div class="container justify-content-center mt-4">
+  <h3 translate class="text-center">Task Templates</h3>
 
   <div *ngIf="loading" class="d-flex justify-content-center">
     <div class="spinner-border text-primary" role="status">
@@ -7,39 +7,21 @@
     </div>
   </div>
 
-  <button translate class="btn btn-primary mb-3" (click)="toggleCreateForm()">
-    <i class="bi bi-plus-lg"></i> Create New Template
-  </button>
-
-
-  <div *ngIf="showCreateForm" class="card mb-4">
-    <div class="card-body">
-      <h5 translate class="card-title">New Template</h5>
-      <form (ngSubmit)="createTemplate()">
-        <div class="mb-3">
-          <label for="newNombre" class="form-label" translate>Name</label>
-          <input type="text" class="form-control" id="newNombre"
-            [(ngModel)]="newTemplate.nombre" name="nombre" required>
-        </div>
-        <div class="mb-3">
-          <label for="newEstado" class="form-label" translate>Status</label>
-          <select class="form-select" id="newEstado"
-            [(ngModel)]="newTemplate.estado" name="estado">
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-success">Create</button>
-        <button type="button" class="btn btn-secondary ms-2"
-          (click)="toggleCreateForm()">Cancel</button>
-      </form>
+  <div class="row">
+    <div class="col-8">
+      <h4 translate>Select a Template</h4>
     </div>
-  </div>
+    <div class="col-8">
+      <button translate class="btn btn-primary mb-3" (click)="toggleCreateForm()">
+        <i class="bi bi-plus-lg"></i> Create Tasks Template
+      </button>
+    </div>
+    <hr>
+
+
+  <!-- Create handled by modal wizard; inline form removed -->
 
   <div class="row">
-    <div class="col-12">
-      <h3>Select a Template</h3>
-    </div>
     <div *ngFor="let template of templates" class="col-md-4 mb-3">
       <div class="card h-100">
         <div class="card-body">
@@ -67,13 +49,15 @@
           <!-- View Mode -->
           <ng-template #viewMode>
             <h5 class="card-title">{{ template.nombre }}</h5>
-            <p class="card-text">Status: {{ template.estado }}</p>
-            <button class="btn btn-info btn-sm me-2"
-              (click)="selectTemplate(template)">View Details</button>
-            <button class="btn btn-warning btn-sm me-2"
-              (click)="startEdit(template)">Edit</button>
-            <button class="btn btn-danger btn-sm"
-              (click)="deleteTemplate(template)">Delete</button>
+            <button class="btn btn-info btn-sm me-2" (click)="selectTemplate(template)" title="View Details">
+              <i class="bi bi-card-list"></i>
+            </button>
+            <button class="btn btn-warning btn-sm me-2" (click)="startEdit(template)" title="Edit">
+              <i class="bi bi-pencil-fill"></i>
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="deleteTemplate(template)" title="Delete">
+              <i class="bi bi-trash3-fill"></i>
+            </button>
           </ng-template>
         </div>
       </div>

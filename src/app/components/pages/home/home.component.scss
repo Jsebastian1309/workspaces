@@ -15,3 +15,7 @@
     background-color: var(--background-color);
   }
 }
+
+.content.sidebar-collapsed {
+  app-sidebar { width: 64px; }
+}

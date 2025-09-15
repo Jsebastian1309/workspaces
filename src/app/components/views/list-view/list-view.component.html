@@ -1,22 +1,29 @@
 <div class="list-view" *ngIf="list; else empty">
-  <!-- Header con información de la lista -->
-  <div class="header">
-    <div class="list-info">
-      <h2 class="title">{{ list.nombre }}</h2>
-      <p class="desc" *ngIf="list.descripcion">{{ list.descripcion }}</p>
-      <!-- Template Button -->
-      <button class="btn btn-secondary btn-sm ms-3" (click)="toggleTemplateSelector()">
-        <i class="bi bi-file-earmark-plus"></i> Apply Template
-      </button>
-      <!-- Template Selector -->
-      <div *ngIf="showTemplateSelector" class="mt-2">
-        <select #templateSelect class="form-select" (change)="selectTemplate(templateSelect.value)">
-          <option value="">Select a Template</option>
-          <option *ngFor="let template of templates" [value]="template.identificador">{{ template.nombre }}</option>
-        </select>
+  <!-- Header with list info + actions on the right -->
+  <div class="header d-flex justify-content-between align-items-start">
+    <div class="list-info flex-grow-1">
+      <h2 class="title mb-1">{{ list.nombre }}</h2>
+      <p class="desc mb-0" *ngIf="list.descripcion">{{ list.descripcion }}</p>
+    </div>
+
+    <!-- Actions on the right -->
+    <div class="actions ms-3">
+      <div class="btn-group">
+        <button
+          class="btn btn-outline-secondary btn-sm"
+          (click)="openApplyModal()">
+          <i class="bi bi-file-earmark-plus"></i> Apply template
+        </button>
+        <button
+          class="btn btn-primary btn-sm"
+          (click)="openSaveModal()">
+          <i class="bi bi-save"></i> Save as template
+        </button>
       </div>
     </div>
   </div>
+
+  
 
   <!-- Estados de carga y error -->
   <div class="status-message">
@@ -137,7 +144,11 @@
                 </tr>
                 <tr *ngFor="let task of grouped[status.key]">
                   <ng-container *ngIf="!editing[task.identificador]; else editRow">
-                    <td>{{ task.nombre }}</td>
+                    <td>
+                      <button class="btn btn-link p-0" (click)="openTaskModalById(task.identificador)" title="Open details">
+                        {{ task.nombre }}
+                      </button>
+                    </td>
                     <td>{{ task.descripcion }}</td>
                     <td>
                       {{ getStatusLabel(task.estado) }}
@@ -233,3 +244,13 @@
     <p>Select a list to view details</p>
   </div>
 </ng-template>
+
+<!-- Task details modal -->
+<app-modal-task
+  [show]="showTaskModal"
+  [tasks]="currentTasksFlat"
+  [selectedIndex]="selectedTaskIndex"
+  [statuses]="statuses"
+  (close)="closeTaskModal()"
+  (updateTask)="onModalTaskUpdate($event)">
+</app-modal-task>

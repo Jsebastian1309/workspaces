@@ -1,0 +1,97 @@
+<div class="modal-header">
+	<h5 class="modal-title">Nuevo Template de Tareas</h5>
+	<button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
+  
+</div>
+
+<div class="modal-body">
+	<div *ngIf="error" class="alert alert-danger py-2">{{ error }}</div>
+
+	<form [formGroup]="form">
+		<ng-container [ngSwitch]="step">
+			<!-- Step 1: Template info -->
+			<div *ngSwitchCase="1">
+				<div class="mb-3">
+					<label class="form-label">Nombre</label>
+					<input type="text" class="form-control" formControlName="nombre" placeholder="Nombre del template" />
+					<div class="text-danger small" *ngIf="form.get('nombre')?.touched && form.get('nombre')?.invalid">
+						Ingrese un nombre válido
+					</div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Estado</label>
+					<select class="form-select" formControlName="estado">
+						<option value="ACTIVE">Activo</option>
+						<option value="INACTIVE">Inactivo</option>
+					</select>
+				</div>
+			</div>
+
+			<!-- Step 2: Details -->
+			<div *ngSwitchCase="2">
+				<div class="d-flex justify-content-between align-items-center mb-2">
+					<h6 class="m-0">Detalles</h6>
+					<button type="button" class="btn btn-sm btn-outline-primary" (click)="addDetalle()">
+						<i class="bi bi-plus-lg"></i> Agregar detalle
+					</button>
+				</div>
+
+				<div formArrayName="detalles">
+					<div class="card mb-2" *ngFor="let d of detalles.controls; let i = index" [formGroupName]="i">
+						<div class="card-body row g-2 align-items-end">
+							<div class="col-md-4">
+								<label class="form-label">Nombre</label>
+								<input type="text" class="form-control" formControlName="nombre" />
+							</div>
+							<div class="col-md-2">
+								<label class="form-label">Etiqueta</label>
+								<input type="text" class="form-control" formControlName="etiqueta" />
+							</div>
+							<div class="col-md-2">
+								<label class="form-label">Prioridad</label>
+								<select class="form-select" formControlName="prioridad">
+									<option value="LOW">Baja</option>
+									<option value="MEDIUM">Media</option>
+									<option value="HIGH">Alta</option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label class="form-label">Estado</label>
+								<select class="form-select" formControlName="estado">
+									<option value="OPEN">Abierta</option>
+									<option value="PENDING">Pendiente</option>
+									<option value="BLOCKED">Bloqueada</option>
+									<option value="DONE">Completada</option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label class="form-label">Duración (h)</label>
+								<input type="number" class="form-control" formControlName="duracionHoras" min="0" step="1" />
+							</div>
+							<div class="col-12">
+								<label class="form-label">Descripción</label>
+								<textarea class="form-control" rows="2" formControlName="descripcion"></textarea>
+							</div>
+							<div class="col-12 d-flex justify-content-end">
+								<button type="button" class="btn btn-outline-danger btn-sm" (click)="removeDetalle(i)" [disabled]="detalles.length <= 1">
+									<i class="bi bi-trash"></i> Eliminar
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</ng-container>
+	</form>
+</div>
+
+<div class="modal-footer">
+	<button type="button" class="btn btn-outline-secondary" (click)="close()" [disabled]="saving">Cancelar</button>
+	<button *ngIf="step === 1" type="button" class="btn btn-primary" (click)="next()" [disabled]="saving">Siguiente</button>
+	<div *ngIf="step === 2" class="d-flex gap-2">
+		<button type="button" class="btn btn-outline-primary" (click)="back()" [disabled]="saving">Atrás</button>
+		<button type="button" class="btn btn-success" (click)="finish()" [disabled]="saving">
+			{{ saving ? 'Guardando...' : 'Finalizar' }}
+		</button>
+	</div>
+</div>

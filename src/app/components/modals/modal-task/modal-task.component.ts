@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Task } from 'src/app/models/task.model';
 
 @Component({
   selector: 'app-modal-task',
@@ -6,5 +7,38 @@ import { Component } from '@angular/core';
   styleUrls: ['./modal-task.component.scss']
 })
 export class ModalTaskComponent {
+  @Input() show = false;
+  @Input() tasks: Task[] = [];
+  @Input() selectedIndex = 0;
+  @Input() statuses: { key: string; label: string; color: string }[] = [];
 
+  @Output() close = new EventEmitter<void>();
+  @Output() updateTask = new EventEmitter<Task>();
+
+  get hasPrev(): boolean { return this.selectedIndex > 0; }
+  get hasNext(): boolean { return this.selectedIndex < (this.tasks.length - 1); }
+  get task(): Task | null { return this.tasks[this.selectedIndex] ?? null; }
+
+  trackById(_i: number, t: Task) { return t.identificador; }
+
+  onBackdropClick(e: MouseEvent) {
+    // Only close if backdrop is clicked, not the modal content
+    if ((e.target as HTMLElement)?.classList.contains('wt-modal')) {
+      this.close.emit();
+    }
+  }
+
+  prev() {
+    if (this.hasPrev) this.selectedIndex -= 1;
+  }
+  next() {
+    if (this.hasNext) this.selectedIndex += 1;
+  }
+
+  onFieldChange<K extends keyof Task>(key: K, value: Task[K]) {
+    if (!this.task) return;
+    const updated: Task = { ...(this.task as any), [key]: value } as Task;
+    this.tasks[this.selectedIndex] = updated;
+    this.updateTask.emit(updated);
+  }
 }

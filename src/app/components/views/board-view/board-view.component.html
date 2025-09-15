@@ -1,0 +1,31 @@
+<div class="board-container">
+	<div class="board" *ngIf="listIds?.length; else empty">
+			<div class="column" *ngFor="let key of listIds" [style.--hdr]="getStatusColor(key)">
+				<div class="column-header" [style.background]="getStatusColor(key)">
+				<span class="dot" [style.background]="getStatusColor(key)"></span>
+					<span class="title">{{ getStatusLabel(key) }}</span>
+			<span class="count">{{ grouped[key].length || 0 }}</span>
+							<button type="button" class="btn-toggle" (click)="toggleColumn(key)" [attr.aria-expanded]="!isCollapsed(key)">
+								<span class="chev">{{ isCollapsed(key) ? '▼' : '▲' }}</span>
+							</button>
+			</div>
+
+				<div *ngIf="!isCollapsed(key)"
+						 cdkDropList [cdkDropListData]="grouped[key]" class="list"
+						 (cdkDropListDropped)="drop($event, key)">
+					<div class="card" *ngFor="let t of grouped[key]" cdkDrag>
+					<div class="card-title">{{ t.nombre }}</div>
+					<div class="card-meta">
+						<span class="badge" [style.background]="getStatusColor(key)">{{ getStatusLabel(key) }}</span>
+						<span class="assignee" *ngIf="assigneeLabel(t.asignadoA)">{{ assigneeLabel(t.asignadoA) }}</span>
+					</div>
+					<div class="card-footer" *ngIf="t.fechaVencimiento">Due: {{ t.fechaVencimiento | date:'yyyy-MM-dd' }}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<ng-template #empty>
+		<div class="empty">No tasks to display</div>
+	</ng-template>
+</div>

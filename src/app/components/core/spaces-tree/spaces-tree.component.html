@@ -1,5 +1,5 @@
 <div class="spaces-tree-container">
-  <div class="tree-header">
+  <div class="tree-header" *ngIf="!compact">
     <div class="d-flex justify-content-between align-items-center">
       <span translate>Spaces</span>
       <button mat-icon-button class="btn" (click)="openCreateSpaceModal()"
@@ -14,9 +14,22 @@
   </div>
 
   <ng-container *ngIf="SelectedWorkspace && !isLoading">
+    <!-- Compact: icon-only spaces -->
+    <div class="simple-list compact" *ngIf="compact; else fullTree">
+      <div class="row-item icon-only" *ngFor="let space of dataSource.data; trackBy: trackBySpace"
+           (click)="onNodeClick(space)" [attr.title]="space.nombre">
+        <div class="space-avatar" [style.background-color]="space.color">
+          <i *ngIf="isBootstrapIcon(space.icono)" class="bi" [ngClass]="space.icono" aria-hidden="true"></i>
+          <span *ngIf="!isBootstrapIcon(space.icono)">{{ space.icono }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full tree when not compact -->
+    <ng-template #fullTree>
     <div class="simple-list">
       <ng-container *ngFor="let space of dataSource.data; trackBy: trackBySpace">
-        <div class="row-item" [class.is-selected]="selectedKey === getKey(space)" (click)="onNodeClick(space)">
+        <div class="row-item" [class.is-selected]="selectedKey === getKey(space)" (click)="onNodeClick(space)" [attr.title]="compact ? space.nombre : null">
           <div class="left">
             <button class="btn" 
               (click)=" toggleSpace(space)"
@@ -27,13 +40,13 @@
               <i *ngIf="isBootstrapIcon(space.icono)" class="bi" [ngClass]="space.icono" aria-hidden="true"></i>
               <span *ngIf="!isBootstrapIcon(space.icono)">{{ space.icono }}</span>
             </div>
-            <span class="label">{{ space.nombre }}</span>
+            <span class="label" *ngIf="!compact">{{ space.nombre }}</span>
           </div>
           <div class="right" (click)="$event.stopPropagation()">
-            <button class="btn" (click)="onAddFolder(space)" title="Add folder">
+            <button class="btn" (click)="onAddFolder(space)" title="Add folder" *ngIf="!compact">
               <i class="bi bi-plus-lg"></i>
             </button>
-            <div ngbDropdown class="overflow-dropdown" display="dynamic">
+            <div ngbDropdown class="overflow-dropdown" display="dynamic" *ngIf="!compact">
               <button  class="btn" ngbDropdownToggle title="More options">
                 <i class="bi bi-three-dots"></i>
               </button>
@@ -46,7 +59,7 @@
         </div>
 
         <!-- Folders under space -->
-        <div *ngIf="isExpanded(space)" class="folders">
+  <div *ngIf="isExpanded(space) && !compact" class="folders">
           <ng-container *ngFor="let folder of space.folders; trackBy: trackByFolder">
             <div class="row-item folder" [class.is-selected]="selectedKey === getKey(folder)" (click)="onNodeClick(folder)">
               <div class="left">
@@ -84,7 +97,7 @@
                     <i class="bi bi-list-ul"></i>
                     <span class="label">{{ list.nombre }}</span>
                   </div>
-                                <div class="right" (click)="$event.stopPropagation()">
+                                    <div class="right" (click)="$event.stopPropagation()">
                 <button class="btn" (click)="onAddList(folder)" title="Add list">
                   <i class="bi bi-plus-lg"></i>
                 </button>
@@ -113,7 +126,8 @@
           <span class="label" translate>Create Space</span>
         </div>
       </div>
-    </div>
+  </div>
+  </ng-template>
 
     <div class="empty-spaces" *ngIf="dataSource.data.length === 0">
       <mat-icon class="empty-icon">folder_open</mat-icon>

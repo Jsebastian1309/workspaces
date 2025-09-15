@@ -56,6 +56,9 @@ import { es } from 'date-fns/locale';
 import { WizardStatesComponent } from './components/Wizard/wizard-states/wizard-states.component';
 import { WizardTaskComponent } from './components/Wizard/wizard-task/wizard-task.component';
 import { ModalInfopersonComponent } from './components/modals/modal-infoperson/modal-infoperson.component';
+import { ModalTemplateTaskComponent } from './components/modals/modal-template-task/modal-template-task.component';
+import { BoardViewComponent } from './components/views/board-view/board-view.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 
 @NgModule({
@@ -91,7 +94,9 @@ import { ModalInfopersonComponent } from './components/modals/modal-infoperson/m
     ModalTaskComponent,
     WizardStatesComponent,
     WizardTaskComponent,
-    ModalInfopersonComponent
+    ModalInfopersonComponent,
+    ModalTemplateTaskComponent,
+    BoardViewComponent
   ],
   imports: [
     BrowserModule,
@@ -112,6 +117,7 @@ import { ModalInfopersonComponent } from './components/modals/modal-infoperson/m
     NgbDropdownModule,
   CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
   NgxGanttModule,
+  DragDropModule,
   ],
   providers: [I18nService,
     {

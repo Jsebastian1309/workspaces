@@ -1,20 +1,55 @@
-<div class="gantt-wrapper" style="height: 420px;">
-	<ngx-gantt [items]="items"
+<div class="gantt-wrapper" style="height: 480px;">
+  <div class="btn-group mb-2">
+    <button *ngFor="let view of viewTypes"
+            type="button"
+            (click)="changeView(view.value)"
+            [disabled]="currentViewType === view.value"
+            class="btn"
+            [ngClass]="currentViewType === view.value ? 'btn-primary' : 'btn-outline-primary'">
+      {{ view.label }}
+    </button>
+  </div>
+	<div *ngIf="!items?.length" class="d-flex h-100 align-items-center justify-content-center text-muted">
+		No tasks with dates to display
+	</div>
+	<ngx-gantt *ngIf="items?.length"
+						 [items]="items"
 						 [groups]="groups"
 						 [start]="start"
 						 [end]="end"
+						 [viewType]="currentViewType"
 						 (barClick)="onBarClick($event)">
 		<ngx-gantt-table>
-					<ngx-gantt-column name="Task" width="260">
-						<ng-template #cell let-item>
-							{{ item.title }}
-						</ng-template>
-					</ngx-gantt-column>
-					<ngx-gantt-column name="Estado" width="140">
-						<ng-template #cell let-item>
-							{{ item.group_id }}
-						</ng-template>
-					</ngx-gantt-column>
-		</ngx-gantt-table>
+			<ngx-gantt-column name="Task" width="300">
+				<ng-template #cell let-item>
+					{{ item.title }}
+				</ng-template>
+			</ngx-gantt-column>
+
+			<ngx-gantt-column name="Estado" width="160">
+				<ng-template #cell let-item>
+					<span class="me-2 align-middle" [style.background]="getStatusColor(item.group_id)" style="display:inline-block;width:10px;height:10px;border-radius:50%"></span>
+					<span>{{ getStatusLabel(item.group_id) }}</span>
+				</ng-template>
+			</ngx-gantt-column>
+
+			<ngx-gantt-column name="Start" width="120">
+				<ng-template #cell let-item>
+					{{ toMs(item.start) | date:'yyyy-MM-dd' }}
+				</ng-template>
+			</ngx-gantt-column>
+
+			<ngx-gantt-column name="End" width="120">
+				<ng-template #cell let-item>
+					{{ toMs(item.end) | date:'yyyy-MM-dd' }}
+				</ng-template>
+			</ngx-gantt-column>
+
+			<ngx-gantt-column name="Assigned" width="180">
+				<ng-template #cell let-item>
+					{{ getAssignee(item.id) }}
+				</ng-template>
+			</ngx-gantt-column>
+			</ngx-gantt-table>
 	</ngx-gantt>
 </div>

@@ -1,3 +1,11 @@
+/* Compact tables inside modals */
+.modal .table {
+    font-size: 0.9rem;
+}
+.modal .table td,
+.modal .table th {
+    white-space: nowrap;
+}
 /* Horizontal scroll for wide tables */
 .table-h-scroll {
     width: 100%;

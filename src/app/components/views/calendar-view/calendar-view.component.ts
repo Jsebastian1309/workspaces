@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
 import { Task } from 'src/app/models/task.model';
-import { startOfDay, endOfDay, parseISO, isValid, addDays, addWeeks, addMonths } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, isValid, addDays, addWeeks, addMonths, startOfWeek, endOfWeek, format } from 'date-fns';
 
 @Component({
   selector: 'app-calendar-view',
@@ -10,6 +10,7 @@ import { startOfDay, endOfDay, parseISO, isValid, addDays, addWeeks, addMonths }
 })
 export class CalendarViewComponent implements OnChanges {
   @Input() tasks: Task[] = [];
+  @Input() statuses: { key: string; label: string; color: string }[] = [];
   // Permite configurar los campos de fechas si tu backend usa nombres distintos
   @Input() dateFieldMap: { start?: string[]; end?: string[]; due?: string[] } = {
     start: ['fechaInicio', 'inicio', 'start'],
@@ -95,21 +96,98 @@ export class CalendarViewComponent implements OnChanges {
           start,
           end,
           allDay,
-          color: this.colorByStatus(t.estado),
+          color: this.colorFromStatus((t as any)?.estado),
           meta: t,
         } as CalendarEvent;
       })
       .filter((e): e is CalendarEvent => !!e);
   }
 
-  private colorByStatus(status?: string) {
+  // Build color from provided statuses; fallback to default mapping
+  private colorFromStatus(status?: string) {
+    const s = this.findStatus(status);
+    if (s?.color) {
+      const primary = this.normalizeHex(s.color) || s.color;
+      const secondary = this.lightenHex(primary, 0.75);
+      return { primary, secondary };
+    }
+    return this.colorByStatusFallback(status);
+  }
+
+  private findStatus(status?: string) {
+    if (!status) return undefined;
+    const norm = String(status).toLowerCase();
+    return (this.statuses || []).find(
+      s => String(s.key || '').toLowerCase() === norm || String(s.label || '').toLowerCase() === norm
+    );
+  }
+
+  private colorByStatusFallback(status?: string) {
     const map: any = {
       DONE: { primary: '#2e7d32', secondary: '#c8e6c9' },
       OPEN: { primary: '#1976d2', secondary: '#bbdefb' },
       PENDING: { primary: '#f9a825', secondary: '#fff59d' },
       BLOCKED: { primary: '#c62828', secondary: '#ffcdd2' }
     };
-    return map[status || 'OPEN'] || map['OPEN'];
+    return map[(status || 'OPEN').toUpperCase()] || map['OPEN'];
+  }
+
+  // Normalize inputs like '3498db', '#3498DB', 'rgb(52,152,219)' to #RRGGBB (best effort)
+  private normalizeHex(value: any): string | undefined {
+    if (!value || typeof value !== 'string') return undefined;
+    let v = value.trim();
+    // rgb(a) -> hex (simple, ignore alpha)
+    const rgb = v.match(/^rgba?\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
+    if (rgb) {
+      const r = Math.max(0, Math.min(255, parseInt(rgb[1], 10)));
+      const g = Math.max(0, Math.min(255, parseInt(rgb[2], 10)));
+      const b = Math.max(0, Math.min(255, parseInt(rgb[3], 10)));
+      return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+    // Hex short or long
+    if (v.startsWith('#')) v = v.slice(1);
+    if (/^[0-9a-fA-F]{3}$/.test(v)) {
+      const r = v[0] + v[0];
+      const g = v[1] + v[1];
+      const b = v[2] + v[2];
+      return '#' + (r + g + b).toLowerCase();
+    }
+    if (/^[0-9a-fA-F]{6}$/.test(v)) {
+      return '#' + v.toLowerCase();
+    }
+    return undefined;
+  }
+
+  // Lighten color by mixing with white by a given factor (0..1)
+  private lightenHex(hex: string, factor = 0.7): string {
+    const v = this.normalizeHex(hex);
+    if (!v) return hex;
+    const r = parseInt(v.slice(1, 3), 16);
+    const g = parseInt(v.slice(3, 5), 16);
+    const b = parseInt(v.slice(5, 7), 16);
+    const mix = (c: number) => Math.round(c + (255 - c) * factor);
+    return (
+      '#' + [mix(r), mix(g), mix(b)].map(x => x.toString(16).padStart(2, '0')).join('')
+    );
+  }
+
+  // Title for current period
+  get currentTitle(): string {
+    switch (this.view) {
+      case CalendarView.Month:
+        return format(this.viewDate, 'MMMM yyyy');
+      case CalendarView.Week: {
+        const start = startOfWeek(this.viewDate, { weekStartsOn: 1 });
+        const end = endOfWeek(this.viewDate, { weekStartsOn: 1 });
+        const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+        return sameMonth
+          ? `${format(start, 'MMM d')} – ${format(end, 'd, yyyy')}`
+          : `${format(start, 'MMM d, yyyy')} – ${format(end, 'MMM d, yyyy')}`;
+      }
+      case CalendarView.Day:
+      default:
+        return format(this.viewDate, 'PPP');
+    }
   }
 
   setView(view: CalendarView) {
