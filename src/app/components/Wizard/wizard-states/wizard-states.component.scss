@@ -1,0 +1,15 @@
+.container{
+    background-color: var(--sidebar-bg);
+    color: var(--text-color);
+    border-radius: 3px;
+}
+
+.card {
+    background-color: var(--sidebar-bg);
+    color:var(--text-color)
+}
+
+.alert{
+    background-color: var(--error-bg);
+    color: var(--error-text);
+}

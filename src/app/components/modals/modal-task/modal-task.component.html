@@ -62,10 +62,37 @@
 				</div>
 
 				<div class="pane right">
-					<div class="activity-header">Activity</div>
+					<div class="activity-header">Bitácora</div>
 					<div class="activity-list">
 						<div class="empty" *ngIf="!task">No task selected</div>
-						<div class="empty" *ngIf="task">No activity yet</div>
+						<!-- Loading state -->
+						<div class="loading text-center" *ngIf="task && auditLoading">
+							<i class="bi bi-arrow-clockwise"></i>
+						</div>
+						<!-- Error state -->
+						<div class="text-danger small" *ngIf="auditError">{{ auditError }}</div>
+						<!-- Items -->
+						<ul class="list-unstyled" *ngIf="task && !auditLoading && !auditError && audit.length > 0">
+							<li *ngFor="let a of audit; trackBy: trackByAuditId">
+								<div class="item">
+									<div class="title">
+										<strong>{{ a.tipoOperacion || 'CAMBIO' }}</strong>
+										<span *ngIf="a.campoModificado"> · {{ a.campoModificado }}</span>
+									</div>
+									<div class="meta text-muted small">
+										{{ a.fechaModificacion || '' }} · {{ a.usuarioModificacion || '' }}
+									</div>
+									<div class="diff small" *ngIf="a.valorAnterior != null || a.valorNuevo != null">
+										<span class="text-muted">{{ a.valorAnterior }}</span>
+										<i class="bi bi-arrow-right mx-1"></i>
+										<span>{{ a.valorNuevo }}</span>
+									</div>
+									<div class="desc" *ngIf="a.descripcionCambio">{{ a.descripcionCambio }}</div>
+								</div>
+							</li>
+						</ul>
+						<!-- Empty state when no items -->
+						<div class="empty" *ngIf="task && !auditLoading && !auditError && audit.length === 0">No activity yet</div>
 					</div>
 				</div>
 			</div>

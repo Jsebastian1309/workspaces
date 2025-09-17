@@ -32,7 +32,7 @@ export class WizardStatesComponent {
   @Optional() public activeModal?: NgbActiveModal 
   ) {
     this.headerForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.maxLength(100)]]
+      nombre: ['', [Validators.required, Validators.maxLength(15)]]
     });
 
     this.detailsFormArray = this.fb.array([]);
@@ -50,42 +50,26 @@ export class WizardStatesComponent {
       this.headerForm.markAllAsTouched();
       return;
     }
-    this.isSubmittingHeader = true;
-    const nombre = this.headerForm.value.nombre?.trim();
-
-    this.templateStatusService.createTemplateStatus({ nombre }).subscribe({
-      next: (resp) => {
-        // Any 200 is success; use identificador from service or fallback
-        this.headerIdentificador = resp?.identificador || this.uniqueIdService.generateId(nombre);
-        this.step = 2;
-        this.isSubmittingHeader = false;
-        // Start with one empty detail row by default
-        if (this.detailsFormArray.length === 0) {
-          this.addDetail();
-        }
-      },
-      error: (err) => {
-        this.isSubmittingHeader = false;
-        this.serverMessage = { type: 'error', text: err?.error?.message || 'No se pudo crear la cabecera.' };
-      }
-    });
+    // No creamos cabecera acá. Solo pasamos al paso 2.
+    this.step = 2;
+    // Agregar una fila por defecto si no hay
+    if (this.detailsFormArray.length === 0) {
+      this.addDetail();
+    }
   }
 
   // Step 2: Manage details
   addDetail() {
-    const idx = this.detailsFormArray.length + 1;
     this.detailsFormArray.push(
       this.fb.group({
         nombre: ['', [Validators.required, Validators.maxLength(100)]],
         color: ['#3f51b5', [Validators.required]],
-  secuencia: [idx, [Validators.required, Validators.min(0)]]
       })
     );
   }
 
   removeDetail(index: number) {
     this.detailsFormArray.removeAt(index);
-    this.resequence();
   }
 
   moveDetailUp(index: number) {
@@ -93,7 +77,6 @@ export class WizardStatesComponent {
     const ctrl = this.detailsFormArray.at(index);
     this.detailsFormArray.removeAt(index);
     this.detailsFormArray.insert(index - 1, ctrl);
-    this.resequence();
   }
 
   moveDetailDown(index: number) {
@@ -101,19 +84,11 @@ export class WizardStatesComponent {
     const ctrl = this.detailsFormArray.at(index);
     this.detailsFormArray.removeAt(index);
     this.detailsFormArray.insert(index + 1, ctrl);
-    this.resequence();
-  }
-
-  private resequence() {
-    this.detailsControls.forEach((g, i) => g.get('secuencia')?.setValue(i + 1));
   }
 
   saveDetails() {
     this.serverMessage = null;
-    if (!this.headerIdentificador) {
-      this.serverMessage = { type: 'error', text: 'Falta el identificador de la cabecera.' };
-      return;
-    }
+    // Creamos cabecera aquí y luego detalles. Si falla detalles, eliminamos cabecera.
     if (this.detailsFormArray.length === 0) {
       this.serverMessage = { type: 'error', text: 'Agrega al menos un detalle.' };
       return;
@@ -125,35 +100,52 @@ export class WizardStatesComponent {
 
     this.isSubmittingDetails = true;
     const user = this.authService.getCurrentUser();
+    const nombreHeader = this.headerForm.value.nombre?.trim();
 
-    const calls = this.detailsControls.map((group) => {
-      const nombre = group.value.nombre?.trim();
-      const payload = {
-        organizacionId: user?.organizacionId,
-        clienteId: user?.clienteId,
-        templateEstadoIdentificador: this.headerIdentificador,
-        identificador: this.uniqueIdService.generateId(nombre),
-        secuencia: group.value.secuencia,
-        nombre,
-        color: group.value.color
-      };
-      return this.templateStatusDetailService.createTemplateStatusDetail(payload);
-    });
+    // 1) Crear cabecera
+    this.templateStatusService.createTemplateStatus({ nombre: nombreHeader }).subscribe({
+      next: (resp) => {
+        const headerId = resp?.identificador || this.uniqueIdService.generateId(nombreHeader);
+        this.headerIdentificador = headerId;
 
-    forkJoin(calls).subscribe({
-      next: () => {
-        this.isSubmittingDetails = false;
-        this.serverMessage = { type: 'success', text: 'Plantilla creada correctamente.' };
-  // Notify parent and reset
-  this.completed.emit();
-  this.resetWizard();
-  // Close modal if present
-  this.activeModal?.close('completed');
+        // 2) Crear detalles
+        const calls = this.detailsControls.map((group, idx) => {
+          const nombre = group.value.nombre?.trim();
+          const payload = {
+            organizacionId: user?.organizacionId,
+            clienteId: user?.clienteId,
+            templateEstadoIdentificador: headerId,
+            identificador: this.uniqueIdService.generateId(nombre),
+            secuencia: idx + 1,
+            nombre,
+            color: group.value.color
+          };
+          return this.templateStatusDetailService.createTemplateStatusDetail(payload);
+        });
+
+        forkJoin(calls).subscribe({
+          next: () => {
+            this.isSubmittingDetails = false;
+            this.serverMessage = { type: 'success', text: 'Plantilla creada correctamente.' };
+            this.completed.emit();
+            this.resetWizard();
+            this.activeModal?.close('completed');
+          },
+          error: (err) => {
+            // 3) Si falla detalles, intentamos borrar cabecera para evitar orfandad
+            console.error('Error guardando detalles', err);
+            this.templateStatusService.deleteTemplateStatus(headerId).subscribe({
+              complete: () => {
+                this.isSubmittingDetails = false;
+                this.serverMessage = { type: 'error', text: err?.error?.message || 'No se pudieron guardar los detalles.' };
+              }
+            });
+          }
+        });
       },
       error: (err) => {
         this.isSubmittingDetails = false;
-        this.serverMessage = { type: 'error', text: err?.error?.message || 'No se pudieron guardar los detalles.' };
-  console.error('Error guardando detalles', err);
+        this.serverMessage = { type: 'error', text: err?.error?.message || 'No se pudo crear la cabecera.' };
       }
     });
   }

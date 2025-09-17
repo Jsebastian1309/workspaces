@@ -114,11 +114,15 @@
 	"Details": "Detalles",
 	"Template name": "Nombre de la plantilla",
 	"Name is required.": "El nombre es obligatorio.",
+	"Maximum 15 characters allowed.": "Se permiten un máximo de 15 caracteres.",
 	"Eg: Status flow for tasks": "Ej: Flujo de estados para tareas",
-	"keep": "Guardar",
-	"Saving…": "Guardando…",
+	"Keep": "Guardar",
 	"Return": "Regresar",
+	"States": "Estados",
 	"Add State": "Agregar estado",
+	"Add New State": "Agregar nuevo estado",
+	"Charging...": "Cargando...",
+	"Save": "Guardar",
 
 
 

@@ -1,0 +1,102 @@
+<!-- Modal Header -->
+<div class="modal-header">
+	<h5 class="modal-title" translate>Template States {{ templateName }}</h5>
+	<button type="button" class="btn btn-sm close-btn ms-auto" (click)="close()"
+		aria-label="Close"><i class="bi bi-x-lg"></i></button>
+</div>
+
+<!-- Modal Body -->
+<div class="modal-body">
+	<!-- Loading state: centered icon covering body -->
+	<div *ngIf="loading" class="loading-container">
+		<i class="bi bi-arrow-clockwise loading-icon"></i>
+	</div>
+
+	<!-- Content only when not loading -->
+	<div *ngIf="!loading">
+		<div class="d-flex justify-content-between align-items-center mb-2">
+			<div class="text-danger" *ngIf="error">{{ error }}</div>
+			<button class="btn btn-primary btn-sm ms-auto" (click)="startAdd()"
+				[disabled]="adding || editingId" title="Agregar estado">Add New State<i
+					class="bi bi-plus-lg"></i>
+			</button>
+		</div>
+
+	<!-- Add New State Form -->
+	<div *ngIf="adding" class="card card-body p-3 mb-3">
+		<div class="row g-2 align-items-end">
+			<div class="col-12 col-md-5">
+				<label translate class="form-label">Name</label>
+				<input class="form-control form-control-sm" [(ngModel)]="newDetail.nombre"
+					[ngModelOptions]="{standalone: true}" />
+			</div>
+			<div class="col-6 col-md-3">
+				<label translate class="form-label">Color</label>
+				<input type="color" class="form-control form-control-color"
+					[(ngModel)]="newDetail.color" [ngModelOptions]="{standalone: true}" />
+			</div>
+			<div class="col-12 col-md-2 text-end">
+				<button class="btn btn-success btn-sm me-1"
+					(click)="saveNew()">Save</button>
+				<button class="btn btn-danger btn-sm" (click)="cancelAdd()">Cancel</button>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Template States Table -->
+	<table class="table table-hover align-middle mt-2 table-surface" cdkDropList (cdkDropListDropped)="drop($event)">
+		<thead>
+			<tr>
+				<th style="width:32px"></th>
+				<th translate>Name</th>
+				<th translate>Color</th>
+				<th translate>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let d of details; let i = index" cdkDrag>
+				<td cdkDragHandle class="text-muted"><i
+						class="bi bi-grip-vertical"></i></td>
+				<td>
+					<ng-container *ngIf="editingId === d.identificador; else nameView">
+						<input class="form-control form-control-sm"
+							[(ngModel)]="editDetail.nombre" [ngModelOptions]="{standalone: true}" />
+					</ng-container>
+					<ng-template #nameView>{{ d.nombre }}</ng-template>
+				</td>
+				<td>
+					<ng-container *ngIf="editingId === d.identificador; else colorView">
+						<input type="color" class="form-control form-control-color"
+							[(ngModel)]="editDetail.color" [ngModelOptions]="{standalone: true}" />
+					</ng-container>
+					<ng-template #colorView>
+						<span class="badge" [style.background]="d.color"
+							style="width:16px;height:16px;border-radius:4px;display:inline-block;">&nbsp;</span>
+					</ng-template>
+				</td>
+				<td class="text-nowrap">
+					<ng-container *ngIf="editingId === d.identificador; else actionsView">
+						<button class="btn btn-success btn-sm"
+							(click)="saveEdit()">Aplicar</button>
+						<button class="btn btn-secondary btn-sm ms-1"
+							(click)="cancelEdit()">Cancelar</button>
+					</ng-container>
+					<ng-template #actionsView>
+						<button class="btn btn-secondary btn-sm" (click)="startEdit(d)"
+							title="Editar"><i class="bi bi-pencil-square"></i></button>
+						<button class="btn btn-danger btn-sm ms-1" (click)="delete(d)"
+							title="Eliminar"><i class="bi bi-trash"></i></button>
+					</ng-template>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-secondary"
+		(click)="close()">Cancelar</button>
+	<button type="button" class="btn btn-primary"
+		(click)="saveAll()">Guardar</button>
+</div>

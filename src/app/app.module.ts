@@ -59,6 +59,7 @@ import { ModalInfopersonComponent } from './components/modals/modal-infoperson/m
 import { ModalTemplateTaskComponent } from './components/modals/modal-template-task/modal-template-task.component';
 import { BoardViewComponent } from './components/views/board-view/board-view.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ModalTemplateStatusDetailsComponent } from './components/modals/modal-template-status-details/modal-template-status-details.component';
 
 
 @NgModule({
@@ -96,7 +97,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     WizardTaskComponent,
     ModalInfopersonComponent,
     ModalTemplateTaskComponent,
-    BoardViewComponent
+    BoardViewComponent,
+    ModalTemplateStatusDetailsComponent
   ],
   imports: [
     BrowserModule,
