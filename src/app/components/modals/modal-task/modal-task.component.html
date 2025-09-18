@@ -16,62 +16,128 @@
 				</div>
 			</div>
 
-			<div class="wt-modal-body">
-				<div class="pane left" *ngIf="task as t">
+			<div class="wt-modal-body" *ngIf="task as t">
+				<div class="pane left">
+					<fieldset [disabled]="!canEdit" class="edit-fieldset">
 					<div class="form-group">
-						<label>Name</label>
+						<label>Nombre</label>
 						<input class="form-control" [value]="t.nombre || ''" (input)="onFieldChange('nombre', $any($event.target).value)" />
 					</div>
 					<div class="form-group">
-						<label>Description</label>
-						<textarea class="form-control" rows="4" [value]="t.descripcion || ''" (input)="onFieldChange('descripcion', $any($event.target).value)"></textarea>
+						<label>Descripción</label>
+						<textarea class="form-control" rows="3" [value]="t.descripcion || ''" (input)="onFieldChange('descripcion', $any($event.target).value)"></textarea>
 					</div>
+
 					<div class="row g-2">
-						<div class="col">
-							<label>Status</label>
+						<div class="col-6">
+							<label>Estado</label>
 							<select class="form-select" [value]="t.estado" (change)="onFieldChange('estado', $any($event.target).value)">
 								<option *ngFor="let s of statuses" [value]="s.key">{{ s.label }}</option>
 							</select>
 						</div>
-						<div class="col">
-							<label>Priority</label>
-							<select class="form-select" [value]="t.prioridad || ''" (change)="onFieldChange('prioridad', $any($event.target).value)">
-								<option value="">None</option>
-								<option>Low</option>
-								<option>Medium</option>
-								<option>High</option>
-							</select>
+						<div class="col-6">
+							<label>Progreso (%)</label>
+							<input class="form-control" type="number" min="0" max="100" [value]="t.progreso || 0" (input)="onFieldChange('progreso', ($any($event.target).valueAsNumber ?? 0))" />
 						</div>
 					</div>
 
 					<div class="row g-2 mt-2">
-						<div class="col">
-							<label>Start</label>
+						<div class="col-6">
+							<label>Prioridad</label>
+							<select class="form-select" [value]="t.prioridad || ''" (change)="onFieldChange('prioridad', $any($event.target).value)">
+								<option value="">Ninguna</option>
+								<option value="Low">Low</option>
+								<option value="Medium">Medium</option>
+								<option value="High">High</option>
+							</select>
+						</div>
+						<div class="col-6">
+							<label>Duración (Horas)</label>
+							<input class="form-control" type="number" min="0" [value]="t.duracionHoras || 0" (input)="onFieldChange('duracionHoras', ($any($event.target).valueAsNumber ?? 0))" />
+						</div>
+					</div>
+
+					<div class="row g-2 mt-2">
+						<div class="col-6">
+							<label>Fecha Inicio</label>
 							<input class="form-control" type="date" [value]="t.fechaInicio || ''" (input)="onFieldChange('fechaInicio', $any($event.target).value)" />
 						</div>
-						<div class="col">
-							<label>Due</label>
+						<div class="col-6">
+							<label>Fecha Fin</label>
+							<input class="form-control" type="date" [value]="t.fechaFin || ''" (input)="onFieldChange('fechaFin', $any($event.target).value)" />
+						</div>
+					</div>
+					<div class="row g-2 mt-2">
+						<div class="col-6">
+							<label>Fecha Vencimiento</label>
 							<input class="form-control" type="date" [value]="t.fechaVencimiento || ''" (input)="onFieldChange('fechaVencimiento', $any($event.target).value)" />
+						</div>
+						<div class="col-6">
+							<label>Fecha Creación</label>
+							<input class="form-control" type="date" [value]="$any(t).fechaCreacionTarea || ''" (input)="onFieldChange('fechaCreacionTarea', $any($event.target).value)" />
+						</div>
+					</div>
+					<div class="row g-2 mt-2">
+						<div class="col-6">
+							<label>Fecha Cerrada</label>
+							<input class="form-control" type="date" [value]="$any(t).fechaCerrada || ''" (input)="onFieldChange('fechaCerrada', $any($event.target).value)" />
+						</div>
+						<div class="col-6">
+							<label>Fecha Terminada</label>
+							<input class="form-control" type="date" [value]="$any(t).fechaTerminada || ''" (input)="onFieldChange('fechaTerminada', $any($event.target).value)" />
+						</div>
+					</div>
+
+					<div class="row g-2 mt-2">
+						<div class="col-6">
+							<label>Asignado A</label>
+							<select class="form-select" [value]="t.asignadoA || $any(t).responsableIdentificador || ''" (change)="onFieldChange('asignadoA', $any($event.target).value); onFieldChange('responsableIdentificador', $any($event.target).value)">
+								<option value="">Sin asignar</option>
+								<option *ngFor="let tm of teams" [value]="tm.identificador">{{ tm.nombres || tm.nombre }}</option>
+							</select>
+						</div>
+						<div class="col-6 d-flex align-items-end">
+							<div class="form-check mt-3">
+								<input class="form-check-input" type="checkbox" id="facturableChk" [checked]="$any(t).facturable" (change)="onFieldChange('facturable', $any($event.target).checked)" />
+								<label class="form-check-label" for="facturableChk">Facturable</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="row g-2 mt-2">
+						<div class="col-6">
+							<label>Etiqueta</label>
+							<input class="form-control" [value]="t.etiqueta || ''" (input)="onFieldChange('etiqueta', $any($event.target).value)" />
+						</div>
+						<div class="col-6">
+							<label>Tipo Tarea</label>
+							<input class="form-control" [value]="t.tipoTarea || ''" (input)="onFieldChange('tipoTarea', $any($event.target).value)" />
 						</div>
 					</div>
 
 					<div class="form-group mt-2">
-						<label>Comments</label>
-						<textarea class="form-control" rows="3" placeholder="Add a comment..."></textarea>
+						<label>Comentarios</label>
+						<textarea class="form-control" rows="3" [value]="t.comentarios || ''" (input)="onFieldChange('comentarios', $any($event.target).value)"></textarea>
 					</div>
+					</fieldset>
 				</div>
 
 				<div class="pane right">
-					<div class="activity-header">Activity</div>
+					<div class="activity-header">Actividad</div>
 					<div class="activity-list">
-						<div class="empty" *ngIf="!task">No task selected</div>
-						<div class="empty" *ngIf="task">No activity yet</div>
+						<div class="empty">Sin actividad</div>
 					</div>
 				</div>
 			</div>
 
 			<div class="wt-modal-footer">
-				<button class="btn btn-secondary" (click)="close.emit()">Close</button>
+				<div class="d-flex gap-2 ms-auto">
+					<button *ngIf="!canEdit" class="btn btn-outline-secondary" (click)="enableEdit()">
+						<i class="bi bi-pencil"></i>
+						<span class="ms-1">Editar</span>
+					</button>
+					<button class="btn btn-primary-nav" (click)="close.emit()">Cerrar</button>
+				</div>
 			</div>
 		</div>
 	</div>

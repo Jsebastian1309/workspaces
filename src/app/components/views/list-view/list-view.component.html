@@ -96,9 +96,25 @@
                     <input class="input" type="number" min="0" max="100" [value]="draft.progreso || 0" (input)="draft.progreso = ($any($event.target).valueAsNumber ?? 0)" />
                   </td>
                   <td>
-                    <select class="select" [value]="draft.prioridad || 'Medium'" (change)="draft.prioridad = $any($event.target).value">
-                      <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
-                    </select>
+                    <!-- Dropdown prioridad estilo filtro -->
+                    <div ngbDropdown class="dropdown-select w-100">
+                      <button class="btn btn-select btn-sm dropdown-toggle w-100 d-flex align-items-center justify-content-start" ngbDropdownToggle type="button">
+                        <i class="bi bi-flag-fill me-2" [ngStyle]="{ color: getPriorityColorValue(draft.prioridad) }"></i>
+                        <span class="selected-label">{{ getPriorityLabelValue(draft.prioridad) || 'Priority' }}</span>
+                      </button>
+                      <div ngbDropdownMenu class="w-100">
+                        <button ngbDropdownItem type="button" (click)="setDraftPriority('')">
+                          <i class="bi bi-flag me-2 text-muted"></i>
+                          <span translate>All</span>
+                          <i class="bi bi-check ms-auto" *ngIf="!draft.prioridad"></i>
+                        </button>
+                        <button ngbDropdownItem type="button" *ngFor="let p of priorityOptions.slice(1)" (click)="setDraftPriority(p.key)">
+                          <i class="bi bi-flag-fill me-2" [ngStyle]="{ color: p.color }"></i>
+                          <span translate>{{ p.label }}</span>
+                          <i class="bi bi-check ms-auto" *ngIf="draft.prioridad === p.key"></i>
+                        </button>
+                      </div>
+                    </div>
                   </td>
                   <td>
                     <input class="input" type="date" [value]="draft.fechaInicio || ''" (input)="draft.fechaInicio = $any($event.target).value" />
@@ -154,7 +170,12 @@
                       {{ getStatusLabel(task.estado) }}
                     </td>
                     <td>{{ task.progreso || 0 }}%</td>
-                    <td>{{ task.prioridad }}</td>
+                    <td>
+                      <span class="d-inline-flex align-items-center">
+                        <i class="bi bi-flag-fill me-1" [ngStyle]="{ color: getPriorityColorValue(task.prioridad) }"></i>
+                        {{ getPriorityLabelValue(task.prioridad) }}
+                      </span>
+                    </td>
                     <td>{{ task.fechaInicio }}</td>
                     <td>{{ task.fechaFin }}</td>
                     <td>{{ task.fechaVencimiento }}</td>
@@ -170,7 +191,7 @@
                     <td>{{ task.comentarios }}</td>
                     <td>{{ task.etiqueta }}</td>
                     <td>
-                      <button class="btn btn-outline-primary btn-sm" (click)="startEdit(task)">
+                      <button class="btn btn-outline-primary btn-sm me-1" (click)="startEdit(task)">
                         <i class="bi bi-pencil"></i>
                       </button>
                       <button class="btn btn-outline-danger btn-sm" (click)="deleteTask(task)">
@@ -194,9 +215,24 @@
                       <input class="input" type="number" min="0" max="100" [value]="task.progreso || 0" (input)="task.progreso = ($any($event.target).valueAsNumber ?? 0)" />
                     </td>
                     <td>
-                      <select class="select" [value]="task.prioridad" (change)="task.prioridad = $any($event.target).value">
-                        <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
-                      </select>
+                      <div ngbDropdown class="dropdown-select w-100">
+                        <button class="btn btn-select btn-sm dropdown-toggle w-100 d-flex align-items-center justify-content-start" ngbDropdownToggle type="button">
+                          <i class="bi bi-flag-fill me-2" [ngStyle]="{ color: getPriorityColorValue(task.prioridad) }"></i>
+                          <span class="selected-label">{{ getPriorityLabelValue(task.prioridad) || 'Priority' }}</span>
+                        </button>
+                        <div ngbDropdownMenu class="w-100">
+                          <button ngbDropdownItem type="button" (click)="setTaskPriority(task, '')">
+                            <i class="bi bi-flag me-2 text-muted"></i>
+                            <span translate>All</span>
+                            <i class="bi bi-check ms-auto" *ngIf="!task.prioridad"></i>
+                          </button>
+                          <button ngbDropdownItem type="button" *ngFor="let p of priorityOptions.slice(1)" (click)="setTaskPriority(task, p.key)">
+                            <i class="bi bi-flag-fill me-2" [ngStyle]="{ color: p.color }"></i>
+                            <span translate>{{ p.label }}</span>
+                            <i class="bi bi-check ms-auto" *ngIf="task.prioridad === p.key"></i>
+                          </button>
+                        </div>
+                      </div>
                     </td>
                     <td><input class="input" type="date" [value]="task.fechaInicio || ''" (input)="task.fechaInicio = $any($event.target).value" /></td>
                     <td><input class="input" type="date" [value]="task.fechaFin || ''" (input)="task.fechaFin = $any($event.target).value" /></td>
@@ -251,6 +287,7 @@
   [tasks]="currentTasksFlat"
   [selectedIndex]="selectedTaskIndex"
   [statuses]="statuses"
+  [teams]="teams"
   (close)="closeTaskModal()"
   (updateTask)="onModalTaskUpdate($event)">
 </app-modal-task>

@@ -16,5 +16,11 @@ export interface Task {
   etiqueta?: string;
   comentarios?: string;
   progreso?: number;
+  // Extended fields for detailed modal editing
+  fechaCreacionTarea?: string | Date;
+  fechaCerrada?: string | Date;
+  fechaTerminada?: string | Date;
+  facturable?: boolean;
+  responsableIdentificador?: string;
   // Extend with backend fields as needed
 }

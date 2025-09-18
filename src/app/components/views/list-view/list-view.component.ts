@@ -40,6 +40,34 @@ export class ListViewComponent implements OnChanges {
   priorities = ['Low', 'Medium', 'High'];
   teams: { identificador: string; nombres: string }[] = [];
   private loadingStatuses = false;
+  // Nueva definición de prioridades para UI (alineada al filtro en task.component)
+  priorityOptions = [
+    { key: '', label: 'All', color: '#9aa0a6' },
+    { key: 'urgente', label: 'Urgent', color: '#e53935' },
+    { key: 'alta', label: 'High', color: '#f6c343' },
+    { key: 'normal', label: 'Normal', color: '#4f75ff' },
+    { key: 'baja', label: 'Low', color: '#9e9e9e' },
+  ];
+
+  getPriorityLabelValue(value?: string): string {
+    const v = (value || '').toLowerCase();
+    const found = this.priorityOptions.find(p => p.key === v);
+    return found ? found.label : value || '';
+  }
+
+  getPriorityColorValue(value?: string): string {
+    const v = (value || '').toLowerCase();
+    const found = this.priorityOptions.find(p => p.key === v);
+    return found ? found.color : '#9aa0a6';
+  }
+
+  setDraftPriority(key: string) {
+    this.draft.prioridad = key;
+  }
+
+  setTaskPriority(t: any, key: string) {
+    t.prioridad = key;
+  }
 
   // Task Templates (apply to create tasks)
   templates: any[] = [];

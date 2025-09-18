@@ -11,7 +11,7 @@
 	margin: 4vh auto;
 }
 .wt-modal-content {
-	background: #fff;
+	background: var(--nav-bg);
 	border-radius: 8px;
 	box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 	display: flex;
@@ -36,8 +36,14 @@
 	grid-template-columns: 2fr 1fr;
 	gap: 0;
 	min-height: 50vh;
+	overflow: hidden;
 }
-.pane.left { padding: 1rem; border-right: 1px solid #f0f0f0; }
+.pane.left {
+	padding: 1rem;
+	border-right: 1px solid #f0f0f0;
+	overflow-y: auto;
+	max-height: calc(92vh - 110px); // header + footer approx
+}
 .pane.right { padding: 1rem; }
 .activity-header { font-weight: 600; margin-bottom: .5rem; }
 .activity-list { max-height: 60vh; overflow: auto; }
@@ -49,5 +55,24 @@
 @media (max-width: 992px) {
 	.wt-modal-dialog { width: 96vw; }
 	.wt-modal-body { grid-template-columns: 1fr; }
-	.pane.left { border-right: none; border-bottom: 1px solid #f0f0f0; }
+	.pane.left { border-right: none; border-bottom: 1px solid #f0f0f0; max-height: none; }
+}
+
+/* Footer primary button styles with navigation theme vars */
+.wt-modal-footer .btn-nav-theme,
+.wt-modal-footer .btn.btn-primary-nav {
+	background: var(--nav-bg, #222);
+	color: var(--nav-color, #fff);
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 4px;
+	font-weight: 500;
+}
+.wt-modal-footer .btn-nav-theme:hover,
+.wt-modal-footer .btn.btn-primary-nav:hover {
+	filter: brightness(1.1);
+}
+.wt-modal-footer .btn-nav-theme:active,
+.wt-modal-footer .btn.btn-primary-nav:active {
+	filter: brightness(0.95);
 }

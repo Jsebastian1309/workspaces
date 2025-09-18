@@ -11,7 +11,6 @@ import { startOfDay, endOfDay, parseISO, isValid, addDays, addWeeks, addMonths, 
 export class CalendarViewComponent implements OnChanges {
   @Input() tasks: Task[] = [];
   @Input() statuses: { key: string; label: string; color: string }[] = [];
-  // Permite configurar los campos de fechas si tu backend usa nombres distintos
   @Input() dateFieldMap: { start?: string[]; end?: string[]; due?: string[] } = {
     start: ['fechaInicio', 'inicio', 'start'],
     end: ['fechaFin', 'fechaFinal', 'fechaCierre', 'fin', 'end'],
@@ -91,13 +90,16 @@ export class CalendarViewComponent implements OnChanges {
         const end = endTime ? this.withTime(endOfDay(endBase), endTime) : endOfDay(endBase);
         const allDay = !(startTime || endTime);
 
+        const statusKey = String((t as any)?.estado || '').toUpperCase();
+        const colorObj = this.colorFromStatus((t as any)?.estado);
         return {
           title: t.nombre,
           start,
           end,
           allDay,
-          color: this.colorFromStatus((t as any)?.estado),
-          meta: t,
+          color: colorObj,
+          cssClass: 'cal-status-' + (statusKey || 'UNKNOWN'),
+          meta: { ...t, __color: colorObj }
         } as CalendarEvent;
       })
       .filter((e): e is CalendarEvent => !!e);

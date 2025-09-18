@@ -11,6 +11,10 @@ export class ModalTaskComponent {
   @Input() tasks: Task[] = [];
   @Input() selectedIndex = 0;
   @Input() statuses: { key: string; label: string; color: string }[] = [];
+  @Input() teams: { identificador: string; nombres?: string; nombre?: string }[] = [];
+
+  // Edit mode flag (initially false; enabled once by user clicking Edit)
+  canEdit = false;
 
   @Output() close = new EventEmitter<void>();
   @Output() updateTask = new EventEmitter<Task>();
@@ -41,4 +45,13 @@ export class ModalTaskComponent {
     this.tasks[this.selectedIndex] = updated;
     this.updateTask.emit(updated);
   }
+
+  assigneeName(id?: string | Task['asignadoA']): string {
+    if (!id) return '';
+    const ident = typeof id === 'string' ? id : (id as any).identificador || (id as any).id;
+    const found = this.teams.find(t => t.identificador === ident);
+    return found?.nombres || found?.nombre || '';
+  }
+
+  enableEdit() { this.canEdit = true; }
 }

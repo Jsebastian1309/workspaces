@@ -1,0 +1,66 @@
+/* Calendar theming only with existing global variables from styles.scss */
+:host {
+	--cal-border: rgba(0,0,0,0.08);
+	--cal-border-dark: rgba(255,255,255,0.15);
+	--cal-event-radius: 4px;
+	display: block;
+	color: var(--text-color);
+}
+
+/* Containers */
+mwl-calendar-month-view,
+mwl-calendar-week-view,
+mwl-calendar-day-view {
+	background: var(--background-color);
+	color: var(--text-color);
+	border: 1px solid var(--cal-border);
+	border-radius: 6px;
+	padding: .25rem .4rem .5rem;
+	display: block;
+}
+
+/* Event base style (background uses nav / select vars as neutral fallback) */
+.cal-event, .cal-week-view .cal-event, .cal-day-view .cal-event {
+	border-radius: var(--cal-event-radius) !important;
+	font-size: 12px;
+	font-weight: 500;
+	background: var(--select-bg) !important; /* fallback surface */
+	color: var(--text-color) !important;
+	border: 1px solid var(--cal-border) !important;
+	position: relative;
+	overflow: hidden;
+}
+
+/* Use the event primary color (angular-calendar sets it inline) as left accent */
+.cal-event:before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: currentColor;
+	opacity: .12; /* soft tint overlay */
+	pointer-events: none;
+}
+
+.cal-event:after {
+	content: '';
+	position: absolute;
+	top: 0; left: 0; bottom: 0;
+	width: 4px;
+	background: currentColor;
+	opacity: .9;
+	border-top-left-radius: var(--cal-event-radius);
+	border-bottom-left-radius: var(--cal-event-radius);
+}
+
+/* Dark theme tweaks */
+.dark-theme mwl-calendar-month-view,
+.dark-theme mwl-calendar-week-view,
+.dark-theme mwl-calendar-day-view {
+	border-color: var(--cal-border-dark);
+}
+
+.dark-theme .cal-event, .dark-theme .cal-week-view .cal-event, .dark-theme .cal-day-view .cal-event {
+	border-color: var(--cal-border-dark) !important;
+}
+
+/* Remove previous hardcoded status classes: rely only on inline color + global vars */
