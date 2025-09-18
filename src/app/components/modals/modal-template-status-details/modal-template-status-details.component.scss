@@ -1,0 +1,73 @@
+.table td, .table th {
+	vertical-align: middle;
+}
+
+.modal-header{
+	background-color: var(--nav-bg);
+	color: var(--nav-color);
+	display: flex;
+	align-items: center;
+}
+
+.modal-body {
+	background-color: var(--sidebar-bg);
+	color: var(--text-color);
+}
+
+
+.loading-container {
+	min-height: 160px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.loading-icon {
+	font-size: 2rem;
+	color: var(--text-color);
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+.modal-footer {
+	background-color: var(--sidebar-bg);
+	color: var(--text-color);
+}
+
+.button{
+	color: var(--text-color);
+	border: none;
+}
+.i{
+	color: var(--text-color);
+}
+
+.close-btn {
+	color: var(--primary-color, var(--text-color));
+	margin-left: auto;
+	padding: 0.25rem 0.5rem;
+}
+
+.card-body{
+	background-color: var(--input-bg);
+	color: var(--text-color);
+}
+
+/* Styled table surface */
+.table-surface {
+	background-color: var(--input-bg);
+	color: var(--text-color);
+	border-radius: 10px;
+	overflow: hidden; /* ensures rounded corners clip rows */
+}
+.table-surface thead th {
+	background-color: transparent;
+	color: var(--text-color);
+	border-bottom-color: rgba(255,255,255,0.1);
+}
+.table-surface tbody tr {
+	background-color: transparent;
+}

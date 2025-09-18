@@ -8,6 +8,7 @@ import { TemplateStatusDetailService } from 'src/app/service/features/template/s
 import { AuthService } from 'src/app/service/core/auth/auth.service';
 import { UniqueIdService } from 'src/app/service/core/utils/uniqueId.service';
 import { WizardStatesComponent } from '../../Wizard/wizard-states/wizard-states.component';
+import { ModalTemplateStatusDetailsComponent } from '../../modals/modal-template-status-details/modal-template-status-details.component';
 
 @Component({
   selector: 'app-status-template',
@@ -137,6 +138,21 @@ export class StatusTemplateComponent implements OnInit {
     ref.result
       .then((res) => {
         if (res === 'completed') {
+          this.loadTemplates();
+        }
+      })
+      .catch(() => {});
+  }
+
+  openDetailsModal(tpl: any): void {
+    if (!tpl) return;
+    const ident = tpl.identificador || tpl.id || tpl._id;
+    const modalRef = this.modalService.open(ModalTemplateStatusDetailsComponent, { size: 'lg', backdrop: 'static', keyboard: false });
+    (modalRef.componentInstance as ModalTemplateStatusDetailsComponent).templateId = ident;
+    (modalRef.componentInstance as ModalTemplateStatusDetailsComponent).templateName = tpl.nombre;
+    modalRef.result
+      .then((res) => {
+        if (res === 'updated' || res === 'deleted' || res === 'created') {
           this.loadTemplates();
         }
       })

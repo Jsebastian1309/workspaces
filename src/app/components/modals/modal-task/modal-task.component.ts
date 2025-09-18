@@ -1,12 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { Task } from 'src/app/models/task.model';
+import { TaskAuditService } from 'src/app/service/features/task/task-audit.service';
 
 @Component({
   selector: 'app-modal-task',
   templateUrl: './modal-task.component.html',
   styleUrls: ['./modal-task.component.scss']
 })
-export class ModalTaskComponent {
+export class ModalTaskComponent implements OnChanges {
   @Input() show = false;
   @Input() tasks: Task[] = [];
   @Input() selectedIndex = 0;
@@ -24,6 +25,7 @@ export class ModalTaskComponent {
   get task(): Task | null { return this.tasks[this.selectedIndex] ?? null; }
 
   trackById(_i: number, t: Task) { return t.identificador; }
+  trackByAuditId(_i: number, a: any) { return a.id ?? _i; }
 
   onBackdropClick(e: MouseEvent) {
     // Only close if backdrop is clicked, not the modal content
@@ -46,12 +48,39 @@ export class ModalTaskComponent {
     this.updateTask.emit(updated);
   }
 
-  assigneeName(id?: string | Task['asignadoA']): string {
-    if (!id) return '';
-    const ident = typeof id === 'string' ? id : (id as any).identificador || (id as any).id;
-    const found = this.teams.find(t => t.identificador === ident);
-    return found?.nombres || found?.nombre || '';
+  // Bitácora (audit log)
+  auditLoading = false;
+  auditError?: string;
+  audit: any[] = [];
+
+  constructor(private taskAudit: TaskAuditService) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['selectedIndex'] || changes['tasks'] || changes['show']) {
+      this.loadAudit();
+    }
   }
 
-  enableEdit() { this.canEdit = true; }
+  private loadAudit(): void {
+    this.audit = [];
+    this.auditError = undefined;
+    if (!this.show || !this.task?.identificador) return;
+    this.auditLoading = true;
+    this.taskAudit.getTaskAudit(this.task.identificador).subscribe({
+      next: (rows: any[]) => {
+        const list = Array.isArray(rows) ? rows : [];
+        // Sort by fechaModificacion desc if available, else by id desc
+        this.audit = list.slice().sort((a, b) => {
+          const da = a?.fechaModificacion ? new Date(a.fechaModificacion).getTime() : 0;
+          const db = b?.fechaModificacion ? new Date(b.fechaModificacion).getTime() : 0;
+          if (db !== da) return db - da;
+          const ia = typeof a?.id === 'number' ? a.id : 0;
+          const ib = typeof b?.id === 'number' ? b.id : 0;
+          return ib - ia;
+        });
+      },
+      error: (e: any) => { console.error('Audit error', e); this.auditError = 'No se pudo cargar la bitácora'; },
+      complete: () => { this.auditLoading = false; }
+    });
+  }
 }
