@@ -1,6 +1,6 @@
-# Worki - Gestor de Tareas Inteligente
+# Gestor de Tareas Inteligente
 
-**Worki** es un sistema completo de gestión de tareas y proyectos desarrollado en Angular, diseñado para organizaciones que necesitan una herramienta poderosa y flexible para administrar su trabajo de manera eficiente.
+Es un sistema completo de gestión de tareas y proyectos desarrollado en Angular, diseñado para organizaciones que necesitan una herramienta poderosa y flexible para administrar su trabajo de manera eficiente.
 
 ## 🚀 Características Principales
 
