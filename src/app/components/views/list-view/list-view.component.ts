@@ -349,7 +349,8 @@ export class ListViewComponent implements OnChanges {
     if (idx >= 0) {
       this.currentTasksFlat[idx] = updated as any;
     }
-    // Optionally call saveEdit(updated) or a service to persist
+    // Emit refresh event to trigger parent component to reload data
+    this.refresh.emit();
   }
 
   selectTemplate(templateId: string): void {
@@ -676,22 +677,30 @@ export class ListViewComponent implements OnChanges {
       descripcion: '',
       estado: status,
       progreso: 0,
-      prioridad: 'Medium',
+      prioridad: 'normal',
       fechaInicio: today,
       fechaFin: today,
       fechaVencimiento: '',
       duracionHoras: 0,
+      tareaPadreIdentificador: '',
+      responsableIdentificador: '',
       comentarios: '',
       fechaCreacionTarea: today,
       fechaCerrada: '',
       fechaTerminada: '',
       facturable: false,
-      tipoTarea: 'TASK',
-      etiqueta: 'sda',
       organizacionId: currentUser?.organizacionId || '',
       clienteId: currentUser?.clienteId || '',
       carpetaIdentificador: this.carpetaIdentificador,
       listaIdentificador: this.list?.identificador,
+      tipoTarea: 'TASK',
+      etiqueta: '',
+      horaInicio: '',
+      horaFin: '',
+      timezone: 'UTC-5',
+      localizacion: '',
+      tipoNotificacion: '',
+      minutosNotificacion: 0,
       asignadoA: ''
     };
     if (!this.teams || this.teams.length === 0) {
@@ -716,40 +725,46 @@ export class ListViewComponent implements OnChanges {
     const fechaActual = new Date().toISOString().slice(0, 10);
     const folderIdentificador = this.carpetaIdentificador;
     console.log("WOG",folderIdentificador)
-  const responsibleId = this.draft.asignadoA || '';
+    const responsibleId = this.draft.asignadoA || '';
     const taskData = {
       identificador: this.draft.identificador || this.generateTaskId(),
       estado: this.draft.estado,
       progreso: Number(this.draft.progreso) ?? 0,
       nombre: this.draft.nombre,
-      fechaInicio: this.draft.fechaInicio || this.draft.fechaVencimiento || fechaActual,
-      fechaFin: this.draft.fechaFin || this.draft.fechaVencimiento || fechaActual,
+      fechaInicio: this.draft.fechaInicio || fechaActual,
+      fechaFin: this.draft.fechaFin || fechaActual,
       duracionHoras: Number(this.draft.duracionHoras) ?? 0,
-  responsableIdentificador: responsibleId,
-  asignadoA: responsibleId,
+      tareaPadreIdentificador: this.draft.tareaPadreIdentificador || '',
+      responsableIdentificador: responsibleId,
       descripcion: this.draft.descripcion,
       comentarios: this.draft.comentarios || '',
       fechaCreacionTarea: this.draft.fechaCreacionTarea || fechaActual,
       fechaCerrada: this.draft.fechaCerrada || '',
       fechaTerminada: this.draft.fechaTerminada || '',
       facturable: !!this.draft.facturable,
-      organizacionId: currentUser?.organizacionId || this.draft.organizacionId || '',
-      clienteId: currentUser?.clienteId || this.draft.clienteId || '',
+      organizacionId: currentUser?.organizacionId || '',
+      clienteId: currentUser?.clienteId || '',
       carpetaIdentificador: folderIdentificador || this.draft.carpetaIdentificador,
       listaIdentificador: this.list.identificador,
-  tipoTarea: this.draft.tipoTarea || 'TASK',
-      etiqueta: this.draft.etiqueta || 'sda',
-      prioridad: this.draft.prioridad || 'Medium'
+      tipoTarea: this.draft.tipoTarea || 'TASK',
+      etiqueta: this.draft.etiqueta || '',
+      prioridad: this.draft.prioridad || 'normal',
+      horaInicio: this.draft.horaInicio || '',
+      horaFin: this.draft.horaFin || '',
+      timezone: this.draft.timezone || 'UTC-5',
+      localizacion: this.draft.localizacion || '',
+      tipoNotificacion: this.draft.tipoNotificacion || '',
+      minutosNotificacion: Number(this.draft.minutosNotificacion) ?? 0
     };
 
     console.log('Datos de tarea enviados al backend:', taskData);
 
-  this.taskService.Createtask(taskData).subscribe({
+    this.taskService.Createtask(taskData).subscribe({
       next: (response) => {
         console.log('Tarea creada exitosamente:', response);
         this.info = 'Tarea creada exitosamente';
         this.cancelAdd();
-    this.refresh.emit(); // Pedir al padre que recargue tareas
+        this.refresh.emit(); // Pedir al padre que recargue tareas
         setTimeout(() => this.info = undefined, 3000);
       },
       error: (error) => {
@@ -780,62 +795,75 @@ export class ListViewComponent implements OnChanges {
   }
 
   saveEdit(t: Task) {
+    if (!t?.identificador) return;
     this.loading = true;
     this.error = undefined;
-  // Optimistic exit from edit mode
-  const editId = (t as any).identificador;
-  const backup = this.backups[editId] ? JSON.parse(JSON.stringify(this.backups[editId])) : null;
-  this.editing[editId] = false;
 
-    // Preparar datos para enviar al backend con la estructura exacta requerida
-    const responsibleId = (t as any).asignadoA || (t as any).responsableIdentificador || '';
-    const updatedTask: any = {
-      identificador: (t as any).identificador,
-      nombre: (t as any).nombre,
-      descripcion: (t as any).descripcion,
-      comentarios: (t as any).comentarios,
-      estado: (t as any).estado,
-      progreso: Number((t as any).progreso) ?? 0,
-      prioridad: (t as any).prioridad,
-      fechaInicio: (t as any).fechaInicio,
-      fechaFin: (t as any).fechaFin,
-      fechaVencimiento: (t as any).fechaVencimiento,
+    const currentUser = this.authService.getCurrentUser();
+
+    const payload: any = {
+      identificador: t.identificador,
+      nombre: t.nombre,
+      descripcion: t.descripcion,
+      comentarios: t.comentarios,
+      estado: t.estado,
+      progreso: Number(t.progreso) ?? 0,
+      prioridad: t.prioridad,
+      fechaInicio: t.fechaInicio,
+      fechaFin: t.fechaFin,
+      fechaVencimiento: t.fechaVencimiento,
+      duracionHoras: Number(t.duracionHoras) ?? 0,
+      tareaPadreIdentificador: (t as any).tareaPadreIdentificador || '',
+      responsableIdentificador: t.responsableIdentificador || (t.asignadoA as string) || '',
       fechaCreacionTarea: (t as any).fechaCreacionTarea,
       fechaCerrada: (t as any).fechaCerrada,
       fechaTerminada: (t as any).fechaTerminada,
-      duracionHoras: Number((t as any).duracionHoras) ?? 0,
-      facturable: !!(t as any).facturable,
-      responsableIdentificador: responsibleId,
-      asignadoA: responsibleId, // mantener en UI
-      etiqueta: (t as any).etiqueta,
-      tipoTarea: (t as any).tipoTarea || 'TASK',
-      organizacionId: (t as any).organizacionId,
-      clienteId: (t as any).clienteId,
+      facturable: !!((t as any).facturable),
+      organizacionId: currentUser?.organizacionId,
+      clienteId: currentUser?.clienteId,
       carpetaIdentificador: (t as any).carpetaIdentificador,
-      listaIdentificador: (t as any).listaIdentificador,
-      espacioTrabajoIdentificador: (t as any).espacioTrabajoIdentificador,
+      listaIdentificador: t.listaIdentificador,
+      tipoTarea: t.tipoTarea || 'TASK',
+      etiqueta: t.etiqueta,
+      horaInicio: (t as any).horaInicio || '',
+      horaFin: (t as any).horaFin || '',
+      timezone: (t as any).timezone || 'UTC-5',
+      localizacion: (t as any).localizacion || '',
+      tipoNotificacion: (t as any).tipoNotificacion || '',
+      minutosNotificacion: Number((t as any).minutosNotificacion) ?? 0,
+      espacioTrabajoIdentificador: t.espacioTrabajoIdentificador,
     };
 
-    this.taskService.actualizarTarea(updatedTask).subscribe({
-      next: () => {
-        this.info = 'Tarea actualizada exitosamente';
-        delete this.editing[t.identificador];
-        if (this.backups[t.identificador]) {
-          delete this.backups[t.identificador];
+    this.taskService.actualizarTarea(payload).subscribe({
+      next: (updatedTask) => {
+        // Update task in the main array
+        const idx = this.tasks.findIndex(item => item.identificador === t.identificador);
+        if (idx > -1) {
+          this.tasks[idx] = { ...this.tasks[idx], ...updatedTask };
         }
-        // pedir al padre que recargue la data
-        this.refresh.emit();
+        
+        // Clean up backups and editing state
+        delete this.backups[t.identificador];
+        this.editing[t.identificador] = false; // This is the key change
+
+        // Re-group tasks to reflect potential status changes
+        this.groupTasksFromInput();
+        this.info = 'Tarea actualizada exitosamente';
         setTimeout(() => (this.info = undefined), 3000);
       },
-  error: (err: any) => {
+      error: (err: any) => {
         console.error('Error al actualizar tarea:', err);
-        this.error = 'Error al actualizar la tarea. Intenta nuevamente.';
-        // Restore edit mode and previous values on error
+        this.error = 'Error al actualizar la tarea. Revirtiendo cambios.';
+        
+        // Revertir los cambios usando el backup
+        const backup = this.backups[t.identificador];
         if (backup) {
-          Object.assign(t as any, backup);
-          this.backups[editId] = backup;
+          Object.assign(t, backup);
         }
-        this.editing[editId] = true;
+        
+        // Mantener en modo de edición si falla
+        this.editing[t.identificador] = true; 
+        
         setTimeout(() => (this.error = undefined), 5000);
       },
       complete: () => {

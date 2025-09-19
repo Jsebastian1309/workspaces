@@ -1,7 +1,6 @@
 .wt-modal {
 	position: fixed;
 	inset: 0;
-	background: rgba(0,0,0,0.35);
 	z-index: 1060;
 }
 .wt-modal-dialog {
@@ -11,7 +10,8 @@
 	margin: 4vh auto;
 }
 .wt-modal-content {
-	background: var(--nav-bg);
+	background: var(--background-color);
+	color: var(--text-color);
 	border-radius: 8px;
 	box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 	display: flex;

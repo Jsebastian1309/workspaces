@@ -1,0 +1,22 @@
+
+
+.btn{
+	color: var(--nav-color);
+}
+
+.card{
+	background-color: var(--sidebar-bg);
+	color: var(--text-color);
+	border-radius: 15px;
+}
+.card-body{
+	background-color: var(--sidebar-bg);
+	color: var(--text-color);
+	border-radius: 15px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}

@@ -10,9 +10,13 @@
 						<i class="bi bi-chevron-right"></i>
 					</button>
 				</div>
-				<div class="title" *ngIf="task as t">{{ t.nombre || 'Untitled task' }}</div>
+				<div class="title" *ngIf="task as t">
+					{{ isCreateMode ? 'Nueva Tarea' : (t.nombre || 'Untitled task') }}
+				</div>
 				<div class="right">
-					<button class="btn-close" (click)="close.emit()" aria-label="Close"></button>
+					<button class="btn-close" (click)="close.emit()" aria-label="Close">
+						<i class="bi bi-x"></i>
+					</button>
 				</div>
 			</div>
 
@@ -44,12 +48,39 @@
 					<div class="row g-2 mt-2">
 						<div class="col-6">
 							<label>Prioridad</label>
-							<select class="form-select" [value]="t.prioridad || ''" (change)="onFieldChange('prioridad', $any($event.target).value)">
-								<option value="">Ninguna</option>
-								<option value="Low">Low</option>
-								<option value="Medium">Medium</option>
-								<option value="High">High</option>
-							</select>
+							<div ngbDropdown class="dropdown-select w-100">
+								<button class="btn btn-select btn-sm dropdown-toggle w-100 d-flex align-items-center justify-content-start" ngbDropdownToggle type="button">
+									<i class="bi bi-flag-fill me-2" [ngStyle]="{ color: getPriorityColor(t.prioridad) }"></i>
+									<span class="selected-label">{{ getPriorityLabel(t.prioridad) || 'Prioridad' }}</span>
+								</button>
+								<div ngbDropdownMenu class="w-100">
+									<button ngbDropdownItem type="button" (click)="onFieldChange('prioridad', '')">
+										<i class="bi bi-flag me-2 text-muted"></i>
+										<span>Ninguna</span>
+										<i class="bi bi-check ms-auto" *ngIf="!t.prioridad"></i>
+									</button>
+									<button ngbDropdownItem type="button" (click)="onFieldChange('prioridad', 'urgente')">
+										<i class="bi bi-flag-fill me-2" style="color:#e53935"></i>
+										<span>Urgente</span>
+										<i class="bi bi-check ms-auto" *ngIf="t.prioridad === 'urgente'"></i>
+									</button>
+									<button ngbDropdownItem type="button" (click)="onFieldChange('prioridad', 'alta')">
+										<i class="bi bi-flag-fill me-2" style="color:#f6c343"></i>
+										<span>Alta</span>
+										<i class="bi bi-check ms-auto" *ngIf="t.prioridad === 'alta'"></i>
+									</button>
+									<button ngbDropdownItem type="button" (click)="onFieldChange('prioridad', 'normal')">
+										<i class="bi bi-flag-fill me-2" style="color:#4f75ff"></i>
+										<span>Normal</span>
+										<i class="bi bi-check ms-auto" *ngIf="t.prioridad === 'normal'"></i>
+									</button>
+									<button ngbDropdownItem type="button" (click)="onFieldChange('prioridad', 'baja')">
+										<i class="bi bi-flag-fill me-2" style="color:#9e9e9e"></i>
+										<span>Baja</span>
+										<i class="bi bi-check ms-auto" *ngIf="t.prioridad === 'baja'"></i>
+									</button>
+								</div>
+							</div>
 						</div>
 						<div class="col-6">
 							<label>Duración (Horas)</label>
@@ -111,7 +142,61 @@
 						</div>
 						<div class="col-6">
 							<label>Tipo Tarea</label>
-							<input class="form-control" [value]="t.tipoTarea || ''" (input)="onFieldChange('tipoTarea', $any($event.target).value)" />
+							<select class="form-select" [value]="t.tipoTarea || 'TASK'" (change)="onFieldChange('tipoTarea', $any($event.target).value)">
+								<option value="TASK">Tarea</option>
+								<option value="MILESTONE">Hito</option>
+								<option value="PROJECT">Proyecto</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="row g-2 mt-2">
+						<div class="col-6">
+							<label>Tarea Padre ID</label>
+							<input class="form-control" [value]="$any(t).tareaPadreIdentificador || ''" (input)="onFieldChange('tareaPadreIdentificador', $any($event.target).value)" />
+						</div>
+						<div class="col-6">
+							<label>Localización</label>
+							<input class="form-control" [value]="$any(t).localizacion || ''" (input)="onFieldChange('localizacion', $any($event.target).value)" />
+						</div>
+					</div>
+
+					<div class="row g-2 mt-2">
+						<div class="col-6">
+							<label>Hora Inicio</label>
+							<input class="form-control" type="time" [value]="$any(t).horaInicio || ''" (input)="onFieldChange('horaInicio', $any($event.target).value)" />
+						</div>
+						<div class="col-6">
+							<label>Hora Fin</label>
+							<input class="form-control" type="time" [value]="$any(t).horaFin || ''" (input)="onFieldChange('horaFin', $any($event.target).value)" />
+						</div>
+					</div>
+
+					<div class="row g-2 mt-2">
+						<div class="col-6">
+							<label>Timezone</label>
+							<select class="form-select" [value]="$any(t).timezone || 'UTC-5'" (change)="onFieldChange('timezone', $any($event.target).value)">
+								<option value="UTC-5">UTC-5 (Colombia)</option>
+								<option value="UTC-6">UTC-6 (México)</option>
+								<option value="UTC-3">UTC-3 (Argentina)</option>
+								<option value="UTC+0">UTC+0 (Londres)</option>
+							</select>
+						</div>
+						<div class="col-6">
+							<label>Tipo Notificación</label>
+							<select class="form-select" [value]="$any(t).tipoNotificacion || ''" (change)="onFieldChange('tipoNotificacion', $any($event.target).value)">
+								<option value="">Sin notificación</option>
+								<option value="EMAIL">Email</option>
+								<option value="SMS">SMS</option>
+								<option value="PUSH">Push</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="row g-2 mt-2">
+						<div class="col-6">
+							<label>Minutos Notificación</label>
+							<input class="form-control" type="number" min="0" [value]="$any(t).minutosNotificacion || 0" (input)="onFieldChange('minutosNotificacion', ($any($event.target).valueAsNumber ?? 0))" />
 						</div>
 					</div>
 
@@ -159,12 +244,28 @@
 			</div>
 
 			<div class="wt-modal-footer">
+				<!-- Error message -->
+				<div class="alert alert-danger small mb-2" *ngIf="saveError">
+					{{ saveError }}
+				</div>
+				
 				<div class="d-flex gap-2 ms-auto">
-					<button *ngIf="!canEdit" class="btn btn-outline-secondary" (click)="enableEdit()">
+					<button *ngIf="!isCreateMode && !canEdit" class="btn btn-outline-secondary" (click)="enableEdit()">
 						<i class="bi bi-pencil"></i>
 						<span class="ms-1">Editar</span>
 					</button>
-					<button class="btn btn-primary-nav" (click)="close.emit()">Cerrar</button>
+					<button *ngIf="!isCreateMode && canEdit" class="btn btn-success" (click)="saveExistingTask()" [disabled]="!task?.nombre || saveLoading">
+						<i class="bi bi-arrow-clockwise" *ngIf="saveLoading"></i>
+						<i class="bi bi-check" *ngIf="!saveLoading"></i>
+						<span class="ms-1">{{ saveLoading ? 'Guardando...' : 'Guardar Cambios' }}</span>
+					</button>
+					<button *ngIf="isCreateMode" class="btn btn-primary" (click)="saveNewTask()" [disabled]="!task?.nombre">
+						<i class="bi bi-check"></i>
+						<span class="ms-1">Crear Tarea</span>
+					</button>
+					<button class="btn btn-primary-nav" (click)="close.emit()" [disabled]="saveLoading">
+						{{ isCreateMode ? 'Cancelar' : 'Cerrar' }}
+					</button>
 				</div>
 			</div>
 		</div>

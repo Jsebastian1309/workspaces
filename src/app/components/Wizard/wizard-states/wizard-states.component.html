@@ -49,42 +49,38 @@
 			</div>
 		</div>
 
-		<div class="list-group mb-3" *ngIf="detailsFormArray.length > 0">
-			<div class="list-group-item" *ngFor="let g of detailsControls; let i = index"
-				[formGroup]="g">
-				<div class="row g-2 align-items-end">
-					
-					<div class="col-2 d-flex gap-1 align-items-center justify-content-start">
-						<label class="form-label">Nombre</label>
-						<button type="button" class="btn btn-light" title="Subir"
-							(click)="moveDetailUp(i)" [disabled]="i === 0">
-							↑
-						</button>
-						<button type="button" class="btn btn-light" title="Bajar"
-							(click)="moveDetailDown(i)"
-							[disabled]="i === detailsFormArray.length - 1">
-							↓
-						</button>
-					</div>
-					<div class="col-5">
-						<label class="form-label">Nombre</label>
-						<input class="form-control" formControlName="nombre"
-							placeholder="Ej: Nuevo, En progreso, Hecho" />
-						<div class="text-danger small"
-							*ngIf="g.get('nombre')?.touched && g.get('nombre')?.invalid">
+				<table class="table table-surface mt-2" cdkDropList (cdkDropListDropped)="drop($event)" *ngIf="detailsFormArray.length > 0">
+			<thead>
+				<tr>
+					<th style="width: 32px;"></th>
+					<th translate>Name</th>
+					<th translate>Color</th>
+					<th translate>Actions</th>
+				</tr>
+			</thead>
+			<tbody >
+				<tr *ngFor="let g of detailsControls; let i = index" [formGroup]="g" cdkDrag>
+					<td cdkDragHandle><i class="bi bi-grip-vertical"></i></td>
+					<td>
+						<input class="form-control form-control-sm" formControlName="nombre" placeholder="Ej: Nuevo, En progreso, Hecho" />
+						<div class="text-danger small" *ngIf="g.get('nombre')?.touched && g.get('nombre')?.invalid">
 							Requerido.
 						</div>
-					</div>
-					<div class="col-3">
-						<label class="form-label">Color</label>
-						<input class="form-control" formControlName="color" type="color" />
-					</div>
-					<div class="col-2 d-flex justify-content-end">
-						<button type="button" class="btn btn-danger" title="Eliminar"
-							(click)="removeDetail(i)"><i class="bi bi-trash3-fill"></i></button>
-					</div>
-				</div>
-			</div>
+					</td>
+					<td>
+						<input class="form-control form-control-sm form-control-color" formControlName="color" type="color" />
+					</td>
+					<td class="text-nowrap">
+						<button type="button" class="btn btn-danger btn-sm" title="Eliminar" (click)="removeDetail(i)">
+							<i class="bi bi-trash"></i>
+						</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div *ngIf="detailsFormArray.length === 0" class="text-center text-muted my-3">
+			<span translate>No states added yet. Click 'Add State' to begin.</span>
 		</div>
 
 		<div class="d-flex justify-content-end">

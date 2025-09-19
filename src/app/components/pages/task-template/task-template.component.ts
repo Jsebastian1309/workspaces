@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TemplateTaskService } from 'src/app/service/features/template/task/template-task.service';
-import { TemplateTaskdetailService } from 'src/app/service/features/template/task/template-taskdetail.service';
 import { WizardTaskComponent } from 'src/app/components/Wizard/wizard-task/wizard-task.component';
+import { ModalTemplateTaskDetailsComponent } from '../../modals/modal-template-task-details/modal-template-task-details.component';
+
 @Component({
   selector: 'app-task-template',
   templateUrl: './task-template.component.html',
@@ -11,20 +12,15 @@ import { WizardTaskComponent } from 'src/app/components/Wizard/wizard-task/wizar
 export class TaskTemplateComponent {
   templates: any[] = [];
   selectedTemplate: any = null;
-  templateDetails: any[] = [];
   loading = false;
   error = '';
   success = '';
 
-  // For create/edit form
-  showCreateForm = false;
   editingTemplate: any = null;
-  newTemplate = { nombre: '', estado: 'ACTIVE' };
   editTemplate = { nombre: '', estado: '' };
 
   constructor(
     private templateTaskService: TemplateTaskService,
-    private templateTaskdetailService: TemplateTaskdetailService,
     private modalService: NgbModal
   ) {}
 
@@ -46,26 +42,12 @@ export class TaskTemplateComponent {
     });
   }
 
-  selectTemplate(template: any): void {
-    this.selectedTemplate = template;
-    this.loadTemplateDetails(template.identificador);
+  openDetailsModal(template: any): void {
+    const modalRef = this.modalService.open(ModalTemplateTaskDetailsComponent, { size: 'xl', backdrop: 'static' });
+    modalRef.componentInstance.templateId = template.identificador;
+    modalRef.componentInstance.templateName = template.nombre;
   }
 
-  loadTemplateDetails(templateId: string): void {
-    this.loading = true;
-    this.templateTaskdetailService.listTemplateTaskDetails(templateId).subscribe({
-      next: (data) => {
-        this.templateDetails = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Error loading template details';
-        this.loading = false;
-      }
-    });
-  }
-
-  // Create methods now handled via Wizard modal
   toggleCreateForm(): void {
     const ref = this.modalService.open(WizardTaskComponent, { size: 'lg', backdrop: 'static', keyboard: false });
     ref.result
@@ -77,7 +59,6 @@ export class TaskTemplateComponent {
       .catch(() => {});
   }
 
-  // Edit methods
   startEdit(template: any): void {
     this.editingTemplate = template.identificador;
     this.editTemplate = { nombre: template.nombre, estado: template.estado };
@@ -91,14 +72,14 @@ export class TaskTemplateComponent {
   saveEdit(template: any): void {
     if (!this.editTemplate.nombre.trim()) return;
     this.loading = true;
-    this.templateTaskService.editTemplateTask(template.identificador, this.editTemplate).subscribe({
+    const payload = { nombre: this.editTemplate.nombre, estado: 'ACTIVE' };
+    this.templateTaskService.editTemplateTask(template.identificador, payload).subscribe({
       next: () => {
         this.success = 'Template updated successfully';
         this.editingTemplate = null;
         this.loadTemplates();
         if (this.selectedTemplate?.identificador === template.identificador) {
           this.selectedTemplate.nombre = this.editTemplate.nombre;
-          this.selectedTemplate.estado = this.editTemplate.estado;
         }
       },
       error: (err) => {
@@ -108,7 +89,6 @@ export class TaskTemplateComponent {
     });
   }
 
-  // Delete method
   deleteTemplate(template: any): void {
     if (!confirm(`Are you sure you want to delete "${template.nombre}"?`)) return;
     this.loading = true;
@@ -118,7 +98,6 @@ export class TaskTemplateComponent {
         this.loadTemplates();
         if (this.selectedTemplate?.identificador === template.identificador) {
           this.selectedTemplate = null;
-          this.templateDetails = [];
         }
       },
       error: (err) => {

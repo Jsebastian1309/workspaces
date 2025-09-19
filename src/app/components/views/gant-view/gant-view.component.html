@@ -1,55 +1,46 @@
-<div class="gantt-wrapper" style="height: 480px;">
-  <div class="btn-group mb-2">
-    <button *ngFor="let view of viewTypes"
-            type="button"
-            (click)="changeView(view.value)"
-            [disabled]="currentViewType === view.value"
-            class="btn"
-            [ngClass]="currentViewType === view.value ? 'btn-primary' : 'btn-outline-primary'">
-      {{ view.label }}
-    </button>
-  </div>
-	<div *ngIf="!items?.length" class="d-flex h-100 align-items-center justify-content-center text-muted">
-		No tasks with dates to display
-	</div>
-	<ngx-gantt *ngIf="items?.length"
-						 [items]="items"
-						 [groups]="groups"
-						 [start]="start"
-						 [end]="end"
-						 [viewType]="currentViewType"
-						 (barClick)="onBarClick($event)">
-		<ngx-gantt-table>
-			<ngx-gantt-column name="Task" width="300">
-				<ng-template #cell let-item>
-					{{ item.title }}
-				</ng-template>
-			</ngx-gantt-column>
-
-			<ngx-gantt-column name="Estado" width="160">
-				<ng-template #cell let-item>
-					<span class="me-2 align-middle" [style.background]="getStatusColor(item.group_id)" style="display:inline-block;width:10px;height:10px;border-radius:50%"></span>
-					<span>{{ getStatusLabel(item.group_id) }}</span>
-				</ng-template>
-			</ngx-gantt-column>
-
-			<ngx-gantt-column name="Start" width="120">
-				<ng-template #cell let-item>
-					{{ toMs(item.start) | date:'yyyy-MM-dd' }}
-				</ng-template>
-			</ngx-gantt-column>
-
-			<ngx-gantt-column name="End" width="120">
-				<ng-template #cell let-item>
-					{{ toMs(item.end) | date:'yyyy-MM-dd' }}
-				</ng-template>
-			</ngx-gantt-column>
-
-			<ngx-gantt-column name="Assigned" width="180">
-				<ng-template #cell let-item>
-					{{ getAssignee(item.id) }}
-				</ng-template>
-			</ngx-gantt-column>
-			</ngx-gantt-table>
-	</ngx-gantt>
+<div class="btn-group mb-3">
+  <button (click)="changeView(GanttViewType.day)"
+          [disabled]="currentViewType === GanttViewType.day"
+          class="btn"
+          [ngClass]="currentViewType === GanttViewType.day ? 'btn-primary' : 'btn-primary'">
+    {{ 'gantt.view.day' | translate }}
+  </button>
+  <button (click)="changeView(GanttViewType.week)"
+          [disabled]="currentViewType === GanttViewType.week"
+          class="btn"
+          [ngClass]="currentViewType === GanttViewType.week ? 'btn-primary' : 'btn-primary'">
+    {{ 'gantt.view.week' | translate }}
+  </button>
+  <button (click)="changeView(GanttViewType.month)"
+          [disabled]="currentViewType === GanttViewType.month"
+          class="btn"
+          [ngClass]="currentViewType === GanttViewType.month ? 'btn-primary' : 'btn-primary'">
+    {{ 'gantt.view.month' | translate }}
+  </button>
+  <button (click)="changeView(GanttViewType.quarter)"
+          [disabled]="currentViewType === GanttViewType.quarter"
+          class="btn"
+          [ngClass]="currentViewType === GanttViewType.quarter ? 'btn-primary' : 'btn-primary'">
+    {{ 'gantt.view.quarter' | translate }}
+  </button>
+  <button (click)="changeView(GanttViewType.year)"
+          [disabled]="currentViewType === GanttViewType.year"
+          class="btn"
+          [ngClass]="currentViewType === GanttViewType.year ? 'btn-primary' : 'btn-primary'">
+    {{ 'gantt.view.year' | translate }}
+  </button>
 </div>
+  <ngx-gantt [viewType]="currentViewType"
+            [groups]="groups"
+            [items]="items"
+            [start]="start"
+            [end]="end"
+            [linkable]="true">
+<ngx-gantt-table>
+  <ngx-gantt-column [name]="'gantt.columns.title' | translate" width="300px">
+    <ng-template #cell let-item="item">
+      {{ item.title }}
+    </ng-template>
+  </ngx-gantt-column>
+</ngx-gantt-table>
+</ngx-gantt>

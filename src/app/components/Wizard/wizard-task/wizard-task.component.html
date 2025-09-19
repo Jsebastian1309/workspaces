@@ -18,13 +18,6 @@
 						Ingrese un nombre válido
 					</div>
 				</div>
-				<div class="mb-3">
-					<label class="form-label">Estado</label>
-					<select class="form-select" formControlName="estado">
-						<option value="ACTIVE">Activo</option>
-						<option value="INACTIVE">Inactivo</option>
-					</select>
-				</div>
 			</div>
 
 			<!-- Step 2: Details -->
@@ -47,23 +40,27 @@
 								<label class="form-label">Etiqueta</label>
 								<input type="text" class="form-control" formControlName="etiqueta" />
 							</div>
-							<div class="col-md-2">
-								<label class="form-label">Prioridad</label>
-								<select class="form-select" formControlName="prioridad">
-									<option value="LOW">Baja</option>
-									<option value="MEDIUM">Media</option>
-									<option value="HIGH">Alta</option>
-								</select>
-							</div>
-							<div class="col-md-2">
-								<label class="form-label">Estado</label>
-								<select class="form-select" formControlName="estado">
-									<option value="OPEN">Abierta</option>
-									<option value="PENDING">Pendiente</option>
-									<option value="BLOCKED">Bloqueada</option>
-									<option value="DONE">Completada</option>
-								</select>
-							</div>
+              <div class="col-md-3">
+                <label class="form-label">Prioridad</label>
+                <div ngbDropdown class="dropdown-select w-100">
+                  <button class="btn btn-select btn-sm dropdown-toggle w-100 d-flex align-items-center justify-content-start" ngbDropdownToggle type="button">
+                    <i class="bi bi-flag-fill me-2" [ngStyle]="{ color: getPriorityColorValue(d.value.prioridad) }"></i>
+                    <span class="selected-label">{{ getPriorityLabelValue(d.value.prioridad) || 'Prioridad' }}</span>
+                  </button>
+                  <div ngbDropdownMenu class="w-100">
+                    <button ngbDropdownItem type="button" (click)="setPriority(i, '')">
+                      <i class="bi bi-flag me-2 text-muted"></i>
+                      <span>Ninguna</span>
+                      <i class="bi bi-check ms-auto" *ngIf="!d.value.prioridad"></i>
+                    </button>
+                    <button ngbDropdownItem type="button" *ngFor="let p of priorityOptions.slice(1)" (click)="setPriority(i, p.key)">
+                      <i class="bi bi-flag-fill me-2" [ngStyle]="{ color: p.color }"></i>
+                      <span>{{ p.label }}</span>
+                      <i class="bi bi-check ms-auto" *ngIf="d.value.prioridad === p.key"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
 							<div class="col-md-2">
 								<label class="form-label">Duración (h)</label>
 								<input type="number" class="form-control" formControlName="duracionHoras" min="0" step="1" />

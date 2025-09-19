@@ -1,200 +1,145 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Task } from 'src/app/models/task.model';
-import { GanttItem, GanttGroup, GanttBarClickEvent, GanttViewType } from '@worktile/gantt';
-import { parseISO, isValid, addDays } from 'date-fns';
+import { GanttItem, GanttGroup, GanttViewType } from '@worktile/gantt';
+import { parseISO, isValid } from 'date-fns';
 
 @Component({
   selector: 'app-gant-view',
   templateUrl: './gant-view.component.html',
   styleUrls: ['./gant-view.component.scss']
 })
-export class GantViewComponent implements OnChanges {
+export class GantViewComponent implements OnInit, OnChanges {
   @Input() tasks: Task[] = [];
   @Input() statuses: { key: string; label: string; color: string }[] = [];
-  // Permite configurar los campos de fechas si tu backend usa nombres distintos
-  @Input() dateFieldMap: { start?: string[]; end?: string[]; due?: string[] } = {
-    start: ['fechaInicio', 'inicio', 'start'],
-    end: ['fechaFin', 'fechaFinal', 'fechaCierre', 'fin', 'end'],
-    due: ['fechaVencimiento', 'vencimiento', 'dueDate']
-  };
+  // Optional resolver to map workspace id -> workspace name
+  @Input() getEspacioTrabajoName?: (id?: string) => string;
+  // Optional list name to display when tasks don't include listaNombre
+  @Input() listName?: string;
 
-  items: GanttItem[] = [];
-  groups: GanttGroup[] = [];
-  // Ngx Gantt expects timestamps in seconds
-  start: number = Math.floor(addDays(new Date(), -7).getTime() / 1000);
-  end: number = Math.floor(addDays(new Date(), 21).getTime() / 1000);
-  private assignees = new Map<string, string>();
-
-  // Controles de vista (Día/Semana/Mes/Trimestre/Año)
   currentViewType: GanttViewType = GanttViewType.month;
-  viewTypes = [
-    { label: 'Día', value: GanttViewType.day },
-    { label: 'Semana', value: GanttViewType.week },
-    { label: 'Mes', value: GanttViewType.month },
-    { label: 'Trimestre', value: GanttViewType.quarter },
-    { label: 'Año', value: GanttViewType.year }
-  ];
+  groups: GanttGroup[] = [];
+  items: GanttItem[] = [];
+  start: number = 0; // ms
+  end: number = 0; // ms
+
+  GanttViewType = GanttViewType;
+
+  constructor() {}
+
+  ngOnInit(): void {
+    this.rebuild();
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['tasks']) {
-      this.buildData();
+    if (changes['tasks'] || changes['statuses']) {
+      this.rebuild();
     }
-  }
-
-  private parseDate(d?: string | number | Date): Date | undefined {
-    if (d === undefined || d === null) return undefined;
-    // Date
-    if (d instanceof Date) return isNaN(d.getTime()) ? undefined : d;
-    // number timestamp
-    if (typeof d === 'number') {
-      const dt = new Date(d);
-      return isNaN(dt.getTime()) ? undefined : dt;
-    }
-    // string ISO or close to ISO
-    let s = String(d).trim();
-    // try parseISO directly
-    let p = parseISO(s);
-    if (isValid(p)) return p;
-    // common "YYYY-MM-DD HH:mm:ss" -> replace space with T
-    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(s)) {
-      p = parseISO(s.replace(' ', 'T'));
-      if (isValid(p)) return p;
-    }
-    // fall back to Date constructor
-    const dt = new Date(s);
-    return isNaN(dt.getTime()) ? undefined : dt;
-  }
-
-  private pickFirstDate(task: any, candidates: string[] = []): Date | undefined {
-    for (const key of candidates) {
-      if (task && task[key]) {
-        const dt = this.parseDate(task[key]);
-        if (dt) return dt;
-      }
-    }
-    return undefined;
-  }
-
-  private buildData() {
-    const items: GanttItem[] = [];
-    const groups: GanttGroup[] = [];
-    const groupMap = new Map<string, GanttGroup>();
-  let minStart: number | undefined;
-  let maxEnd: number | undefined;
-    this.assignees.clear();
-
-    const startKeys = this.dateFieldMap.start ?? [];
-    const endKeys = this.dateFieldMap.end ?? [];
-    const dueKeys = this.dateFieldMap.due ?? [];
-
-    (this.tasks || []).forEach((t) => {
-      let start = this.pickFirstDate(t, startKeys) || this.pickFirstDate(t, dueKeys);
-      let end = this.pickFirstDate(t, endKeys) || this.pickFirstDate(t, dueKeys);
-      // Incluir tareas sin fechas: default hoy..hoy+1
-      if (!start && !end) {
-        const today = new Date();
-        start = today;
-        end = addDays(today, 1);
-      }
-
-      // Normalizar: si solo hay una fecha, crea una duración mínima de 1 día; si end < start, intercambiar
-      if (start && !end) {
-        end = addDays(start, 1);
-      } else if (!start && end) {
-        start = addDays(end, -1);
-      } else if (start && end && end < start) {
-        const tmp = start; start = end; end = tmp;
-      } else if (start && end && end.getTime() === start.getTime()) {
-        end = addDays(end, 1);
-      }
-
-      // Agrupar por lista
-      const groupKey = (t.listaIdentificador || 'sin-lista') as string;
-      const groupTitle = (t as any).listaNombre || `Lista ${groupKey === 'sin-lista' ? '' : groupKey}` || 'Sin Lista';
-      if (!groupMap.has(groupKey)) {
-        const g: GanttGroup = { id: groupKey, title: groupTitle };
-        groupMap.set(groupKey, g);
-        groups.push(g);
-      }
-
-      const item: GanttItem = {
-        id: t.identificador,
-        title: t.nombre,
-        start: Math.floor(((start || end!)!).getTime() / 1000),
-        end: Math.floor(((end || start!)!).getTime() / 1000),
-        group_id: groupKey,
-        // Mantener color por estado
-        color: this.colorFromStatus(t.estado)
-      };
-      items.push(item);
-
-      // keep a quick lookup for assignee by item id for table rendering
-      const assignee = (typeof t.asignadoA === 'string' ? t.asignadoA : (t.asignadoA as any)?.nombre) || '';
-      if (assignee) this.assignees.set(t.identificador, assignee);
-
-      const sTs = item.start as number; // seconds
-      const eTs = item.end as number;   // seconds
-      if (minStart === undefined || sTs < minStart) {
-        minStart = sTs;
-      }
-      if (maxEnd === undefined || eTs > maxEnd) {
-        maxEnd = eTs;
-      }
-    });
-
-    this.items = items;
-    this.groups = groups;
-    if (minStart !== undefined && maxEnd !== undefined) {
-      // Extender el rango un poco para que no quede al ras
-      const minDate = new Date(minStart * 1000);
-      const maxDate = new Date(maxEnd * 1000);
-      this.start = Math.floor(addDays(minDate, -3).getTime() / 1000);
-      this.end = Math.floor(addDays(maxDate, 3).getTime() / 1000);
-    } else {
-      // Fallback a un rango relativo a hoy para evitar undefined en bindings
-      const today = new Date();
-      this.start = Math.floor(addDays(today, -7).getTime() / 1000);
-      this.end = Math.floor(addDays(today, 21).getTime() / 1000);
-    }
-  }
-
-  private colorFromStatus(statusKey?: string): string {
-    const s = (this.statuses || []).find(x => (x.key || '').toLowerCase() === String(statusKey || '').toLowerCase());
-    return s?.color || '#607d8b';
-  }
-
-  onBarClick(e: GanttBarClickEvent) {
-    // placeholder: podríamos abrir detalle de tarea
-    // console.log('bar click', e);
   }
 
   changeView(viewType: GanttViewType) {
     this.currentViewType = viewType;
   }
 
-  private findStatusLabel(key: string): string | undefined {
-    const s = (this.statuses || []).find(x => (x.key || '').toLowerCase() === String(key || '').toLowerCase());
-    return s?.label;
+  private rebuild(): void {
+    const tasks = Array.isArray(this.tasks) ? this.tasks : [];
+
+
+    const groupMap = new Map<string, GanttGroup>();
+    tasks.forEach(t => {
+      const groupId = String((t as any).listaIdentificador || 'sin-lista');
+      if (!groupMap.has(groupId)) {
+        const listTitle: string | undefined = (t as any).listaNombre || this.listName;
+        const workspaceTitle: string | undefined = this.getEspacioTrabajoName
+          ? this.getEspacioTrabajoName(String((t as any).espacioTrabajoIdentificador || ''))
+          : undefined;
+        const title = String(listTitle || workspaceTitle || groupId);
+        groupMap.set(groupId, { id: groupId, title });
+      }
+    });
+    this.groups = Array.from(groupMap.values());
+
+    // Map tasks to items with start/end
+    const items: GanttItem[] = [];
+    const allDates: number[] = [];
+    for (const t of tasks) {
+      const start = this.pickStart(t);
+      const end = this.pickEnd(t);
+      if (!start && !end) {
+        continue; // skip tasks with no dates
+      }
+      const s = start || end!;
+      const e = end || start!;
+      const sMs = this.toMs(s);
+      const eMs = this.toMs(e);
+      allDates.push(sMs, eMs);
+
+      items.push({
+        id: String(t.identificador),
+        title: String(t.nombre || 'Tarea'),
+        start: sMs,
+        end: eMs,
+        group_id: String((t as any).listaIdentificador || 'sin-lista'),
+        color: this.colorForTask(t),
+        progress: this.progressFromTask(t)
+      });
+    }
+    this.items = items;
+
+    if (allDates.length) {
+      const min = Math.min(...allDates);
+      const max = Math.max(...allDates);
+      this.start = min;
+      this.end = max;
+    } else {
+      // Default to a 1-week window starting today
+      const today = new Date();
+      const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      this.start = start.getTime();
+      this.end = this.start + 7 * 24 * 60 * 60 * 1000;
+    }
   }
 
-  getStatusColor(key: string): string {
-    return this.colorFromStatus(key);
+  private pickStart(t: Task): Date | string | number | undefined {
+    return (
+      (t as any).fechaInicio ||
+      (t as any).fechaCreacionTarea ||
+      (t as any).fechaTerminada ||
+      (t as any).fechaVencimiento
+    );
   }
 
-  getStatusLabel(key: string): string {
-    return this.findStatusLabel(key) || key;
+  private pickEnd(t: Task): Date | string | number | undefined {
+    return (
+      (t as any).fechaFin ||
+      (t as any).fechaVencimiento ||
+      (t as any).fechaCerrada ||
+      (t as any).fechaTerminada
+    );
   }
 
-  getAssignee(itemId: string): string {
-    return this.assignees.get(itemId) || '';
+  private colorForTask(t: Task): string | undefined {
+    const label = String((t as any).estadoLabel || (t as any).estado || '').toUpperCase();
+    if (!label) return undefined;
+    const st = (this.statuses || []).find(s => (s.key || '').toUpperCase() === label || (s.label || '').toUpperCase() === label);
+    return st?.color;
   }
 
-  // Normaliza timestamps a milisegundos para pipes/formatos (si vienen en segundos los multiplica)
-  toMs(ts: number | Date | string | undefined | null): number | null {
-    if (ts === undefined || ts === null) return null;
-    if (ts instanceof Date) return ts.getTime();
-    const n = typeof ts === 'number' ? ts : Number(ts);
-    if (!isFinite(n)) return null;
-    return n < 1e12 ? n * 1000 : n; // si es menor a ~Sat Nov 20 2001 en ms, asumimos segundos
+  private progressFromTask(t: Task): number | undefined {
+    const p = (t as any).progreso;
+    if (typeof p === 'number') {
+      if (p <= 1) return Math.max(0, Math.min(1, p));
+      return Math.max(0, Math.min(1, p / 100));
+    }
+    return undefined;
+  }
+
+  private toMs(v: Date | string | number): number {
+    if (typeof v === 'number') {
+      // Heuristic: if value looks like seconds, convert to ms
+      return v < 3_000_000_000 ? v * 1000 : v;
+    }
+    if (v instanceof Date) return v.getTime();
+    const d = parseISO(String(v));
+    return isValid(d) ? d.getTime() : Date.now();
   }
 }

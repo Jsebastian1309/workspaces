@@ -33,6 +33,12 @@ export class TaskComponent implements OnInit, OnChanges {
   filterStatus: string = '';
   filterAssignee: string = '';
 
+  // Modal properties
+  showTaskModal = false;
+  isCreateMode = false;
+  modalTasks: Task[] = [];
+  selectedTaskIndex = 0;
+
   viewOptions = [
     { key: 'board' as ViewType, label: 'Board', icon: '📋' },
     { key: 'list' as ViewType, label: 'List', icon: '�' },
@@ -154,18 +160,31 @@ export class TaskComponent implements OnInit, OnChanges {
   }
 
   addNewTask(): void {
-    if (this.currentView === 'list' && this.listViewComponent) {
-      const first = this.statuses && this.statuses[0]?.key ? this.statuses[0].key : 'OPEN';
-    this.listViewComponent.startAdd(first);
-    } else {
-      this.currentView = 'list';
-      setTimeout(() => {
-        if (this.listViewComponent) {
-      const first = this.statuses && this.statuses[0]?.key ? this.statuses[0].key : 'OPEN';
-      this.listViewComponent.startAdd(first);
-        }
-      }, 100);
-    }
+    // Create a new empty task template
+    const newTask: Task = {
+      identificador: 'temp-' + Date.now(), // Temporary ID
+      nombre: '',
+      descripcion: '',
+      estado: this.statuses[0]?.key || 'OPEN',
+      progreso: 0,
+      prioridad: 'normal', // Default priority
+      tipoTarea: 'TASK',
+      listaIdentificador: this.list?.identificador,
+      espacioTrabajoIdentificador: this.espacioTrabajoIdentificador,
+      fechaInicio: '',
+      fechaFin: '',
+      etiqueta: '',
+      timezone: 'UTC-5',
+      duracionHoras: 0,
+      minutosNotificacion: 0,
+      facturable: false
+    };
+
+    // Set up modal in create mode
+    this.modalTasks = [newTask];
+    this.selectedTaskIndex = 0;
+    this.isCreateMode = true;
+    this.showTaskModal = true;
   }
 
   clearFilters() {
@@ -251,5 +270,70 @@ export class TaskComponent implements OnInit, OnChanges {
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
+  }
+
+  // Modal methods
+  closeTaskModal(): void {
+    this.showTaskModal = false;
+    this.isCreateMode = false;
+    this.modalTasks = [];
+  }
+
+  onModalTaskUpdate(updatedTask: Task): void {
+    if (!this.isCreateMode) {
+      // Update existing task in local array
+      const index = this.tasks.findIndex(t => t.identificador === updatedTask.identificador);
+      if (index >= 0) {
+        this.tasks[index] = updatedTask;
+      }
+      // Refresh the entire task list to ensure UI is updated
+      this.fetchTasks();
+    }
+  }
+
+  onModalTaskCreate(newTask: Task): void {
+    if (this.isCreateMode) {
+      // Save new task to backend
+      this.createTaskOnServer(newTask);
+    }
+  }
+
+  private createTaskOnServer(task: Task): void {
+    if (!this.list?.identificador) return;
+    
+    this.loading = true;
+    this.taskService.Createtask({
+      ...task,
+      prioridad: task.prioridad || 'normal', // Ensure priority is always set
+      listaIdentificador: this.list.identificador,
+      espacioTrabajoIdentificador: this.espacioTrabajoIdentificador,
+      carpetaIdentificador: this.carpetaIdentificador
+    }).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe({
+      next: () => {
+        this.fetchTasks(); // Reload tasks
+        this.closeTaskModal();
+      },
+      error: (err: any) => {
+        console.error('Error creating task:', err);
+        this.error = 'Error al crear la tarea';
+      }
+    });
+  }
+
+  private updateTaskOnServer(task: Task): void {
+    this.loading = true;
+    this.taskService.actualizarTarea(task).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe({
+      next: () => {
+        // Task updated successfully
+      },
+      error: (err: any) => {
+        console.error('Error updating task:', err);
+        this.error = 'Error al actualizar la tarea';
+      }
+    });
   }
 }

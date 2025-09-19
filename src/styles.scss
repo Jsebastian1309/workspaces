@@ -1,6 +1,9 @@
+// Import Styles Bootstrap
 @import 'bootstrap/scss/bootstrap';
+// Import Bootstrap Icons
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
+// Styles colors mode white
 :root {
   --header-height: 46px;
   --background-color: #f5f5f5;
@@ -16,12 +19,15 @@
   --error-text: #A52A2A;
   --input-bg: #576185;
   --input-bg-secondary: #e3e4e5;
+  --button-bg: #3e4c6a;
+  --button-color: #fff;
 }
 
+//Style colors mode dark
 .dark-theme {
-  --background-color: #181818;
+  --background-color: #000000;
   --text-color: #f5f5f5;
-  --nav-bg: #222222;
+  --nav-bg: #202020;
   --nav-color: #fff;
   --sidebar-bg: #222222;
   --sidebar-color: #fff;
@@ -32,8 +38,11 @@
   --error-text: #ffffff;
   --input-bg: #595959;
   --input-bg-secondary: #595959;
+  --button-bg: #484848;
+  --button-color: #fff;
 }
 
+// General styles
 body {
   background: var(--background-color);
   color: var(--text-color);

@@ -206,7 +206,11 @@
 
     <!-- Vista de Gantt -->
     <div *ngIf="currentView === 'gantt'">
-      <app-gant-view [tasks]="tasks" [statuses]="statuses"></app-gant-view>
+      <app-gant-view
+        [getEspacioTrabajoName]="getEspacioTrabajoName"
+        [listName]="list?.nombre"
+        [tasks]="tasks"
+        [statuses]="statuses"></app-gant-view>
     </div>
 
     <!-- Vista de Calendario -->
@@ -214,11 +218,19 @@
       <app-calendar-view [tasks]="tasks" [statuses]="statuses"></app-calendar-view>
     </div>
     <div *ngIf="currentView === 'gantt'" class="view-placeholder">
-      <div class="placeholder-content">
-        <span class="placeholder-icon">�</span>
-        <h3>Vista Canlendario</h3>
-        <p>Esta vista estará disponible próximamente</p>
-      </div>
     </div>
   </div>
 </div>
+
+<!-- Task modal for create/edit -->
+<app-modal-task
+  [show]="showTaskModal"
+  [tasks]="modalTasks"
+  [selectedIndex]="selectedTaskIndex"
+  [statuses]="statuses"
+  [teams]="teams"
+  [isCreateMode]="isCreateMode"
+  (close)="closeTaskModal()"
+  (updateTask)="onModalTaskUpdate($event)"
+  (createTask)="onModalTaskCreate($event)">
+</app-modal-task>

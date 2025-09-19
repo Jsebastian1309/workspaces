@@ -45,10 +45,10 @@
 
 
 	<!-- Template States Table -->
-	<table class="table table-hover align-middle mt-2 table-surface" cdkDropList (cdkDropListDropped)="drop($event)">
+	<table class="table  align-middle mt-2 table-surface" cdkDropList (cdkDropListDropped)="drop($event)">
 		<thead>
 			<tr>
-				<th style="width:32px"></th>
+				<th class="drag-handle-col"></th>
 				<th translate>Name</th>
 				<th translate>Color</th>
 				<th translate>Actions</th>
@@ -56,7 +56,7 @@
 		</thead>
 		<tbody>
 			<tr *ngFor="let d of details; let i = index" cdkDrag>
-				<td cdkDragHandle class="text-muted"><i
+				<td ><i
 						class="bi bi-grip-vertical"></i></td>
 				<td>
 					<ng-container *ngIf="editingId === d.identificador; else nameView">
@@ -71,8 +71,7 @@
 							[(ngModel)]="editDetail.color" [ngModelOptions]="{standalone: true}" />
 					</ng-container>
 					<ng-template #colorView>
-						<span class="badge" [style.background]="d.color"
-							style="width:16px;height:16px;border-radius:4px;display:inline-block;">&nbsp;</span>
+						<span class="color-badge" [style.background]="d.color">&nbsp;</span>
 					</ng-template>
 				</td>
 				<td class="text-nowrap">

@@ -1,14 +1,16 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
 import { Task } from 'src/app/models/task.model';
 import { startOfDay, endOfDay, parseISO, isValid, addDays, addWeeks, addMonths, startOfWeek, endOfWeek, format } from 'date-fns';
+import { Subscription } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-calendar-view',
   templateUrl: './calendar-view.component.html',
   styleUrls: ['./calendar-view.component.scss']
 })
-export class CalendarViewComponent implements OnChanges {
+export class CalendarViewComponent implements OnChanges,OnDestroy  {
   @Input() tasks: Task[] = [];
   @Input() statuses: { key: string; label: string; color: string }[] = [];
   @Input() dateFieldMap: { start?: string[]; end?: string[]; due?: string[] } = {
@@ -20,10 +22,24 @@ export class CalendarViewComponent implements OnChanges {
   CalendarView = CalendarView; // expose enum to template
   viewDate: Date = new Date();
   events: CalendarEvent[] = [];
+  showCalendar = true
+  private langChangeSub!: Subscription;
 
+  constructor(private translate: TranslateService) {}
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['tasks']) {
       this.events = this.mapTasksToEvents(this.tasks);
+    }
+    this.langChangeSub = this.translate.onLangChange.subscribe(() => {
+      this.showCalendar = false;
+      setTimeout(() => {
+        this.showCalendar = true;
+      }, 0);
+    });
+  }
+    ngOnDestroy() {
+    if (this.langChangeSub) {
+      this.langChangeSub.unsubscribe();
     }
   }
 

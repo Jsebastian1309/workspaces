@@ -6,6 +6,7 @@ import { AuthService } from 'src/app/service/core/auth/auth.service';
 import { UniqueIdService } from 'src/app/service/core/utils/uniqueId.service';
 import { TemplateStatusService } from 'src/app/service/features/template/status/template-status.service';
 import { TemplateStatusDetailService } from 'src/app/service/features/template/status/template-statusdetail.service';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-wizard-states',
@@ -41,6 +42,11 @@ export class WizardStatesComponent {
   // Convenience getters
   get detailsControls() {
     return this.detailsFormArray.controls as FormGroup[];
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.detailsControls, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.detailsFormArray.controls, event.previousIndex, event.currentIndex);
   }
 
   // Step 1: Create header

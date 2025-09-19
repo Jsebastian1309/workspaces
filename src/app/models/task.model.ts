@@ -22,5 +22,12 @@ export interface Task {
   fechaTerminada?: string | Date;
   facturable?: boolean;
   responsableIdentificador?: string;
-  // Extend with backend fields as needed
+  // Additional backend fields
+  tareaPadreIdentificador?: string;
+  horaInicio?: string;
+  horaFin?: string;
+  timezone?: string;
+  localizacion?: string;
+  tipoNotificacion?: string;
+  minutosNotificacion?: number;
 }

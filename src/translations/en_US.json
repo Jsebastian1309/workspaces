@@ -48,5 +48,22 @@
   "Category": "Category",
   "Public Workspace": "Public Workspace",
   "Public workspaces can be viewed by other users": "Public workspaces can be viewed by other users",
-  "Cancel": "Cancel"
+  "Cancel": "Cancel",
+
+
+
+    "gantt": {
+    "week": "week",
+    "of": "of",
+    "view": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "quarter": "Quarter",
+      "year": "Year"
+    },
+    "columns": {
+      "title": "Task Title"
+    }
+  }
 }

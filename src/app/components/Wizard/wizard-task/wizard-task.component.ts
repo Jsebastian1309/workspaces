@@ -7,6 +7,14 @@ import { AuthService } from 'src/app/service/core/auth/auth.service';
 import { TemplateTaskService } from 'src/app/service/features/template/task/template-task.service';
 import { TemplateTaskdetailService } from 'src/app/service/features/template/task/template-taskdetail.service';
 
+const PRIORITY_OPTIONS = [
+	{ key: '', label: 'None', color: '#a0a0a0' },
+	{ key: 'URGENT', label: 'Urgente', color: '#c70000' },
+	{ key: 'HIGH', label: 'Alta', color: '#f7b500' },
+	{ key: 'MEDIUM', label: 'Media', color: '#00a3ff' },
+	{ key: 'LOW', label: 'Baja', color: '#24be00' },
+];
+
 @Component({
   selector: 'app-wizard-task',
   templateUrl: './wizard-task.component.html',
@@ -16,6 +24,8 @@ export class WizardTaskComponent {
   step: 1 | 2 = 1;
   saving = false;
   error?: string;
+
+  priorityOptions = PRIORITY_OPTIONS;
 
   form: FormGroup;
 
@@ -37,6 +47,18 @@ export class WizardTaskComponent {
     });
     // Start with one empty row for convenience
     this.addDetalle();
+  }
+
+  getPriorityLabelValue(value?: string): string {
+		return this.priorityOptions.find(o => o.key === value)?.label || '';
+	}
+
+	getPriorityColorValue(value?: string): string {
+		return this.priorityOptions.find(o => o.key === value)?.color || '';
+	}
+
+  setPriority(index: number, value: string): void {
+    this.detalles.at(index).get('prioridad')?.setValue(value);
   }
 
   detalleGroup(init?: any): FormGroup {

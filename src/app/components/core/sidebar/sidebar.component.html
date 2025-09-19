@@ -55,7 +55,7 @@
         </button>
       </div>
     </div>
-    <button class="btn btn-top-toggle" type="button" (click)="toggleSidebar()" [title]="'Contraer'">
+    <button class=" btn-top-toggle" type="button" (click)="toggleSidebar()" [title]="'Contraer'">
       <i class="bi bi-layout-sidebar-reverse"></i>
     </button>
   </div>
@@ -75,23 +75,23 @@
   <ul class="sidebar-menu">
     <li translate [class.active]="activeView === 'start'"
       (click)="navigateTo('start')">
-      <i class="bi bi-house-door"></i> <span *ngIf="!collapsed">Home</span>
+      <i class="bi bi-house-door"></i> <span translate *ngIf="!collapsed">Home</span>
     </li>
     <li translate [class.active]="activeView === 'inbox'"
       (click)="navigateTo('inbox')">
-      <i class="bi bi-inbox"></i> <span *ngIf="!collapsed">Inbox</span>
+      <i class="bi bi-inbox"></i> <span translate *ngIf="!collapsed">Inbox</span>
     </li>
     <li translate [class.active]="activeView === 'status-templates'"
       (click)="navigateTo('status-templates')">
-      <i class="bi bi-toggles2"></i> <span *ngIf="!collapsed">Status template</span>
+      <i class="bi bi-toggles2"></i> <span translate *ngIf="!collapsed">Status template</span>
     </li>
     <li translate [class.active]="activeView === 'task-templates'"
       (click)="navigateTo('task-templates')">
-      <i class="bi bi-list-task"></i><span *ngIf="!collapsed"> Task template</span>
+      <i class="bi bi-list-task"></i><span translate *ngIf="!collapsed"> Task template</span>
     </li>
     <li translate [class.active]="activeView === 'team'"
       (click)="navigateTo('team')">
-      <i class="bi bi-people-fill"></i><span *ngIf="!collapsed"> Team</span>
+      <i class="bi bi-people-fill"></i><span translate *ngIf="!collapsed"> Team</span>
     </li>
     <!-- <li translate><i class="bi bi-kanban"></i> Dashboards</li>
     <li translate><i class="bi bi-three-dots"></i> More</li> -->

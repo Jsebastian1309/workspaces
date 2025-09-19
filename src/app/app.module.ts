@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './components/pages/login/login.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { I18nService } from './service/core/i18n/i18n.service';
+import { appInitializerFactory, I18nService } from './service/core/i18n/i18n.service';
 import { HttpClientModule } from '@angular/common/http';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HomeComponent } from './components/pages/home/home.component';
@@ -60,6 +60,8 @@ import { ModalTemplateTaskComponent } from './components/modals/modal-template-t
 import { BoardViewComponent } from './components/views/board-view/board-view.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ModalTemplateStatusDetailsComponent } from './components/modals/modal-template-status-details/modal-template-status-details.component';
+import { ganttConfigFactory, GanttConfigService } from './service/core/utils/ganttConfig.service';
+import { ModalTemplateTaskDetailsComponent } from './components/modals/modal-template-task-details/modal-template-task-details.component';
 
 
 @NgModule({
@@ -98,7 +100,8 @@ import { ModalTemplateStatusDetailsComponent } from './components/modals/modal-t
     ModalInfopersonComponent,
     ModalTemplateTaskComponent,
     BoardViewComponent,
-    ModalTemplateStatusDetailsComponent
+    ModalTemplateStatusDetailsComponent,
+    ModalTemplateTaskDetailsComponent
   ],
   imports: [
     BrowserModule,
@@ -117,26 +120,25 @@ import { ModalTemplateStatusDetailsComponent } from './components/modals/modal-t
     MatTooltipModule,
     MatTabsModule,
     NgbDropdownModule,
-  CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
-  NgxGanttModule,
-  DragDropModule,
+    NgxGanttModule,
+    CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
+    DragDropModule,
   ],
   providers: [I18nService,
     {
-      provide: GANTT_GLOBAL_CONFIG,
-      useValue: {
-        dateFormat: {
-          yearQuarter: `QQQ 'de' yyyy`,
-          month: 'LLLL',
-          yearMonth: `LLLL yyyy'(semana' w ')'`,
-          week: 'w',
-          day: 'dd',
-          year : 'yyyy',
-        },
-        locale: es 
-      }
+      provide: APP_INITIALIZER,
+      useFactory: appInitializerFactory,
+      deps: [I18nService], 
+      multi: true
     },
+    GanttConfigService,
+    {
+      provide: GANTT_GLOBAL_CONFIG,
+      useFactory: ganttConfigFactory,
+      deps: [GanttConfigService] 
+    }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule { }

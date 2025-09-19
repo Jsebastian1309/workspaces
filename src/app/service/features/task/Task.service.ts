@@ -175,7 +175,19 @@ export class TaskService {
      */
     actualizarTarea(tarea: any): Observable<any> {
         const headers = this.authService.createHeaders();
-        return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/actualizar`, tarea, { headers });
+        return this.http.put(`${this.apiUrl}${this.baseUrl}/actualizar`, tarea, { 
+            headers,
+            responseType: 'text'
+        }).pipe(
+            map(response => {
+                console.log('Update response:', response);
+                return { success: true, message: response };
+            }),
+            catchError(error => {
+                console.error('Update error:', error);
+                throw error;
+            })
+        );
     }
 
     /**

@@ -29,4 +29,9 @@ export class TemplateTaskdetailService {
     return this.http.put<any>(`${this.apiUrl}${this.baseUrl}/${templateTaskDetailId}`, templateTaskDetail, { headers });
   }
 
+  deleteTemplateTaskDetail(templateTaskDetailId: string): Observable<any> {
+    const headers = this.authService.createHeaders();
+    return this.http.delete<any>(`${this.apiUrl}${this.baseUrl}/${templateTaskDetailId}`, { headers });
+  }
+
 }

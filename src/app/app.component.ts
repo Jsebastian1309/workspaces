@@ -8,23 +8,11 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'workspaces';
-
-  constructor(private i18nService: I18nService) {
-   
+  title = 'Workspaces';
+  constructor(private i18nService: I18nService) { 
   }
   ngOnInit() {
+    // Initialize i18n service language Page
     this.i18nService.init(environment.defaultLanguage, environment.supportedLanguages);
-    const theme = localStorage.getItem('theme');
-    if (theme === 'dark') {
-      document.body.classList.add('dark-theme');
-    }
-  }
-
-  ngOnDestroy() {
-    this.i18nService.destroy();
-  }
-  toggleTheme() {
-    document.body.classList.toggle('dark-theme');
   }
 }

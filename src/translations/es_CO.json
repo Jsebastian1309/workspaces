@@ -16,7 +16,7 @@
 
 	"Logout": "Cerrar sesión",
 	"Loading workspaces": "Cargando espacios de trabajo",
-	"Welcome To Worki": "Bienvenido a Worki,{{ currentUser?.name }}.",
+	"Welcome To Worki,": "Bienvenido a Worki",
 	"Select a menu option to begin": "Seleccione una opción del menú para comenzar",
 
 
@@ -141,15 +141,34 @@
 	"High": "Alta",
 	"Urgent": "Urgente",
 	"State": "Estado",
+	
 
 
 
 
+	"Prev": "Anterior",
+	"Today": "Hoy",
+	"Next": "Siguiente",
+	"Month": "Mes",
+	"Week": "Semana",
+	"Day": "Día",
 
 
 
-
-
+  "gantt": {
+    "week": "semana",
+    "of": "de",
+    "view": {
+      "day": "Día",
+      "week": "Semana",
+      "month": "Mes",
+      "quarter": "Trimestre",
+      "year": "Año"
+    },
+    "columns": {
+      "title": "Título de la Tarea"
+    }
+  },
 
 
 
