@@ -83,7 +83,7 @@
 							</div>
 						</div>
 						<div class="col-6">
-							<label>Duración (Horas)</label>
+							<label>Duración (Tiempo Estimado en Horas)</label>
 							<input class="form-control" type="number" min="0" [value]="t.duracionHoras || 0" (input)="onFieldChange('duracionHoras', ($any($event.target).valueAsNumber ?? 0))" />
 						</div>
 					</div>
@@ -103,13 +103,9 @@
 							<label>Fecha Vencimiento</label>
 							<input class="form-control" type="date" [value]="t.fechaVencimiento || ''" (input)="onFieldChange('fechaVencimiento', $any($event.target).value)" />
 						</div>
-						<div class="col-6">
-							<label>Fecha Creación</label>
-							<input class="form-control" type="date" [value]="$any(t).fechaCreacionTarea || ''" (input)="onFieldChange('fechaCreacionTarea', $any($event.target).value)" />
-						</div>
 					</div>
-					<div class="row g-2 mt-2">
-						<div class="col-6">
+					<!-- <div class="row g-2 mt-2">
+						<div class="col-6">	
 							<label>Fecha Cerrada</label>
 							<input class="form-control" type="date" [value]="$any(t).fechaCerrada || ''" (input)="onFieldChange('fechaCerrada', $any($event.target).value)" />
 						</div>
@@ -117,7 +113,7 @@
 							<label>Fecha Terminada</label>
 							<input class="form-control" type="date" [value]="$any(t).fechaTerminada || ''" (input)="onFieldChange('fechaTerminada', $any($event.target).value)" />
 						</div>
-					</div>
+					</div> -->
 
 					<div class="row g-2 mt-2">
 						<div class="col-6">
@@ -144,17 +140,11 @@
 							<label>Tipo Tarea</label>
 							<select class="form-select" [value]="t.tipoTarea || 'TASK'" (change)="onFieldChange('tipoTarea', $any($event.target).value)">
 								<option value="TASK">Tarea</option>
-								<option value="MILESTONE">Hito</option>
-								<option value="PROJECT">Proyecto</option>
 							</select>
 						</div>
 					</div>
 
 					<div class="row g-2 mt-2">
-						<div class="col-6">
-							<label>Tarea Padre ID</label>
-							<input class="form-control" [value]="$any(t).tareaPadreIdentificador || ''" (input)="onFieldChange('tareaPadreIdentificador', $any($event.target).value)" />
-						</div>
 						<div class="col-6">
 							<label>Localización</label>
 							<input class="form-control" [value]="$any(t).localizacion || ''" (input)="onFieldChange('localizacion', $any($event.target).value)" />
@@ -177,9 +167,6 @@
 							<label>Timezone</label>
 							<select class="form-select" [value]="$any(t).timezone || 'UTC-5'" (change)="onFieldChange('timezone', $any($event.target).value)">
 								<option value="UTC-5">UTC-5 (Colombia)</option>
-								<option value="UTC-6">UTC-6 (México)</option>
-								<option value="UTC-3">UTC-3 (Argentina)</option>
-								<option value="UTC+0">UTC+0 (Londres)</option>
 							</select>
 						</div>
 						<div class="col-6">
@@ -188,7 +175,7 @@
 								<option value="">Sin notificación</option>
 								<option value="EMAIL">Email</option>
 								<option value="SMS">SMS</option>
-								<option value="PUSH">Push</option>
+								<option value="WhatsApp">WhatsApp</option>
 							</select>
 						</div>
 					</div>

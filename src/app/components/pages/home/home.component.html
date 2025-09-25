@@ -14,7 +14,8 @@
       [collapsed]="sidebarCollapsed"
       (collapsedChange)="onSidebarCollapsedChange($event)"
       (viewChange)="onViewChange($event)"
-      (listSelected)="onListSelected($event)"></app-sidebar>
+      (listSelected)="onListSelected($event)"
+      (folderSelected)="onFolderSelected($event)"></app-sidebar>
     <div class="main-content">
       <!-- Main Views -->
       <app-start *ngIf="currentView === 'start'"></app-start>
@@ -27,6 +28,7 @@
         [espacioIdentificador]="selectedList?.espacioIdentificador"
         [carpetaIdentificador]="selectedList?.carpetaIdentificador">
       </app-task>
+      <app-folder *ngIf="currentView === 'folder-view'" [folder]="selectedFolder"></app-folder>
     </div>
   </div>
 </div>

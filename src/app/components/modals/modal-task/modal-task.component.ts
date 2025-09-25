@@ -61,7 +61,13 @@ export class ModalTaskComponent implements OnChanges {
 
   saveNewTask() {
     if (!this.task || !this.isCreateMode) return;
-    this.createTask.emit(this.task);
+
+    const taskToCreate: Task = { ...this.task };
+    if (!taskToCreate.fechaCreacionTarea) {
+      taskToCreate.fechaCreacionTarea = new Date().toISOString().split('T')[0];
+    }
+
+    this.createTask.emit(taskToCreate);
     this.close.emit();
   }
 
@@ -91,7 +97,7 @@ export class ModalTaskComponent implements OnChanges {
       listaIdentificador: this.task.listaIdentificador,
       espacioTrabajoIdentificador: this.task.espacioTrabajoIdentificador,
       // Extended fields
-      fechaCreacionTarea: this.task.fechaCreacionTarea,
+      fechaCreacionTarea: this.task.fechaCreacionTarea || new Date().toISOString().split('T')[0],
       fechaCerrada: this.task.fechaCerrada,
       fechaTerminada: this.task.fechaTerminada,
       facturable: this.task.facturable,

@@ -14,12 +14,12 @@
         </span>
         <span class="breadcrumb-separator" *ngIf="getCarpetaName()">/</span>
         <span class="breadcrumb-item" *ngIf="getCarpetaName()">
-          <i class="me-1" [ngClass]="getFolderIcon()"></i>
+          <i class="me-1 bi bi-folder-fill"></i>
           {{ getCarpetaName() }}
         </span>
         <span class="breadcrumb-separator">/</span>
         <span class="breadcrumb-item current">
-          <i class="me-1" [ngClass]="getListIcon()"></i>
+          <i class="me-1 bi bi-list-ul"></i>
           {{ list?.nombre }}
         </span>
       </div>

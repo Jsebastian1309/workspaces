@@ -1,0 +1,98 @@
+<div class="task-container">
+  <div class="main-header">
+    <!-- Breadcrumb navigation -->
+    <div class="breadcrumb-section">
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">
+          <i class="me-1" [ngClass]="folder?.workspaceIcon"></i>
+          {{ folder?.espacioTrabajoNombre }}
+        </span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item">
+          <i class="me-1" [ngClass]="folder?.spaceIcon"></i>
+          {{ folder?.espacioNombre }}
+        </span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item current">
+          <i class="me-1 bi bi-folder-fill"></i>
+          {{ folder?.nombre }}
+        </span>
+      </div>
+    </div>
+    <hr>
+    <!-- Control view -->
+    <div class="header-controls">
+      <div class="view-selector">
+        <button
+          [ngClass]="{ 'view-btn': true, 'active': currentView === 'list' }"
+          (click)="setView('list')">
+          <i class="bi bi-list"></i>
+          <span class="view-label">List</span>
+        </button>
+        <button
+          [ngClass]="{ 'view-btn': true, 'active': currentView === 'board' }"
+          (click)="setView('board')">
+          <i class="bi bi-clipboard-fill"></i>
+          <span class="view-label">Board</span>
+        </button>
+        <button
+          [ngClass]="{ 'view-btn': true, 'active': currentView === 'gantt' }"
+          (click)="setView('gantt')">
+          <i class="bi bi-kanban"></i>
+          <span class="view-label">Gantt</span>
+        </button>
+        <button
+          [ngClass]="{ 'view-btn': true, 'active': currentView === 'calendar' }"
+          (click)="setView('calendar')">
+          <i class="bi bi-calendar"></i>
+          <span class="view-label">Calendar</span>
+        </button>
+      </div>
+
+      <!-- Buttons additional -->
+      <div class="action-buttons">
+        <button class="btn-search" title="Search">
+          <i class="bi bi-search"></i> </button>
+        <button class="btn-filter" title="Filter">
+          <i class="bi bi-filter"></i>
+        </button>
+        <button class="btn-customize" title="Customize">
+          <i class="bi bi-gear"></i>
+        </button>
+        <button class="btn-add-task" (click)="addNewList()">
+          <span class="icon">+</span>
+          Add List
+        </button>
+      </div>
+    </div>
+  </div>
+  <hr>
+
+  <div *ngIf="isLoading" class="loading-indicator">
+    <p>Loading...</p>
+  </div>
+
+  <div *ngIf="!isLoading && listsWithTasks.length > 0" class="view-content">
+    <div [ngSwitch]="currentView">
+      <div *ngSwitchCase="'list'">
+        <div *ngFor="let list of listsWithTasks" class="list-section">
+          <h4>{{ list.nombre }}</h4>
+          <app-list-view [tasks]="list.tasks"></app-list-view>
+        </div>
+      </div>
+      <div *ngSwitchCase="'board'">
+        <app-board-view [tasks]="getAllTasks()"></app-board-view>
+      </div>
+      <div *ngSwitchCase="'gantt'">
+        <app-gant-view [tasks]="getAllTasks()"></app-gant-view>
+      </div>
+      <div *ngSwitchCase="'calendar'">
+        <app-calendar-view [tasks]="getAllTasks()"></app-calendar-view>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && listsWithTasks.length === 0" class="empty-state">
+    <p>This folder has no lists or tasks.</p>
+  </div>
+</div>

@@ -36,6 +36,12 @@ export class TemplateStatusService {
     .pipe(map(() => ({ identificador: templateData.identificador })));
   }
 
+  // Get a single template status by ID
+  getTemplateStatusById(templateId: string): Observable<any> {
+    const headers = this.authService.createHeaders();
+    return this.http.get<any>(`${this.apiUrl}${this.baseUrl}/${templateId}`, { headers });
+  }
+
   // Edit an existing template status
   editTemplateStatus(templateId: string, template: any): Observable<any> {
     const headers = this.authService.createHeaders();

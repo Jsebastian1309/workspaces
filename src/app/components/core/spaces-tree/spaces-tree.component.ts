@@ -45,6 +45,7 @@ export class SpacesTreeComponent implements OnInit {
   @Input() SelectedWorkspace: any;
   @Input() compact = false;
   @Output() listSelected = new EventEmitter<any>();
+  @Output() folderSelected = new EventEmitter<any>();
 
   treeControl = new NestedTreeControl<SpaceNode>(node => node.folders || node.lists || []);
   dataSource = new MatTreeNestedDataSource<SpaceNode>();
@@ -341,6 +342,16 @@ export class SpacesTreeComponent implements OnInit {
       const payload: any = { ...node, ...extras };
       console.log('Lista seleccionada enriquecida:', payload);
       this.listSelected.emit(payload);
+    } else if (node.tipo === 'folder') {
+      const parentSpace = this.getParentSpaceOfFolder(node);
+      const extras = {
+        espacioTrabajoNombre: this.SelectedWorkspace?.nombre,
+        espacioNombre: parentSpace?.nombre,
+        espacioTrabajoIcono: this.SelectedWorkspace?.icono,
+        espacioIcono: parentSpace?.icono,
+      };
+      const payload = { ...node, ...extras };
+      this.folderSelected.emit(payload);
     }
   }
 

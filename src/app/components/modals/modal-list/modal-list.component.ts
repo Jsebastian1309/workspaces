@@ -4,6 +4,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from 'src/app/service/core/auth/auth.service';
 import { ListService } from 'src/app/service/features/list/list.service';
 import { TemplateStatusService } from 'src/app/service/features/template/status/template-status.service';
+import { TemplateStatusDetailService } from 'src/app/service/features/template/status/template-statusdetail.service';
 
 @Component({
   selector: 'app-modal-list',
@@ -20,13 +21,15 @@ export class ModalListComponent implements OnInit {
 
   listForm: FormGroup;
   templates: any[] = [];
+  selectedTemplateStates: any[] = [];
 
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
     private listService: ListService,
     private authService: AuthService,
-    private templateStatusService: TemplateStatusService
+    private templateStatusService: TemplateStatusService,
+    private templateStatusDetailService: TemplateStatusDetailService
   ) {
     this.listForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -40,11 +43,8 @@ export class ModalListComponent implements OnInit {
   ngOnInit(): void {
     this.templateStatusService.listTemplateStatus().subscribe({
       next: (list) => {
+        console.log('Templates cargados:', list);
         this.templates = Array.isArray(list) ? list : [];
-        const first = this.templates[0]?.identificador || null;
-        if (first && !this.listForm.get('templateEstadoIdentificador')?.value) {
-          this.listForm.patchValue({ templateEstadoIdentificador: first });
-        }
       },
       error: (e) => console.error('Error cargando templates de estado', e)
     });
@@ -59,7 +59,46 @@ export class ModalListComponent implements OnInit {
         estado: l.estado || 'Activo',
         templateEstadoIdentificador: l.templateEstadoIdentificador || null
       });
+
+      if (l.templateEstadoIdentificador) {
+        this.loadTemplateStates(l.templateEstadoIdentificador);
+      }
     }
+  }
+
+  onTemplateSelected(templateId: string): void {
+    console.log('Valor crudo recibido:', templateId);
+    console.log('Tipo del valor:', typeof templateId);
+    
+    // Si el valor contiene ":" significa que viene con formato "id: identificador"
+    let cleanTemplateId = templateId;
+    if (templateId && templateId.includes(':')) {
+      // Extraer solo la parte después de los dos puntos y el espacio
+      cleanTemplateId = templateId.split(': ')[1] || templateId;
+      console.log('Valor limpio extraído:', cleanTemplateId);
+    }
+    
+    if (cleanTemplateId && cleanTemplateId !== 'null') {
+      this.loadTemplateStates(cleanTemplateId);
+    } else {
+      this.selectedTemplateStates = [];
+    }
+  }
+
+  private loadTemplateStates(templateId: string): void {
+    console.log('Cargando estados para template:', templateId);
+    this.templateStatusDetailService.listTemplateStatusDetails(templateId).subscribe({
+      next: (rows) => {
+        console.log('Respuesta cruda del backend:', rows);
+        const arr = Array.isArray(rows) ? rows : [];
+        this.selectedTemplateStates = arr.sort((a, b) => (a.secuencia ?? 0) - (b.secuencia ?? 0));
+        console.log('Estados procesados y ordenados:', this.selectedTemplateStates);
+      },
+      error: (e) => {
+        console.error('Error cargando estados del template', e);
+        this.selectedTemplateStates = [];
+      }
+    });
   }
 
   private generateListId(nombre: string): string {

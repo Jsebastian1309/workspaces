@@ -62,6 +62,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ModalTemplateStatusDetailsComponent } from './components/modals/modal-template-status-details/modal-template-status-details.component';
 import { ganttConfigFactory, GanttConfigService } from './service/core/utils/ganttConfig.service';
 import { ModalTemplateTaskDetailsComponent } from './components/modals/modal-template-task-details/modal-template-task-details.component';
+import { FolderComponent } from './components/views/folder/folder.component';
 
 
 @NgModule({
@@ -101,7 +102,8 @@ import { ModalTemplateTaskDetailsComponent } from './components/modals/modal-tem
     ModalTemplateTaskComponent,
     BoardViewComponent,
     ModalTemplateStatusDetailsComponent,
-    ModalTemplateTaskDetailsComponent
+    ModalTemplateTaskDetailsComponent,
+    FolderComponent,
   ],
   imports: [
     BrowserModule,

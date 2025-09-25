@@ -100,7 +100,7 @@
     <span class="section-title" *ngIf="!collapsed" translate>Favorites</span>
   </div>
   <app-spaces-tree [SelectedWorkspace]="selectedspace" [compact]="collapsed"
-    (listSelected)="onListSelected($event)"></app-spaces-tree>
+    (listSelected)="onListSelected($event)" (folderSelected)="onFolderSelected($event)"></app-spaces-tree>
   <div class="sidebar-footer">
     <button class="invite-btn" *ngIf="!collapsed" translate>Invite</button>
     <button class="help-btn" *ngIf="!collapsed" translate>Help</button>

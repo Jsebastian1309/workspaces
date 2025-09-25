@@ -12,6 +12,7 @@ export class HomeComponent {
   selectedWorkspace: any = null;
   currentView = 'start';
   selectedList: any = null;
+  selectedFolder: any = null;
   sidebarCollapsed = false;
 
   constructor(private workspaceService: WorkspaceService) {}
@@ -23,6 +24,7 @@ export class HomeComponent {
     this.currentView = view;
     if (view === 'start') {
       this.selectedList = null;
+      this.selectedFolder = null;
     }
   }
 
@@ -35,7 +37,15 @@ export class HomeComponent {
       espacioTrabajoIdentificador: list?.espacioTrabajoIdentificador
     });
     this.selectedList = list;
+    this.selectedFolder = null; // Clear folder selection
     this.currentView = 'list-view';
+  }
+
+  onFolderSelected(folder: any) {
+    console.log('Folder selected in Home:', folder);
+    this.selectedFolder = folder;
+    this.selectedList = null; // Clear list selection
+    this.currentView = 'folder-view'; // A new view for folders
   }
 
   loadWorkspaces() {

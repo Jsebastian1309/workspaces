@@ -27,15 +27,13 @@
 						<thead class="table-light">
 							<tr>
 								<th>Name</th>
-								<th>Status</th>
 								<th>Priority</th>
-								<th>Due</th>
+								<th>Duration (h)</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr *ngFor="let t of templatePreview">
 								<td>{{ t.nombre }}</td>
-								<td>{{ getStatusLabel(t.estado) }}</td>
 								<td>{{ t.prioridad || '—' }}</td>
 								<td>{{ t.fechaVencimiento || '—' }}</td>
 							</tr>

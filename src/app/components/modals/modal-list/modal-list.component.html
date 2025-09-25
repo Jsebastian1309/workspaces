@@ -1,42 +1,65 @@
 <div class="modal-header">
-	<h4 class="modal-title">{{ title }}</h4>
+	<h4 class="	-title">{{ title }}</h4>
 	<button type="button" class="btn btn-icon" aria-label="Close" (click)="onCancel()">
 		<i class="bi bi-x-lg" aria-hidden="true"></i>
 	</button>
 </div>
 
 <div class="modal-body">
-	<form [formGroup]="listForm" (ngSubmit)="onSubmit()">
-		<div class="mb-3">
-			<label for="nombre" class="form-label">List name *</label>
-			<input id="nombre" type="text" class="form-control" formControlName="nombre"
-						 [class.is-invalid]="hasError('nombre')" placeholder="Ej: To-Do" />
-			<div class="invalid-feedback" *ngIf="hasError('nombre', 'required')">Required</div>
-			<div class="invalid-feedback" *ngIf="hasError('nombre', 'minlength')">Min 3 characters</div>
-		</div>
-
-		<div class="mb-3">
-			<label for="descripcion" class="form-label">Description</label>
-			<textarea id="descripcion" rows="3" class="form-control" formControlName="descripcion"
-								placeholder="Brief description..."></textarea>
-		</div>
-
-			<!-- Selector de Template de Estados (desde backend) -->
+	<div class="modal-content-wrapper">
+		<form [formGroup]="listForm" (ngSubmit)="onSubmit()">
 			<div class="mb-3">
-				<label for="templateEstadoIdentificador" class="form-label">Template de Estados *</label>
-				<select id="templateEstadoIdentificador" class="form-select" formControlName="templateEstadoIdentificador">
-					<option [ngValue]="null">Seleccione...</option>
-					<option *ngFor="let t of templates" [ngValue]="t.identificador">{{ t.nombre }}</option>
-				</select>
-				<div class="invalid-feedback d-block" *ngIf="hasError('templateEstadoIdentificador', 'required')">Requerido</div>
-				<div class="form-text">Elige un template para que las tareas de la lista usen esos estados.</div>
+				<label for="nombre" class="form-label">List name *</label>
+				<input id="nombre" type="text" class="form-control" formControlName="nombre"
+							 [class.is-invalid]="hasError('nombre')" placeholder="Ej: To-Do" />
+				<div class="invalid-feedback" *ngIf="hasError('nombre', 'required')">Required</div>
+				<div class="invalid-feedback" *ngIf="hasError('nombre', 'minlength')">Min 3 characters</div>
 			</div>
 
-		<div class="mb-3 form-check">
-			<input id="publico" type="checkbox" class="form-check-input" formControlName="publico" />
-			<label for="publico" class="form-check-label">Public list</label>
-		</div>
-	</form>
+			<div class="mb-3">
+				<label for="descripcion" class="form-label">Description</label>
+				<textarea id="descripcion" rows="3" class="form-control" formControlName="descripcion"
+									placeholder="Brief description..."></textarea>
+			</div>
+
+				<!-- Selector de Template de Estados (desde backend) -->
+				<div class="mb-3">
+					<label for="templateEstadoIdentificador" class="form-label">Status template *</label>
+					<select id="templateEstadoIdentificador" class="form-select" formControlName="templateEstadoIdentificador" (change)="onTemplateSelected($any($event.target).value)">
+						<option translate [ngValue]="null">Select</option>
+						<option *ngFor="let t of templates" [ngValue]="t.identificador">{{ t.nombre }}</option>
+					</select>
+					<div class="invalid-feedback d-block" *ngIf="hasError('templateEstadoIdentificador', 'required')">Required</div>
+					<div class="form-text">Choose a template for the tasks in the list to use those statuses.</div>
+				</div>
+
+				<!-- Vista previa de los estados del template seleccionado -->
+				<div class="mb-3">
+					<label class="form-label">Preview of statuses:</label>
+					<div class="debug-info mb-2">
+						<small class="text-muted">Estados encontrados: {{ selectedTemplateStates.length }}</small>
+					</div>
+					<div *ngIf="selectedTemplateStates.length > 0" class="states-preview">
+						<div class="row g-2">
+							<div *ngFor="let estado of selectedTemplateStates" class="col-auto">
+								<div class="state-item d-flex align-items-center">
+									<span class="color-indicator me-2" [style.backgroundColor]="estado.color"></span>
+									<span class="state-name">{{ estado.nombre }}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div *ngIf="selectedTemplateStates.length === 0" class="text-muted">
+						<small>No hay estados para mostrar</small>
+					</div>
+				</div>
+
+			<div class="mb-3 form-check">
+				<input id="publico" type="checkbox" class="form-check-input" formControlName="publico" />
+				<label for="publico" class="form-check-label">Public list</label>
+			</div>
+		</form>
+	</div>
 </div>
 
 <div class="modal-footer">

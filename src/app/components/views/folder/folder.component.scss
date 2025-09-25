@@ -1,0 +1,161 @@
+.task-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-color);
+}
+
+.main-header {
+  padding: 10px 5px;
+}
+
+.breadcrumb-section {
+  padding: 0 15px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumb-item .icon {
+  font-size: 16px;
+}
+
+.breadcrumb-item.current {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.breadcrumb-separator {
+  color: var(--text-color);
+  margin: 0 4px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: var(--background-color);
+  color: var(--text-color);
+  padding: 0 15px;
+}
+
+.view-selector {
+  display: flex;
+  gap: 2px;
+  background: var(--background-color);
+  color: var(--text-color);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.view-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.view-btn.active {
+  background: var(--select-bg);
+}
+
+.view-btn .view-icon {
+  font-size: 14px;
+}
+
+.view-btn .view-label {
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-search,
+.btn-filter,
+.btn-customize {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-search .icon,
+.btn-filter .icon,
+.btn-customize .icon {
+  font-size: 14px;
+}
+
+.btn-add-task {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #6A4CFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-add-task .icon {
+  font-size: 14px;
+}
+
+.view-content {
+  flex: 1;
+  overflow: auto;
+  padding: 15px;
+}
+
+.list-section {
+  margin-bottom: 20px;
+}
+
+.list-section h4 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.loading-indicator,
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--text-color);
+}

@@ -18,6 +18,7 @@ export class SidebarComponent implements OnInit {
   @Input() collapsed = false;
   @Output() viewChange = new EventEmitter<string>();
   @Output() listSelected = new EventEmitter<any>();
+  @Output() folderSelected = new EventEmitter<any>();
   @Output() collapsedChange = new EventEmitter<boolean>();
 
   spacesWork: any[] = [];
@@ -60,6 +61,10 @@ export class SidebarComponent implements OnInit {
   // Emitir el espacios de trabajo seleccionado
   onListSelected(list: any) {
     this.listSelected.emit(list);
+  }
+
+  onFolderSelected(folder: any) {
+    this.folderSelected.emit(folder);
   }
 
   // Abrir el modal de información
